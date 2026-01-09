@@ -1,14 +1,15 @@
 
-import abc
 from pathlib import Path
-from typing import Literal, get_type_hints, overload, ClassVar, Generic, TypeVar, Any
 
+import abc
 import h5py
 import numpy as np
 import polars as pl
+from numpy.core.numerictypes import issubdtype
+from typing import Literal, get_type_hints, overload, ClassVar, Generic, TypeVar, Any
+
 from neuralib.util.unstable import unstable
 from neuralib.util.verbose import fprint
-from numpy.core.numerictypes import issubdtype
 
 __all__ = [
     'H5pyData', 'attr', 'group', 'array', 'table'

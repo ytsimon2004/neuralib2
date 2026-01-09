@@ -1,12 +1,11 @@
 import abc
 import functools
-from typing import Callable, ClassVar, cast, Union, Optional
-
 from bokeh.application import Application
 from bokeh.document import Document
 from bokeh.models import Model, GlyphRenderer
 from bokeh.plotting import figure
 from bokeh.server.server import Server
+from typing import Callable, ClassVar, cast, Union, Optional
 
 __all__ = ['Figure', 'View', 'ViewComponent', 'BokehServer']
 

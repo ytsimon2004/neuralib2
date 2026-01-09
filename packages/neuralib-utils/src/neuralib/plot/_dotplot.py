@@ -1,11 +1,11 @@
-from typing import Literal, ClassVar
-
 import matplotlib.colorbar
 import matplotlib.colors as mcolors
 import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
 from matplotlib.cm import ScalarMappable
+from typing import Literal, ClassVar
+
 from neuralib.plot import plot_figure, ax_merge
 from neuralib.typing import ArrayLike
 from neuralib.typing import PathLike

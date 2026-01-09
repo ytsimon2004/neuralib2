@@ -1,12 +1,12 @@
-from io import BufferedIOBase, BufferedReader
 from pathlib import Path
-from typing import TypeVar, Union, BinaryIO, Sequence
 
 import numpy as np
 import pandas as pd
 import polars as pl
+from io import BufferedIOBase, BufferedReader
 from matplotlib.axes import Axes
 from numpy.typing import NDArray
+from typing import TypeVar, Union, BinaryIO, Sequence
 
 __all__ = [
     'ArrayLike',

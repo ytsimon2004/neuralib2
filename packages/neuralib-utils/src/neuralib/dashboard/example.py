@@ -1,5 +1,4 @@
 import random
-
 from bokeh.model import Model
 from bokeh.models import ColumnDataSource, GlyphRenderer
 from bokeh.plotting import figure

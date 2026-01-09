@@ -1,5 +1,6 @@
-import abc
 from pathlib import Path
+
+import abc
 from typing import Generic, TypeVar, get_origin, get_args
 
 from argclz import argument, copy_argument

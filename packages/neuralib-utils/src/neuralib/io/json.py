@@ -1,8 +1,8 @@
-import json
 from pathlib import Path
-from typing import Any
 
+import json
 import numpy as np
+from typing import Any
 
 from neuralib.typing import PathLike
 from neuralib.util.verbose import print_save, print_load

@@ -129,13 +129,13 @@ you need to define a classmethod `from_dict` for creating that persistance class
 
 """
 
+from pathlib import Path
+
 import abc
 import inspect
 import sys
-from pathlib import Path
 from typing import Type, TypeVar, Union, Callable, Generic, Any, Iterator, get_type_hints
 
-import numpy as np
 from neuralib.util.func import create_fn
 
 __all__ = [
@@ -224,7 +224,7 @@ class PersistentField(Generic[T]):
     def __set_name__(self, owner: Type, name: str):
         self.field_name = name
         if self.autoinc:
-            if (field_type := get_type_hints(owner).get(name, Any)) != int:
+            if (field_type := get_type_hints(owner).get(name, Any)) is not int:
                 raise RuntimeError(f'type of autoinc field {name} should be int, but {field_type}')
         else:
             self.field_type = get_type_hints(owner).get(name, Any)
@@ -760,7 +760,7 @@ class PersistenceHandler(Generic[T], metaclass=abc.ABCMeta):
 
         >>> template = Example(use_animal='A00', use_session='test', use_date='20200101')
         >>> # find all animal A00's persistent result.
-        >>> found = PickleHandler(Example, Path('.')).load_all(template, use_date=missing)
+        >>> found = PickleHandler(Example, Path('')).load_all(template, use_date=missing)
 
         """
         for file in self.save_root.glob(self.filename(result, **kwargs)):

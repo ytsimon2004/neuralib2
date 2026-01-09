@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import Literal, Callable, Sequence
 
 import matplotlib.colors as mcolors
 import numpy as np
@@ -7,11 +6,12 @@ import seaborn as sns
 from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
 from matplotlib.patches import Polygon
+from typing import Literal, Callable, Sequence
+
 from neuralib.plot._dotplot import DotPlot
 from neuralib.typing import ArrayLikeStr, ArrayLike
 from neuralib.typing import PathLike, DataFrame
 from neuralib.util.verbose import fprint
-from scipy.stats import pearsonr
 
 __all__ = [
     'dotplot',
@@ -143,6 +143,8 @@ def scatter_histplot(x: np.ndarray,
     :param kwargs: additional args pass through ``ax.set()``
     :return:
     """
+    from scipy.stats import pearsonr
+
     sns.set_theme(style='white', font_scale=1.2)
 
     g = sns.JointGrid(x=x, y=y, height=5)
@@ -198,6 +200,7 @@ def scatter_binx_plot(ax: Axes,
     :return:
     """
     import seaborn as sns
+    from scipy.stats import pearsonr
 
     sns.regplot(
         x=x,

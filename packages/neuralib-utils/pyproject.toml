@@ -1,0 +1,77 @@
+[project]
+name = "neuralib-utils"
+version = "0.7.0"
+requires-python = ">=3.11,<3.13"
+description = "Utilities for neuralib"
+authors = [
+    { name = "Yu-Ting Wei", email = "ytsimon2004@gmail.com" },
+    { name = "Ta-Shun Su", email = "antoniost29@gmail.com" }
+]
+license = { file = "LICENSE" }
+readme = "README.md"
+keywords = ["Utilies"]
+classifiers = [
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "License :: OSI Approved :: BSD License",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering",
+    'Intended Audience :: Science/Research',
+    "Typing :: Typed",
+]
+
+dependencies = [
+    "attrs>=25.3.0",
+    "numpy>=2.0",
+    "scipy",
+    "pandas",
+    "polars",
+    "pyarrow",
+    "h5py",
+    "rich",
+    "tqdm",
+    "typing_extensions",
+]
+
+
+[project.optional-dependencies]
+
+dashboard = ["bokeh"]
+
+plot = [
+    "seaborn>=0.13.2",
+    "matplotlib_venn>=1.1.2",
+    "matplotlib>=3.10.3"
+]
+
+opt = [
+    "colorama>=0.4.6",
+    "gspread",
+    "slackclient",
+    "psutil",
+    "opencv-python",
+    "scikit-image",
+    "tiffile"
+]
+
+all = [
+    "neuralib-utils[dashboard]",
+    "neuralib-utils[plot]",
+    "neuralib-utils[opt]"
+]
+
+
+[project.urls]
+Homepage = "https://github.com/ytsimon2004/neuralib"
+Documentation = "https://neuralib.readthedocs.io/en/latest/index.html"
+Repository = "https://github.com/ytsimon2004/neuralib"
+Issues = "https://github.com/ytsimon2004/neuralib/issues"
+
+
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = ["setuptools>=61.0"]
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,14 +1,13 @@
 import contextlib
 import functools
-import textwrap
-from typing import Union, ContextManager, Dict, Optional, List, Tuple
-
 import pandas as pd
 import polars as pl
 import rich
+import textwrap
 from rich import box
 from rich.console import Console, Capture
 from rich.table import Table, Column
+from typing import Union, ContextManager, Dict, Optional, List, Tuple
 
 __all__ = [
     'Column',

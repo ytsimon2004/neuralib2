@@ -1,14 +1,14 @@
 
-import platform
-from contextlib import contextmanager
 from pathlib import Path
-from typing import Literal, ContextManager
 
 import matplotlib
 import numpy as np
+import platform
+from contextlib import contextmanager
 from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
 from numpy.typing import NDArray
+from typing import Literal, ContextManager
 
 __all__ = ['plot_figure',
            'ax_set_default_style',

@@ -1,7 +1,7 @@
+import numpy as np
 from collections.abc import Callable
 from typing import Literal, Union, Iterable
 
-import numpy as np
 from neuralib.typing import ArrayLike
 
 __all__ = [
