@@ -9,7 +9,7 @@ from scipy.interpolate import interp1d
 from typing import NamedTuple, Literal
 from typing import Self
 
-from neuralib.model.rastermap import RasterMapResult
+from neuralib.rastermap import RasterMapResult
 from neuralib.plot import plot_figure
 from neuralib.typing import PathLike
 
