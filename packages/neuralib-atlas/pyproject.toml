@@ -1,0 +1,49 @@
+[project]
+name = "neuralib-atlas"
+version = "0.7.0"
+requires-python = ">=3.11,<3.13"
+description = "Parsers for neuralib (segmentation, morphology)"
+authors = [
+    { name = "Yu-Ting Wei", email = "ytsimon2004@gmail.com" },
+    { name = "Ta-Shun Su", email = "antoniost29@gmail.com" }
+]
+license = { text = "BSD-3-Clause" }
+readme = "README.md"
+keywords = ["Parser", "Segmentation", "Morphology"]
+classifiers = [
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "License :: OSI Approved :: BSD License",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering",
+    'Intended Audience :: Science/Research',
+    "Typing :: Typed",
+]
+
+dependencies = [
+    "neuralib-utils>=0.7.0",
+    "brainrender",
+    "pynrrd",
+    "openpyxl",
+    "anytree",
+    "plotly",
+    "fastexcel"
+]
+
+[project.optional-dependencies]
+
+all = []
+
+[project.urls]
+Homepage = "https://github.com/ytsimon2004/neuralib"
+Documentation = "https://neuralib.readthedocs.io/en/latest/index.html"
+Repository = "https://github.com/ytsimon2004/neuralib"
+Issues = "https://github.com/ytsimon2004/neuralib/issues"
+
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = ["setuptools>=61.0"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
