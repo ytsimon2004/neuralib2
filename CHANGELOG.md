@@ -23,6 +23,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated ReadTheDocs configuration to Python 3.11
 - Updated GitHub Actions workflows to Python 3.11
 
-[Unreleased]: https://github.com/ytsimon2004/neuralib/compare/v0.6.0...HEAD
+## [Before 0.6.0] - Early releases
+
+- Check [GitHub releases](https://github.com/ytsimon2004/neuralib/releases) for changelog entries
 
 [0.6.0]: https://github.com/ytsimon2004/neuralib/compare/v0.5.6...v0.6.0
+
+[Before 0.6.0]: https://github.com/ytsimon2004/neuralib/releases

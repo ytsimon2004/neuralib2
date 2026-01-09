@@ -1,15 +1,15 @@
 [project]
-name = "neuralib-utils"
+name = "neuralib-parser"
 version = "0.7.0"
 requires-python = ">=3.11,<3.13"
-description = "Utilities for neuralib"
+description = "Parsers for neuralib (segmentation, morphology)"
 authors = [
     { name = "Yu-Ting Wei", email = "ytsimon2004@gmail.com" },
     { name = "Ta-Shun Su", email = "antoniost29@gmail.com" }
 ]
-license = { file = "LICENSE" }
+license = { text = "BSD-3-Clause" }
 readme = "README.md"
-keywords = ["Utilies"]
+keywords = ["Parser", "Segmentation", "Morphology"]
 classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -22,53 +22,29 @@ classifiers = [
 ]
 
 dependencies = [
-    "attrs>=25.3.0",
-    "numpy>=2.0",
-    "scipy",
-    "pandas",
-    "polars",
-    "pyarrow",
-    "h5py",
-    "rich",
-    "tqdm",
-    "typing_extensions",
-    "gdown"
+    "neuralib-utils>=0.7.0",
+    "numpy",
 ]
-
 
 [project.optional-dependencies]
 
-dashboard = ["bokeh"]
-
-plot = [
-    "seaborn>=0.13.2",
-    "matplotlib_venn>=1.1.2",
-    "matplotlib>=3.10.3"
-]
-
-opt = [
-    "colorama>=0.4.6",
-    "gspread",
-    "slackclient",
-    "psutil",
-    "opencv-python",
-    "scikit-image",
-    "tiffile"
-]
+stardist = ["stardist", "roifile", "tensorflow", "numpy<2.0; extra == 'stardist'", "napari"]
+suite2p = ["neuralib-imaging>=0.7.0"]
+czi = ["aicspylibczi", "xmltodict"]
+sbx = ["sbxreader"]
 
 all = [
-    "neuralib-utils[dashboard]",
-    "neuralib-utils[plot]",
-    "neuralib-utils[opt]"
+    "neuralib-parser[stardist]",
+    "neuralib-parser[suite2p]",
+    "neuralib-parser[sbx]",
+    "tifffile"
 ]
-
 
 [project.urls]
 Homepage = "https://github.com/ytsimon2004/neuralib"
 Documentation = "https://neuralib.readthedocs.io/en/latest/index.html"
 Repository = "https://github.com/ytsimon2004/neuralib"
 Issues = "https://github.com/ytsimon2004/neuralib/issues"
-
 
 [build-system]
 build-backend = "setuptools.build_meta"

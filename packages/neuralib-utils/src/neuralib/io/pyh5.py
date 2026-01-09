@@ -1,11 +1,10 @@
-
 from pathlib import Path
 
 import abc
 import h5py
 import numpy as np
 import polars as pl
-from numpy.core.numerictypes import issubdtype
+from numpy import issubdtype
 from typing import Literal, get_type_hints, overload, ClassVar, Generic, TypeVar, Any
 
 from neuralib.util.unstable import unstable
