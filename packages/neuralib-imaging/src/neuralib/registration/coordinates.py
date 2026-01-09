@@ -3,8 +3,7 @@ from __future__ import annotations
 import attrs
 import numpy as np
 from matplotlib.patches import Polygon
-from typing import Self
-from typing import Sequence, Literal
+from typing import Sequence, Literal, Self
 
 from neuralib.util.unstable import unstable
 

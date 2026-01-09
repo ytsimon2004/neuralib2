@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 from tifffile import tifffile
 
-from neuralib.imaging.widefield import plot_retinotopic_maps, compute_singular_vector
+from neuralib.widefield import plot_retinotopic_maps, compute_singular_vector
 from neuralib.io.dataset import load_example_retinotopic_data
 
 

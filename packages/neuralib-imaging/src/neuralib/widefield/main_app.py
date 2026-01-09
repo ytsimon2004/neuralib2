@@ -1,5 +1,5 @@
 from argclz.commands import parse_command_args
-from neuralib.imaging.widefield.align import NapariAlignmentOptions
+from neuralib.widefield.align import NapariAlignmentOptions
 
 from .fft_view import WideFieldFFTViewOption
 

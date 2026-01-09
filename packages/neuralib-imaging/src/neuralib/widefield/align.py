@@ -1,5 +1,3 @@
-import napari
-
 from argclz import AbstractParser, argument
 from neuralib.io.dataset import load_example_dorsal_cortex
 
@@ -32,6 +30,8 @@ class NapariAlignmentOptions(AbstractParser):
     )
 
     def run(self):
+        import napari
+
         viewer = napari.Viewer()
         viewer.open(self.sequence_path)
 

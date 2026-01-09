@@ -3,7 +3,7 @@ import pytest
 from matplotlib import pyplot as plt
 from numpy.testing import assert_array_equal
 
-from neuralib.imaging.registration.coordinates import get_field_of_view, get_cellular_coordinate
+from neuralib.registration.coordinates import get_field_of_view, get_cellular_coordinate
 
 
 @pytest.fixture(scope='module')

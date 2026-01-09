@@ -9,7 +9,7 @@ import polars as pl
 from typing import Literal, TypedDict, final
 from typing import Self
 
-from neuralib.imaging.registration import CellularCoordinates, get_cellular_coordinate
+from neuralib.registration import CellularCoordinates, get_cellular_coordinate
 from neuralib.typing import PathLike
 from neuralib.util.verbose import fprint
 
