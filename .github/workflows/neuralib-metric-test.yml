@@ -5,11 +5,13 @@ on:
     branches: [ main, dev ]
     paths:
       - 'packages/neuralib-metric/**'
+      - 'packages/neuralib-utils/**'
       - '.github/workflows/neuralib-metric-test.yml'
   pull_request:
     branches: [ main, dev ]
     paths:
       - 'packages/neuralib-metric/**'
+      - 'packages/neuralib-utils/**'
       - '.github/workflows/neuralib-metric-test.yml'
   workflow_dispatch:
 

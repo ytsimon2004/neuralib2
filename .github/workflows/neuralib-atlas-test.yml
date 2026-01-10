@@ -5,11 +5,13 @@ on:
     branches: [ main, dev ]
     paths:
       - 'packages/neuralib-atlas/**'
+      - 'packages/neuralib-utils/**'
       - '.github/workflows/neuralib-atlas-test.yml'
   pull_request:
     branches: [ main, dev ]
     paths:
       - 'packages/neuralib-atlas/**'
+      - 'packages/neuralib-utils/**'
       - '.github/workflows/neuralib-atlas-test.yml'
   workflow_dispatch:
 

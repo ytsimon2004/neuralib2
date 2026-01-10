@@ -5,11 +5,13 @@ on:
     branches: [ main, dev ]
     paths:
       - 'packages/neuralib-parser/**'
+      - 'packages/neuralib-utils/**'
       - '.github/workflows/neuralib-parser-test.yml'
   pull_request:
     branches: [ main, dev ]
     paths:
       - 'packages/neuralib-parser/**'
+      - 'packages/neuralib-utils/**'
       - '.github/workflows/neuralib-parser-test.yml'
   workflow_dispatch:
 
@@ -40,7 +42,7 @@ jobs:
 
       - name: Install package with test dependencies
         run: |
-          uv pip install -e ".[all]"
+          uv pip install -e ".[test]"
           uv pip install pytest
 
       - name: Run unit tests

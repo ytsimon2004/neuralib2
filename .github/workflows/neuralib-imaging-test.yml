@@ -5,11 +5,13 @@ on:
     branches: [ main, dev ]
     paths:
       - 'packages/neuralib-imaging/**'
+      - 'packages/neuralib-utils/**'
       - '.github/workflows/neuralib-imaging-test.yml'
   pull_request:
     branches: [ main, dev ]
     paths:
       - 'packages/neuralib-imaging/**'
+      - 'packages/neuralib-utils/**'
       - '.github/workflows/neuralib-imaging-test.yml'
   workflow_dispatch:
 
