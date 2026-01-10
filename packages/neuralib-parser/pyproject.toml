@@ -24,6 +24,7 @@ classifiers = [
 dependencies = [
     "neuralib-utils[all]>=0.7.0",
     "numpy",
+    "argclz"
 ]
 
 [project.optional-dependencies]
