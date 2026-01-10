@@ -34,6 +34,9 @@ widefield = ["napari", "bokeh", "scikit-learn"]
 
 all = ["neuralib-imaging[cascade]", "neuralib-imaging[widefield]"]
 
+test = ["neuralib-imaging[all]", "neuralib-parser[all]"]
+
+
 [project.urls]
 Homepage = "https://github.com/ytsimon2004/neuralib2"
 Documentation = "https://neuralib2.readthedocs.io/en/latest/index.html"

@@ -1,0 +1,89 @@
+name: Publish neuralib-imaging to PyPI
+
+on:
+  push:
+    tags:
+      - "neuralib-imaging-v*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to publish (e.g., 0.7.0)'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  id-token: write  # Required for PyPI Trusted Publishing
+
+jobs:
+  build:
+    name: Build neuralib-imaging package
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: packages/neuralib-imaging
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python and uv
+        uses: astral-sh/setup-uv@v6.3.1
+        with:
+          python-version: "3.11"
+
+      - name: Verify version consistency
+        if: github.event_name == 'push'
+        run: |
+          TAG_VERSION="${GITHUB_REF#refs/tags/neuralib-imaging-v}"
+          PKG_VERSION=$(grep '^version = ' pyproject.toml | cut -d'"' -f2)
+          echo "Tag version: $TAG_VERSION"
+          echo "Package version: $PKG_VERSION"
+          if [ "$TAG_VERSION" != "$PKG_VERSION" ]; then
+            echo "Error: Tag version ($TAG_VERSION) does not match package version ($PKG_VERSION)"
+            exit 1
+          fi
+
+      - name: Build wheels and sdist
+        run: uv build --no-sources
+
+      - name: List built packages
+        run: ls -lh dist/
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: neuralib-imaging-dist
+          path: packages/neuralib-imaging/dist/
+          retention-days: 7
+
+  publish:
+    name: Publish to PyPI
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi-release
+      url: https://pypi.org/project/neuralib-imaging/
+
+    permissions:
+      id-token: write  # Required for Trusted Publishing
+
+    steps:
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6.3.1
+
+      - name: Download built packages
+        uses: actions/download-artifact@v4
+        with:
+          name: neuralib-imaging-dist
+          path: dist/
+
+      - name: Verify package contents
+        run: |
+          ls -lh dist/
+          echo "Publishing the following packages:"
+          ls dist/
+
+      - name: Publish to PyPI
+        run: uv publish --verbose dist/*

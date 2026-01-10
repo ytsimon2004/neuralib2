@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from neuralib.suite2p import Suite2PResult
     from neuralib.scanbox import SBXInfo
     from neuralib.facemap import FaceMapResult
-    from neuralib.model.rastermap import RasterMapResult
+    from neuralib.rastermap import RasterMapResult
     from neuralib.scan.czi import CziScanner
     from neuralib.scan.lsm import TiffScanner
 

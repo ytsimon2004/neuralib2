@@ -1,18 +1,11 @@
-# neuralib
+# neuralib2
 
-[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/neura-library)](https://pypi.org/project/neura-library/)
-[![PyPI version](https://badge.fury.io/py/neura-library.svg)](https://badge.fury.io/py/neura-library)
-[![Downloads](https://static.pepy.tech/badge/neura-library)](https://pepy.tech/project/neura-library)
+Utility toolkit for rodent systems neuroscience research
 
-[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
-[![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
-[![Documentation Status](https://readthedocs.org/projects/neuralib/badge/?version=latest)](https://neuralib.readthedocs.io/en/latest/)
+This module is the migration of the original [neuralib](https://github.com/ytsimon2004/neuralib), aim for splitting the
+all-in-one package into several packages,
+Aim for minimize the dependencies and make it to be case-specific installation.
 
-
----
-
-**neuralib** is a utility toolkit for rodent systems neuroscience research. It provides wrappers, parsers, and tools for
-efficient data handling, analysis, and reproducibility in open-source neuroscience workflows.
 
 ---
 
@@ -24,6 +17,15 @@ efficient data handling, analysis, and reproducibility in open-source neuroscien
 - Clean documentation and API reference
 
 ---
+
+## Packages & Installation
+
+[link to package readme]
+
+**neuralib-utils**
+
+- **neuralib.dashboard**:
+- **neuralib.imglib**
 
 ## Documentation
 

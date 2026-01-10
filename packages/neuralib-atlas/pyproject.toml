@@ -28,7 +28,8 @@ dependencies = [
     "openpyxl",
     "anytree",
     "plotly",
-    "fastexcel"
+    "fastexcel",
+    "argclz"
 ]
 
 [project.optional-dependencies]

@@ -9,9 +9,15 @@ import polars as pl
 from typing import Literal, TypedDict, final
 from typing import Self
 
-from neuralib.registration import CellularCoordinates, get_cellular_coordinate
 from neuralib.typing import PathLike
 from neuralib.util.verbose import fprint
+
+try:
+    from neuralib.registration import CellularCoordinates, get_cellular_coordinate
+except ModuleNotFoundError as e:
+    fprint('registration module not found, please install neuralib-imaging', vtype='warning')
+    raise e
+
 
 __all__ = [
     'SIGNAL_TYPE',

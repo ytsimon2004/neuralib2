@@ -1,9 +1,9 @@
 import numpy as np
 import pytest
 
-from neuralib.suite2p import get_neuron_signal
 from neuralib.io import NEUROLIB_DATASET_DIRECTORY
 from neuralib.io.dataset import load_example_suite2p_result
+from neuralib.suite2p import get_neuron_signal
 
 DATA_EXISTS = (NEUROLIB_DATASET_DIRECTORY / 's2p').exists()
 
@@ -16,11 +16,11 @@ def df_f() -> np.ndarray:
 
 @pytest.mark.skipif(not DATA_EXISTS, reason='no cached data')
 def test_oasis(df_f):
-    from neuralib.imaging.spikes import oasis_dcnv
+    from neuralib.spikes import oasis_dcnv
     oasis_dcnv(df_f, tau=1.15, fs=30)
 
 
 @pytest.mark.skipif(not DATA_EXISTS, reason='no cached data')
 def test_cascade(df_f):
-    from neuralib.imaging.spikes import cascade_predict
+    from neuralib.spikes import cascade_predict
     cascade_predict(df_f, model_type='Global_EXC_30Hz_smoothing100ms')
