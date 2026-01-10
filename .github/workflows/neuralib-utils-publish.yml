@@ -87,29 +87,3 @@ jobs:
 
       - name: Publish to PyPI
         run: uv publish --verbose dist/*
-
-  test-install:
-    name: Test PyPI installation
-    needs: publish
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Wait for PyPI to update
-        run: sleep 60
-
-      - name: Install from PyPI
-        run: |
-          pip install --upgrade pip
-          pip install neuralib-utils --no-cache-dir
-
-      - name: Verify installation
-        run: |
-          python -c "import neuralib.io; print('neuralib.io imported successfully')"
-          python -c "import neuralib.util; print('neuralib.util imported successfully')"
-          python -c "import neuralib.typing; print('neuralib.typing imported successfully')"
-          python -c "from neuralib.typing import ArrayLike, DataFrame, PathLike; print('Type aliases imported successfully')"

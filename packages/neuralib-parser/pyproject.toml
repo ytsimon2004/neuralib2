@@ -2,7 +2,7 @@
 name = "neuralib-parser"
 version = "0.7.0"
 requires-python = ">=3.11,<3.13"
-description = "Parsers for neuralib (segmentation, morphology)"
+description = "Parsers for output from open-source packages or specific devices"
 authors = [
     { name = "Yu-Ting Wei", email = "ytsimon2004@gmail.com" },
     { name = "Ta-Shun Su", email = "antoniost29@gmail.com" }
@@ -41,10 +41,10 @@ all = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/ytsimon2004/neuralib"
-Documentation = "https://neuralib.readthedocs.io/en/latest/index.html"
-Repository = "https://github.com/ytsimon2004/neuralib"
-Issues = "https://github.com/ytsimon2004/neuralib/issues"
+Homepage = "https://github.com/ytsimon2004/neuralib2"
+Documentation = "https://neuralib2.readthedocs.io/en/latest/index.html"
+Repository = "https://github.com/ytsimon2004/neuralib2"
+Issues = "https://github.com/ytsimon2004/neuralib2/issues"
 
 [build-system]
 build-backend = "setuptools.build_meta"
