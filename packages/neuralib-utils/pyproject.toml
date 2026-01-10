@@ -5,7 +5,6 @@ requires-python = ">=3.11,<3.13"
 description = "Utilities for neuralib"
 authors = [
     { name = "Yu-Ting Wei", email = "ytsimon2004@gmail.com" },
-    { name = "Ta-Shun Su", email = "antoniost29@gmail.com" }
 ]
 license = { file = "LICENSE" }
 readme = "README.md"
@@ -64,10 +63,10 @@ all = [
 
 
 [project.urls]
-Homepage = "https://github.com/ytsimon2004/neuralib"
-Documentation = "https://neuralib.readthedocs.io/en/latest/index.html"
-Repository = "https://github.com/ytsimon2004/neuralib"
-Issues = "https://github.com/ytsimon2004/neuralib/issues"
+Homepage = "https://github.com/ytsimon2004/neuralib2"
+Documentation = "https://neuralib2.readthedocs.io/en/latest/index.html"
+Repository = "https://github.com/ytsimon2004/neuralib2"
+Issues = "https://github.com/ytsimon2004/neuralib2/issues"
 
 
 [build-system]

@@ -2,10 +2,9 @@
 name = "neuralib-atlas"
 version = "0.7.0"
 requires-python = ">=3.11,<3.13"
-description = "Parsers for neuralib (segmentation, morphology)"
+description = "Tools for hierarchical representations of the mouse brain anatomy"
 authors = [
     { name = "Yu-Ting Wei", email = "ytsimon2004@gmail.com" },
-    { name = "Ta-Shun Su", email = "antoniost29@gmail.com" }
 ]
 license = { text = "BSD-3-Clause" }
 readme = "README.md"
@@ -47,3 +46,7 @@ requires = ["setuptools>=61.0"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+
+[project.scripts]
+nl_brainredner = "neuralib.atlas.brainrender.main_app:main"

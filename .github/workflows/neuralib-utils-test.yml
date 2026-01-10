@@ -1,0 +1,51 @@
+name: neuralib-utils Tests
+
+on:
+  push:
+    branches: [ main, dev ]
+    paths:
+      - 'packages/neuralib-utils/**'
+      - '.github/workflows/neuralib-utils-test.yml'
+  pull_request:
+    branches: [ main, dev ]
+    paths:
+      - 'packages/neuralib-utils/**'
+      - '.github/workflows/neuralib-utils-test.yml'
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Test Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [ "3.11", "3.12" ]
+
+    defaults:
+      run:
+        working-directory: packages/neuralib-utils
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install uv and set Python version
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Create virtual environment
+        run: uv venv .venv
+
+      - name: Install package with test dependencies
+        run: |
+          uv pip install -e ".[all]"
+          uv pip install pytest
+
+      - name: Run unit tests
+        env:
+          PYTHONPATH: test
+        run: |
+          source .venv/bin/activate
+          pytest test/unit -v
