@@ -68,70 +68,30 @@ pip install -e .  # if using conda env
 - Dependencies: `brainrender`, `pynrrd`, `openpyxl`, `anytree`, `plotly`, `fastexcel`
 - See `pyproject.toml` for full dependency list
 
-## Quick Start
-
-### Loading Atlas Data
-
-```python
-from neuralib.atlas.data import load_bg_structure_tree, load_bg_volumes
-
-# Load Allen CCF structure hierarchy
-structures = load_bg_structure_tree('allen_mouse_10um')
-
-# Load annotation and reference volumes
-annotation, reference = load_bg_volumes('allen_mouse_10um')
-```
-
-### 3D Brain Visualization
-
-```python
-from neuralib.atlas.brainrender import BrainRenderScene
-
-# Create a scene and add brain regions
-scene = BrainRenderScene()
-scene.add_brain_region(['VISp', 'VISl', 'VISal'], alpha=0.8)
-scene.render()
-```
-
-### CCF Dataframe Manipulation
-
-```python
-from neuralib.atlas.ccf import CCFDataFrame
-
-# Load CCF structure tree as DataFrame
-ccf = CCFDataFrame.from_brainglobe('allen_mouse_10um')
-
-# Query specific regions
-visual_cortex = ccf.filter_by_acronym(['VISp', 'VISl', 'VISal'])
-
-# Get all children of a region
-vis_children = ccf.get_children('VIS')
-```
-
 ## CLI Tools
 
 ### Render Brain Regions
 
 ```bash
 # Render visual cortex areas
-neuralib_brainrender area -R VISp,VISl,VISal,VISam
+nl_brainrender area -R VISp,VISl,VISal,VISam
 
 # Render with custom colors
-neuralib_brainrender area -R SSp,SSs --color red,blue
+nl_brainrender area -R SSp,SSs --color red,blue
 ```
 
 ### Render ROI from File
 
 ```bash
 # Visualize coordinates from experimental data
-neuralib_brainrender roi -F roi_coordinates.csv
+nl_brainrender roi -F roi_coordinates.csv
 ```
 
 ### Render Probe Placement
 
 ```bash
 # Display probe track with specified depth
-neuralib_brainrender probe -F probe_coords.csv --depth 3000
+nl_brainrender probe -F probe_coords.csv --depth 3000
 ```
 
 ## Documentation
@@ -140,28 +100,6 @@ neuralib_brainrender probe -F probe_coords.csv --depth 3000
 - **GitHub Repository**: [https://github.com/ytsimon2004/neuralib2](https://github.com/ytsimon2004/neuralib2)
 - **Issue Tracker**: [https://github.com/ytsimon2004/neuralib2/issues](https://github.com/ytsimon2004/neuralib/issues)
 
-## Related Packages
-
-`neuralib-atlas` is part of the neuralib ecosystem:
-
-- `neuralib-utils`: Core utilities and I/O functions (required dependency)
-- Other neuralib packages: imaging, segmentation, tracking, ephys
-
-## Development
-
-### Running Tests
-
-```bash
-pytest test/
-```
-
-### Code Style
-
-This package follows the neuralib coding conventions:
-
-- Ruff linter with 120-character line length
-- Type hints for public APIs
-- NumPy-style docstrings
 
 ## License
 
