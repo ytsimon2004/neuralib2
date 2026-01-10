@@ -23,7 +23,7 @@ classifiers = [
 dependencies = [
     "neuralib-utils[all]>=0.7.0",
     "numpy",
-    "numba",
+    "numba>=0.63",
     "matplotlib",
 ]
 

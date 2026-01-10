@@ -244,7 +244,7 @@ def load_example_suite2p_result(**kwargs) -> 'Suite2PResult':
 
 def load_example_rastermap_2p_result(**kwargs) -> 'RasterMapResult':
     """Load example rastermap 2P data"""
-    from neuralib.model.rastermap import read_rastermap
+    from neuralib.rastermap import read_rastermap
     with google_drive_file('1KSic4sXyF3hTgQbGijMpa3D3TGJUU097', **kwargs) as file:
         return read_rastermap(file)
 
@@ -298,7 +298,7 @@ def load_example_facemap_pupil(**kwargs) -> 'FaceMapResult':
 
 def load_example_facemap_keypoints(**kwargs) -> 'FaceMapResult':
     """Load example facemap keypoint data"""
-    from neuralib.tracking.facemap import read_facemap
+    from neuralib.facemap import read_facemap
     with google_drive_folder('1FWz70HE_hQuhE6K9hoO_y1OgeG11NsGM', **kwargs) as pupil_dir:
         return read_facemap(pupil_dir)
 

@@ -40,7 +40,7 @@ jobs:
 
       - name: Install package with test dependencies
         run: |
-          uv pip install -e ".[all]"
+          uv pip install -e ".[test]"
           uv pip install pytest
 
       - name: Run unit tests
