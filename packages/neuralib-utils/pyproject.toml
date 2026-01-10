@@ -56,9 +56,13 @@ opt = [
 ]
 
 all = [
-    "neuralib-utils[dashboard]",
     "neuralib-utils[plot]",
     "neuralib-utils[opt]"
+]
+
+test = [
+    "neuralib-utils[dashboard]",
+    "neuralib-utils[all]"
 ]
 
 

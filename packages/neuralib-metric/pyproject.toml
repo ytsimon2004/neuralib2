@@ -22,7 +22,7 @@ classifiers = [
 ]
 
 dependencies = [
-    "neuralib-utils>=0.7.0",
+    "neuralib-utils[all]>=0.7.0",
     "numpy",
     "numba"
 ]

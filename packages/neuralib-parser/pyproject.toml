@@ -22,7 +22,7 @@ classifiers = [
 ]
 
 dependencies = [
-    "neuralib-utils>=0.7.0",
+    "neuralib-utils[all]>=0.7.0",
     "numpy",
 ]
 
@@ -34,7 +34,6 @@ czi = ["aicspylibczi", "xmltodict"]
 sbx = ["sbxreader"]
 
 all = [
-    "neuralib-parser[stardist]",
     "neuralib-parser[suite2p]",
     "neuralib-parser[sbx]",
     "tifffile"

@@ -21,8 +21,9 @@ classifiers = [
 ]
 
 dependencies = [
-    "neuralib-utils>=0.7.0",
+    "neuralib-utils[all]>=0.7.0",
     "brainrender",
+    "numba>=0.63", # Override old numba from brainrender for Python 3.11+ support
     "pynrrd",
     "openpyxl",
     "anytree",

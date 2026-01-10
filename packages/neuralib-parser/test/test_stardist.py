@@ -7,8 +7,14 @@ from argclz.core import parse_args
 from neuralib.io import NEUROLIB_DATASET_DIRECTORY
 from neuralib.io.dataset import load_example_rois_image, load_example_rois_dir
 from neuralib.stardist.run_2d import StarDist2DOptions
+from importlib.metadata import version
+from packaging.version import parse as parse_version
+
+_NUMPY_VERSION = parse_version(version("numpy"))
+_STARDIST_UNSUPPORTED = _NUMPY_VERSION >= parse_version("2.0")
 
 
+@unittest.skipIf(_STARDIST_UNSUPPORTED, "stardist requires numpy<2.0")
 class TestStarDist(unittest.TestCase):
     arr: np.ndarray
     dirpath: Path
