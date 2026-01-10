@@ -85,3 +85,4 @@ Contributions are welcome! Please:
 3. Submit a pull request with clear description
 
 For bug reports and feature requests, use the [GitHub issue tracker](https://github.com/ytsimon2004/neuralib2/issues).
+
