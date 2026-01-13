@@ -22,19 +22,22 @@ classifiers = [
 
 dependencies = [
     "neuralib-utils[all]>=0.7.0",
-    "brainrender",
-    "numba>=0.63", # Override old numba from brainrender for Python 3.11+ support
     "pynrrd",
     "openpyxl",
     "anytree",
     "plotly",
     "fastexcel",
-    "argclz"
 ]
 
 [project.optional-dependencies]
 
-all = []
+brainrender = [
+    "brainrender",
+    "numba>=0.63", # Override old numba from brainrender for Python 3.11+ support
+    "argclz"
+]
+
+all = ["neuralib-atlas[brainrender]"]
 
 [project.urls]
 Homepage = "https://github.com/ytsimon2004/neuralib2"
@@ -51,4 +54,4 @@ where = ["src"]
 
 
 [project.scripts]
-nl_brainredner = "neuralib.atlas.brainrender.main_app:main"
+nl_brainrender = "neuralib.atlas.brainrender.main_app:main"

@@ -6,7 +6,7 @@ import unittest
 from argclz.core import parse_args
 from neuralib.io import NEUROLIB_DATASET_DIRECTORY
 from neuralib.io.dataset import load_example_rois_image, load_example_rois_dir
-from neuralib.stardist.run_2d import StarDist2DOptions
+
 from importlib.metadata import version
 from packaging.version import parse as parse_version
 
@@ -27,6 +27,7 @@ class TestStarDist(unittest.TestCase):
         cls.dirpath = load_example_rois_dir(cached=True, rename_folder='rois')
 
     def test_empty_option(self):
+        from neuralib.stardist.run_2d import StarDist2DOptions
         opt = parse_args(StarDist2DOptions(), [])
         with self.assertRaises(RuntimeError):
             opt.run()
