@@ -1,0 +1,15 @@
+# Documentation build dependencies
+sphinx>=7.0
+nbsphinx
+sphinx-toolbox
+sphinx-rtd-theme
+sphinx-prompt
+sphinx_copybutton
+
+# Install all neuralib packages for API documentation
+# Use -e for editable installs to reflect local changes
+-e ../packages/neuralib-atlas[all]
+-e ../packages/neuralib-imaging[all]
+-e ../packages/neuralib-parser[all]
+-e ../packages/neuralib-metric[all]
+-e ../packages/neuralib-utils[all]

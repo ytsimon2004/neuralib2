@@ -12,6 +12,7 @@ neuralib.io.dataset
    clean_all_cache_dataset
    load_example_rois
    load_example_rois_image
+   load_example_rois_dir
    load_example_dorsal_cortex
    load_ephys_meta
    load_ephys_data

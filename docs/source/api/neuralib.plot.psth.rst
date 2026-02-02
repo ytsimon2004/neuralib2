@@ -7,4 +7,5 @@ neuralib.plot.psth
    :toctree: _autosummary
    :nosignatures:
 
+   peri_onset_1d
    plot_peri_onset_1d

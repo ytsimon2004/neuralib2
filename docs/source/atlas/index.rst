@@ -7,9 +7,10 @@ Module for whole brain reconstruction, rois classification, slice visualization
    :caption: atlas
 
    brainrender
-   ccf_dataframe
-   cell_atlas
-   allen_tree
+   ccf
+   cellatlas
+   structure_tree
+   slice
 
 .. toctree::
     :maxdepth: 1

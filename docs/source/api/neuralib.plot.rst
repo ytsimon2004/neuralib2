@@ -11,6 +11,6 @@ neuralib.plot
     neuralib.plot.colormap
     neuralib.plot.figure
     neuralib.plot.plot
+    neuralib.plot.psth
     neuralib.plot.tools
     neuralib.plot.venn
-    neuralib.plot.psth
