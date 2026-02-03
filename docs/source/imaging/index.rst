@@ -9,9 +9,8 @@ Module for cellular imaging, widefield imaging, and relevant data/signal process
    spikes
    widefield
 
-
 .. toctree::
     :maxdepth: 1
     :caption: Notebook
 
-    ../notebooks/example_imaging_2p
+    ../notebooks/example_imaging_2p.ipynb

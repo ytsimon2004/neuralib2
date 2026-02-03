@@ -154,9 +154,16 @@ Getting Started
 
 .. toctree::
    :maxdepth: 3
-   :caption: Other
+   :caption: Metric
 
-   other/index
+   metric/index
+
+
+.. toctree::
+   :maxdepth: 3
+   :caption: Parser
+
+   parser/index
 
 .. toctree::
    :maxdepth: 3

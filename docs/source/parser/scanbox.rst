@@ -7,7 +7,7 @@ This module simply provides
 
 2. view the sequence / save as tiff file
 
-- **Refer to API**: :mod:`neuralib.imaging.scanbox`
+- **Refer to API**: :mod:`neuralib.scanbox`
 
 
 Metadata information
@@ -15,7 +15,7 @@ Metadata information
 
 .. code-block:: python
 
-    from neuralib.imaging.scanbox import read_scanbox
+    from neuralib.scanbox import read_scanbox
 
     file = ...  # scanbox .mat output file
     sbx = read_scanbox(file)
@@ -28,7 +28,7 @@ Metadata to Json
 
 .. code-block:: python
 
-   from neuralib.imaging.scanbox import sbx_to_json
+   from neuralib.scanbox import sbx_to_json
 
    file = ...  # scanbox .mat output file
    output_file = ...  # *.json
@@ -42,7 +42,7 @@ Screen Shot file to tiff
 
 .. code-block:: python
 
-    from neuralib.imaging.scanbox import screenshot_to_tiff
+    from neuralib.scanbox import screenshot_to_tiff
 
     file = ...  # scanbox .mat screenshot output file
     output = ... # *.tiff
@@ -61,7 +61,7 @@ Use CLI
 
 .. code-block:: bash
 
-    $ python -m neuralib.imaging.scanbox.view -h
+    $ python -m neuralib.scanbox.view -h
 
 
 .. code-block:: text
@@ -85,14 +85,14 @@ Example playing the 100-200 frames
 
 .. code-block:: bash
 
-    $ python -m neuralib.imaging.scanbox.view PATH -P <OPTIC_PLANE> -C <PMT_CHANNEL> -F 100,200
+    $ python -m neuralib.scanbox.view PATH -P <OPTIC_PLANE> -C <PMT_CHANNEL> -F 100,200
 
 
 Example save 100-200 Frames as tiff
 
 .. code-block:: bash
 
-    $ python -m neuralib.imaging.scanbox.view PATH -P <OPTIC_PLANE> -C <PMT_CHANNEL> -F 100,200 -O test.tiff
+    $ python -m neuralib.scanbox.view PATH -P <OPTIC_PLANE> -C <PMT_CHANNEL> -F 100,200 -O test.tiff
 
 
 
@@ -101,7 +101,7 @@ Use API call
 
 .. code-block:: python
 
-    from neuralib.imaging.scanbox.view import ScanBoxView
+    from neuralib.scanbox.view import ScanBoxView
 
     directory  = ...  # directory contain the .sbx and .mat output from scanbox
     view = ScanBoxView(directory)
