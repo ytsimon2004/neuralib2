@@ -11,6 +11,7 @@ Module for non-scientific purpose
    io
    persistence
    tool
+   dashboard
 
 
 

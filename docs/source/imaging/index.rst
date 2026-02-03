@@ -6,9 +6,7 @@ Module for cellular imaging, widefield imaging, and relevant data/signal process
    :maxdepth: 2
    :caption: Imaging
 
-   scanbox
    spikes
-   suite2p
    widefield
 
 

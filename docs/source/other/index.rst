@@ -6,12 +6,12 @@ Module for other scientific purpose
    :maxdepth: 2
    :caption: Other
 
-   segmentation
-   scan
-   tracking
-   locomotion
-   model
-   morpho
+   ../utils/segmentation
+   ../parser/scan
+   ../parser/tracking
+   ../metric/locomotion
+   ../metric/model
+   ../parser/morpho
 
 
 .. toctree::

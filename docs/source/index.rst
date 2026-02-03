@@ -75,7 +75,7 @@ NeuraLib2 is split into multiple packages. Install only what you need:
     $ uv pip install -e .        # Basic installation
     $ uv pip install -e ".[all]" # With optional features
 
-For more detailed instructions, see :doc:`installation`.
+For more detailed instructions, see the package README files.
 
 Available Packages
 ------------------
@@ -162,7 +162,7 @@ Getting Started
    :maxdepth: 3
    :caption: Utility
 
-   util/index
+   utils/index
 
 .. toctree::
    :maxdepth: 1
@@ -181,7 +181,7 @@ neuralib_brainrender
 
 .. code-block:: bash
 
-    $ neuralib_brainrender -h
+    $ nl_brainrender -h
 
 neuralib_widefield
 ^^^^^^^^^^^^^^^^^^

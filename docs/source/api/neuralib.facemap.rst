@@ -10,4 +10,3 @@ neuralib.facemap
 
     neuralib.facemap.core
     neuralib.facemap.plot
-    neuralib.facemap.util

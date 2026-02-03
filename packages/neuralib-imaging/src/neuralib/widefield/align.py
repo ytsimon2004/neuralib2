@@ -4,6 +4,7 @@ from neuralib.io.dataset import load_example_dorsal_cortex
 __all__ = ['NapariAlignmentOptions']
 
 
+# TODO change dorsal cortex source data
 class NapariAlignmentOptions(AbstractParser):
     DESCRIPTION = 'View the video sequences and top view of dorsal cortex using napari'
 
