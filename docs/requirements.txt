@@ -5,6 +5,7 @@ sphinx-toolbox
 sphinx-rtd-theme
 sphinx-prompt
 sphinx_copybutton
+sphinx-design
 
 # Install all neuralib packages for API documentation
 # Use -e for editable installs to reflect local changes

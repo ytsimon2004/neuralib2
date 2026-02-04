@@ -6,7 +6,7 @@ OASIS
 
 Fast online deconvolution of calcium imaging dat
 
-- **Refer to API**: :doc:`../api/neuralib.imaging.spikes.oasis`
+- **Refer to API**: :doc:`../api/neuralib.spikes.oasis`
 
 
 .. seealso::
@@ -20,7 +20,7 @@ Fast online deconvolution of calcium imaging dat
 
 .. code-block:: python
 
-    from neuralib.imaging.spikes.oasis import oasis_dcnv
+    from neuralib.spikes.oasis import oasis_dcnv
 
     # 2D dF/F array. Array[float, [nNeurons, nFrames]] or Array[float, nFrames]
     dff = ...
@@ -35,7 +35,7 @@ Cascade
 
 Wrapper class from Cascade to translate calcium imaging ΔF/F traces into spiking probabilities or discrete spikes
 
-- **Refer to API**: :doc:`../api/neuralib.imaging.spikes.cascade`
+- **Refer to API**: :doc:`../api/neuralib.spikes.cascade`
 
 - ``tensorflow`` required
 
@@ -53,7 +53,7 @@ Wrapper class from Cascade to translate calcium imaging ΔF/F traces into spikin
 
 .. code-block:: python
 
-    from neuralib.imaging.spikes.cascade import cascade_predict
+    from neuralib.spikes.cascade import cascade_predict
 
     # 2D dF/F array. Array[float, [nNeurons, nFrames]] or Array[float, nFrames]
     dff = ...

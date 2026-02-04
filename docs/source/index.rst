@@ -1,225 +1,310 @@
-Welcome to NeuraLib2's documentation!
-=====================================
-**NeuraLib2** is a utility toolkit for rodent systems neuroscience research.
+NeuraLib2
+=========
 
-This is the migration of the original `neuralib <https://github.com/ytsimon2004/neuralib>`_,
-aiming to split the all-in-one package into several modular packages to minimize dependencies
-and enable case-specific installation.
+| |atlas| |imaging| |parser| |metric| |utils| |license|
 
-Key Features
-------------
+.. |atlas| image:: https://img.shields.io/pypi/v/neuralib-atlas.svg?label=atlas
+   :target: https://pypi.org/project/neuralib-atlas/
 
-- **Utility tools for rodent neuroscience experiments**
-- **Open-source parsers and wrappers**
-- **Lightweight and modular design for easy integration**
-- **Clean documentation and comprehensive API reference**
+.. |imaging| image:: https://img.shields.io/pypi/v/neuralib-imaging.svg?label=imaging
+   :target: https://pypi.org/project/neuralib-imaging/
 
-Resources
----------
+.. |parser| image:: https://img.shields.io/pypi/v/neuralib-parser.svg?label=parser
+   :target: https://pypi.org/project/neuralib-parser/
 
-- `GitHub Repository <https://github.com/ytsimon2004/neuralib2>`_
-- `PyPI Packages <https://pypi.org/search/?q=neuralib>`_
+.. |metric| image:: https://img.shields.io/pypi/v/neuralib-metric.svg?label=metric
+   :target: https://pypi.org/project/neuralib-metric/
+
+.. |utils| image:: https://img.shields.io/pypi/v/neuralib-utils.svg?label=utils
+   :target: https://pypi.org/project/neuralib-utils/
+
+.. |license| image:: https://img.shields.io/github/license/ytsimon2004/neuralib2
+   :target: https://github.com/ytsimon2004/neuralib2/blob/main/LICENSE
+
+**A modular Python toolkit for rodent systems neuroscience research.**
+
+NeuraLib2 is a collection of lightweight, modular packages designed for neuroscience data analysis.
+It is the successor to `neuralib <https://github.com/ytsimon2004/neuralib>`_, split into focused packages
+to minimize dependencies and enable case-specific installation.
+
+.. grid:: 2
+   :gutter: 3
+
+   .. grid-item-card:: Atlas Tools
+      :link: atlas/index
+      :link-type: doc
+
+      Brain atlas interfaces, 3D visualization, and anatomical data manipulation.
+
+   .. grid-item-card:: Imaging Analysis
+      :link: imaging/index
+      :link-type: doc
+
+      Spike inference, image registration, and widefield imaging analysis.
+
+   .. grid-item-card:: Data Parsers
+      :link: parser/index
+      :link-type: doc
+
+      Unified interfaces for segmentation, tracking, and microscopy data.
+
+   .. grid-item-card:: Analysis Metrics
+      :link: metric/index
+      :link-type: doc
+
+      Dimensionality reduction, Bayesian decoding, and locomotion analysis.
+
+----
 
 Installation
 ------------
 
-NeuraLib2 is split into multiple packages. Install only what you need:
+Install only the packages you need:
 
-**Atlas Tools**
+.. tab-set::
 
-.. code-block:: bash
+   .. tab-item:: Atlas
 
-    $ pip install neuralib-atlas
+      .. code-block:: bash
 
-**Imaging Analysis**
+         pip install neuralib-atlas
 
-.. code-block:: bash
+   .. tab-item:: Imaging
 
-    $ pip install neuralib-imaging            # Basic
-    $ pip install neuralib-imaging[cascade]   # With spike inference
-    $ pip install neuralib-imaging[widefield] # With widefield analysis
-    $ pip install neuralib-imaging[all]       # All features
+      .. code-block:: bash
 
-**Data Parsers**
+         pip install neuralib-imaging            # Basic
+         pip install neuralib-imaging[cascade]   # With spike inference
+         pip install neuralib-imaging[widefield] # With widefield analysis
+         pip install neuralib-imaging[all]       # All features
 
-.. code-block:: bash
+   .. tab-item:: Parser
 
-    $ pip install neuralib-parser           # Basic
-    $ pip install neuralib-parser[suite2p]  # Suite2p support
-    $ pip install neuralib-parser[czi]      # CZI format support
-    $ pip install neuralib-parser[all]      # All features
+      .. code-block:: bash
 
-**Analysis Metrics**
+         pip install neuralib-parser           # Basic
+         pip install neuralib-parser[suite2p]  # Suite2p support
+         pip install neuralib-parser[czi]      # CZI format support
+         pip install neuralib-parser[all]      # All features
 
-.. code-block:: bash
+   .. tab-item:: Metric
 
-    $ pip install neuralib-metric              # Basic
-    $ pip install neuralib-metric[rastermap]   # With rastermap
-    $ pip install neuralib-metric[all]         # All features
+      .. code-block:: bash
 
-**Core Utilities**
+         pip install neuralib-metric              # Basic
+         pip install neuralib-metric[rastermap]   # With rastermap
+         pip install neuralib-metric[all]         # All features
 
-.. code-block:: bash
+   .. tab-item:: Utils
 
-    $ pip install neuralib-utils              # Basic (required by all packages)
-    $ pip install neuralib-utils[dashboard]   # With Bokeh dashboard
-    $ pip install neuralib-utils[plot]        # With plotting tools
-    $ pip install neuralib-utils[all]         # All features
+      .. code-block:: bash
 
-**From Source**
+         pip install neuralib-utils              # Basic (required by all)
+         pip install neuralib-utils[dashboard]   # With Bokeh dashboard
+         pip install neuralib-utils[plot]        # With plotting tools
+         pip install neuralib-utils[all]         # All features
 
-.. code-block:: bash
+   .. tab-item:: From Source
 
-    $ git clone https://github.com/ytsimon2004/neuralib2.git
-    $ cd neuralib2/packages/<package-name>
-    $ uv pip install -e .        # Basic installation
-    $ uv pip install -e ".[all]" # With optional features
+      .. code-block:: bash
 
-For more detailed instructions, see the package README files.
+         git clone https://github.com/ytsimon2004/neuralib2.git
+         cd neuralib2/packages/<package-name>
+         uv pip install -e .        # Basic
+         uv pip install -e ".[all]" # With all features
 
-Available Packages
-------------------
+----
 
-**neuralib-atlas** (`PyPI <https://pypi.org/project/neuralib-atlas/>`_ | `Changelog <https://github.com/ytsimon2004/neuralib2/blob/main/packages/neuralib-atlas/CHANGELOG.md>`_)
-    Brain atlas tools and hierarchical representations of mouse brain anatomy.
-    Provides Python interfaces to multiple mouse brain atlases, 3D visualization, and anatomical data manipulation.
+Packages
+--------
 
-    Key modules:
+neuralib-atlas
+^^^^^^^^^^^^^^
 
-    - ``neuralib.atlas`` - Atlas data access and manipulation (Allen CCF, Kim, Perens, Princeton atlases)
-    - ``neuralib.atlas.ccf`` - Allen Common Coordinate Framework (CCF) operations
-    - ``neuralib.atlas.cellatlas`` - Cell type distributions across brain regions
-    - ``neuralib.atlas.brainrender`` - 3D brain region visualization
+`PyPI <https://pypi.org/project/neuralib-atlas/>`_ ·
+`Changelog <https://github.com/ytsimon2004/neuralib2/blob/main/packages/neuralib-atlas/CHANGELOG.md>`_
 
-**neuralib-imaging** (`PyPI <https://pypi.org/project/neuralib-imaging/>`_ | `Changelog <https://github.com/ytsimon2004/neuralib2/blob/main/packages/neuralib-imaging/CHANGELOG.md>`_)
-    Cellular imaging and widefield imaging analysis tools.
-    Provides spike inference, image registration, and widefield data processing for calcium imaging experiments.
+Brain atlas tools and hierarchical representations of mouse brain anatomy.
 
-    Key modules:
+.. list-table::
+   :widths: 30 70
+   :header-rows: 0
 
-    - ``neuralib.spikes`` - Spike inference (CASCADE deep learning, OASIS deconvolution)
-    - ``neuralib.registration`` - Coordinate transformation and atlas alignment
-    - ``neuralib.widefield`` - Widefield imaging analysis (FFT, SVD, hemodynamic correction)
+   * - ``neuralib.atlas``
+     - Atlas data access (Allen CCF, Kim, Perens, Princeton)
+   * - ``neuralib.atlas.ccf``
+     - Allen Common Coordinate Framework operations
+   * - ``neuralib.atlas.cellatlas``
+     - Cell type distributions across brain regions
+   * - ``neuralib.atlas.brainrender``
+     - 3D brain region visualization
 
-**neuralib-parser** (`PyPI <https://pypi.org/project/neuralib-parser/>`_ | `Changelog <https://github.com/ytsimon2004/neuralib2/blob/main/packages/neuralib-parser/CHANGELOG.md>`_)
-    Data parsers for neuroscience tools and file formats.
-    Provides unified interfaces for segmentation, morphology, imaging, tracking, and confocal microscopy data.
+neuralib-imaging
+^^^^^^^^^^^^^^^^
 
-    Supports:
+`PyPI <https://pypi.org/project/neuralib-imaging/>`_ ·
+`Changelog <https://github.com/ytsimon2004/neuralib2/blob/main/packages/neuralib-imaging/CHANGELOG.md>`_
 
-    - Cell segmentation (Cellpose, StarDist)
-    - Neuron morphology (SWC files)
-    - Imaging platforms (Suite2p, Scanbox)
-    - Behavioral tracking (DeepLabCut, Facemap)
-    - Confocal microscopy (Zeiss CZI, LSM)
+Cellular imaging and widefield imaging analysis tools.
 
-**neuralib-metric** (`PyPI <https://pypi.org/project/neuralib-metric/>`_ | `Changelog <https://github.com/ytsimon2004/neuralib2/blob/main/packages/neuralib-metric/CHANGELOG.md>`_)
-    Analysis metrics and computational modeling tools.
-    Provides dimensionality reduction, Bayesian decoding, and locomotion analysis for neural activity and behavior.
+.. list-table::
+   :widths: 30 70
+   :header-rows: 0
 
-    Features:
+   * - ``neuralib.spikes``
+     - Spike inference (CASCADE, OASIS deconvolution)
+   * - ``neuralib.registration``
+     - Coordinate transformation and atlas alignment
+   * - ``neuralib.widefield``
+     - Widefield imaging (FFT, SVD, hemodynamic correction)
 
-    - Rastermap dimensionality reduction
-    - Bayesian position decoding
-    - Locomotion epoch detection
+neuralib-parser
+^^^^^^^^^^^^^^^
 
-**neuralib-utils** (`PyPI <https://pypi.org/project/neuralib-utils/>`_ | `Changelog <https://github.com/ytsimon2004/neuralib2/blob/main/packages/neuralib-utils/CHANGELOG.md>`_)
-    Core utilities and foundational tools for the neuralib ecosystem.
-    Required dependency for all other neuralib packages.
+`PyPI <https://pypi.org/project/neuralib-parser/>`_ ·
+`Changelog <https://github.com/ytsimon2004/neuralib2/blob/main/packages/neuralib-parser/CHANGELOG.md>`_
 
-    Key modules:
+Data parsers for neuroscience tools and file formats.
 
-    - ``neuralib.io`` - File I/O (HDF5, JSON, CSV)
-    - ``neuralib.typing`` - Unified type system (pandas/polars DataFrames)
-    - ``neuralib.util`` - Logging, DataFrame operations, GPU monitoring
-    - ``neuralib.plot`` - Publication-quality plotting (PSTH, Venn diagrams)
-    - ``neuralib.dashboard`` - Bokeh-based interactive visualization
-    - ``neuralib.imglib`` - Image processing utilities
-    - ``neuralib.tools`` - External integrations (Google Sheets, Slack)
+.. list-table::
+   :widths: 30 70
+   :header-rows: 0
 
-Getting Started
----------------
+   * - ``neuralib.cellpose``
+     - Cellpose segmentation result parser
+   * - ``neuralib.stardist``
+     - StarDist segmentation parser and CLI
+   * - ``neuralib.suite2p``
+     - Suite2p imaging data parser
+   * - ``neuralib.scanbox``
+     - Scanbox imaging data parser
+   * - ``neuralib.deeplabcut``
+     - DeepLabCut tracking parser
+   * - ``neuralib.facemap``
+     - Facemap behavioral tracking parser
+   * - ``neuralib.morpho``
+     - Neuron morphology (SWC files)
+   * - ``neuralib.scan``
+     - Confocal microscopy (Zeiss CZI, LSM)
 
-.. toctree::
-   :maxdepth: 3
-   :caption: Atlas
+neuralib-metric
+^^^^^^^^^^^^^^^
 
-   atlas/index
+`PyPI <https://pypi.org/project/neuralib-metric/>`_ ·
+`Changelog <https://github.com/ytsimon2004/neuralib2/blob/main/packages/neuralib-metric/CHANGELOG.md>`_
 
-.. toctree::
-   :maxdepth: 3
-   :caption: Imaging
+Analysis metrics and computational modeling tools.
 
-   imaging/index
+.. list-table::
+   :widths: 30 70
+   :header-rows: 0
 
-.. toctree::
-   :maxdepth: 3
-   :caption: Metric
+   * - Rastermap
+     - Dimensionality reduction for neural data
+   * - Bayesian decoding
+     - Position decoding from neural activity
+   * - Locomotion
+     - Locomotion epoch detection
 
-   metric/index
+neuralib-utils
+^^^^^^^^^^^^^^
 
+`PyPI <https://pypi.org/project/neuralib-utils/>`_ ·
+`Changelog <https://github.com/ytsimon2004/neuralib2/blob/main/packages/neuralib-utils/CHANGELOG.md>`_
 
-.. toctree::
-   :maxdepth: 3
-   :caption: Parser
+Core utilities and foundational tools. **Required by all other packages.**
 
-   parser/index
+.. list-table::
+   :widths: 30 70
+   :header-rows: 0
 
-.. toctree::
-   :maxdepth: 3
-   :caption: Utility
+   * - ``neuralib.io``
+     - File I/O (HDF5, JSON, CSV)
+   * - ``neuralib.typing``
+     - Unified type system (pandas/polars DataFrames)
+   * - ``neuralib.util``
+     - Logging, DataFrame ops, GPU monitoring
+   * - ``neuralib.persistence``
+     - Persistence decorator for structured data caching
+   * - ``neuralib.plot``
+     - Publication-quality plotting (PSTH, Venn)
+   * - ``neuralib.dashboard``
+     - Bokeh-based interactive visualization
+   * - ``neuralib.imglib``
+     - Image processing utilities
+   * - ``neuralib.tools``
+     - External integrations (Google Sheets, Slack)
 
-   utils/index
-
-.. toctree::
-   :maxdepth: 1
-   :caption: API Reference
-
-   api/neuralib.rst
+----
 
 Command-Line Tools
 ------------------
 
-neuralib_brainrender
-^^^^^^^^^^^^^^^^^^^^
+.. grid:: 2
+   :gutter: 3
 
-- Visualize brain region data with built-in rendering support
-- See examples in the :doc:`atlas/brainrender`
+   .. grid-item::
 
-.. code-block:: bash
+      **nl_brainrender**
 
-    $ nl_brainrender -h
+      Visualize brain region data with built-in rendering support.
+      See :doc:`atlas/brainrender` for examples.
 
-neuralib_widefield
-^^^^^^^^^^^^^^^^^^
+      .. code-block:: bash
 
-- Widefield imaging CLI analysis
-- See examples in the :doc:`imaging/widefield`
+         nl_brainrender -h
 
-.. code-block:: bash
+   .. grid-item::
 
-    $ neuralib_widefield -h
+      **nl_widefield**
+
+      Widefield imaging CLI analysis.
+      See :doc:`imaging/widefield` for examples.
+
+      .. code-block:: bash
+
+         nl_widefield -h
+
+----
+
+Documentation
+-------------
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Packages
+
+   atlas/index
+   imaging/index
+   parser/index
+   metric/index
+   utils/index
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Reference
+
+   api/neuralib.rst
+
+----
 
 Array Annotation Syntax
 -----------------------
 
 Used in documentation to describe array-shaped data structures:
 
-- ``Array[DType, [*Shape]]`` where:
-  - ``DType`` = data type (e.g., `int`, `float`, `bool`)
-  - ``Shape`` = array shape (e.g., `[N, T]`)
-  - ``|`` = denotes a union of shapes or types
+``Array[DType, [*Shape]]``
+
+- ``DType`` = data type (e.g., ``int``, ``float``, ``bool``)
+- ``Shape`` = array shape (e.g., ``[N, T]``)
+- ``|`` = union of shapes or types
 
 **Examples:**
 
-- Boolean or integer array with shape `(N, 3)`:
+- ``Array[int|bool, [N, 3]]`` — Boolean or integer array with shape ``(N, 3)``
+- ``Array[float, [N, 2] | [N, T, 2]]`` — Float array with shape ``(N, 2)`` or ``(N, T, 2)``
 
-  ``Array[int|bool, [N, 3]]``
-
-- Float array with shape `(N, 2)` or `(N, T, 2)`:
-
-  ``Array[float, [N, 2] | [N, T, 2]]``
-
+----
 
 Indices and Tables
 ==================

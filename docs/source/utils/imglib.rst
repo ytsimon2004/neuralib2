@@ -17,7 +17,7 @@ Example of Chainable Processing
 
 .. code-block:: python
 
-    from neuralib.imglib.processor import image_array
+    from neuralib.imglib.array import image_array
     import matplotlib.pyplot as plt
 
     # Load an image (from a file path or a NumPy array)
@@ -91,7 +91,7 @@ Load sequences from a directory
 
 .. code-block:: bash
 
-    $ python neuralib.imglib.labeller -D <DIR>
+    $ python -m neuralib.imglib.labeller -D <DIR>
 
 
 - **API call**
