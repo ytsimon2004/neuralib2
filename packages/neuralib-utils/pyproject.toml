@@ -53,7 +53,8 @@ opt = [
     "psutil",
     "opencv-python",
     "scikit-image",
-    "tiffile"
+    "tiffile",
+    "pdf2image"
 ]
 
 all = [

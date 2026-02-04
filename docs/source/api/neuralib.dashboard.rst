@@ -9,8 +9,6 @@ neuralib.dashboard
     :caption: Modules:
 
     neuralib.dashboard.base
-    neuralib.dashboard.example
-    neuralib.dashboard.example_multi
     neuralib.dashboard.examples
     neuralib.dashboard.tool
     neuralib.dashboard.util

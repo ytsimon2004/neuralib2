@@ -29,20 +29,26 @@ dependencies = [
 
 [project.optional-dependencies]
 
-stardist = ["stardist", "roifile", "tensorflow", "numpy<2.0; extra == 'stardist'", "napari"]
+cellpose = ["roifile"]
+stardist = ["stardist"]
 suite2p = ["neuralib-imaging>=0.7.0", "numba>=0.63"]
 czi = ["aicspylibczi", "xmltodict"]
 sbx = ["sbxreader"]
+opt = ["roifile", "tensorflow", "numpy<2.0; extra == 'stardist'", "napari", "csbdeep", "roifile", "tables", "vedo"]
 
 all = [
     "neuralib-parser[suite2p]",
     "neuralib-parser[sbx]",
-    "tifffile"
+    "neuralib-parser[cellpose]",
+    "neuralib-parser[czi]",
+    "neuralib-parser[opt]",
+    "tifffile",
+    "ruamel.yaml" # dlc?
 ]
 
 test = [
     "neuralib-parser[all]",
-    "neuralib-parser[stardist]"  # separate due to numpy version
+    #    "neuralib-parser[stardist]"  # separate due to numpy version
 ]
 
 

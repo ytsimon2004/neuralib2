@@ -4,16 +4,13 @@ build:
   os: "ubuntu-22.04"
   tools:
     python: "3.11"
-#  jobs:
-#    pre_build:
-#      - python doc/gen_api.py
+  jobs:
+    pre_build:
+      - python docs/gen_api.py
 
 python:
   install:
-    - method: pip
-      path: .
-      extra_requirements:
-        - doc
+    - requirements: docs/requirements.txt
 
 sphinx:
-  configuration: doc/source/conf.py
+  configuration: docs/source/conf.py

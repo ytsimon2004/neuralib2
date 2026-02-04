@@ -30,7 +30,13 @@ dependencies = [
 [project.optional-dependencies]
 
 cascade = ["ruamel.yaml", "tensorflow"]
-widefield = ["napari", "bokeh", "scikit-learn"]
+
+widefield = ["napari", "bokeh", "scikit-learn", "neuralib-imaging[widefield_preproc]"]
+widefield_preproc = ["numba>=0.59.0"]
+# Preprocessing with GPU support (choose based on your CUDA version)
+# Check CUDA version with: nvcc --version or nvidia-smi
+preproc-gpu-cuda11 = ["numba>=0.59.0", "cupy-cuda11x"]
+preproc-gpu-cuda12 = ["numba>=0.59.0", "cupy-cuda12x"]
 
 all = ["neuralib-imaging[cascade]", "neuralib-imaging[widefield]"]
 
@@ -49,3 +55,7 @@ requires = ["setuptools>=61.0"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+
+[project.scripts]
+nl_wfield = "neuralib.widefield.main_app:main"

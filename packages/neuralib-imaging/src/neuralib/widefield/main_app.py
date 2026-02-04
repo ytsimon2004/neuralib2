@@ -1,11 +1,13 @@
 from argclz.commands import parse_command_args
 from neuralib.widefield.align import NapariAlignmentOptions
+from neuralib.widefield.preproc import PreprocessOptions
 
 from .fft_view import WideFieldFFTViewOption
 
 
 def main():
     parsers = dict(
+        preproc=PreprocessOptions,
         align=NapariAlignmentOptions,
         fft=WideFieldFFTViewOption
     )
@@ -15,12 +17,15 @@ def main():
         description='widefield tools',
         usage="""
         Usage Examples:
+        
+        Preprocess of widefield image sequence:
+        $ nl_widefield preproc ...
 
         View HSV map in FFT:
-        $ neuralib_widefield fft <FILE>
+        $ nl_widefield fft <FILE>
         
         Alignment napari for image sequence
-        $ neuralib_widefield align <FILE>
+        $ nl_widefield align <FILE>
         
         """
     )

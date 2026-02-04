@@ -1,9 +1,9 @@
-import pickle
 from pathlib import Path
-from typing import Literal
 
 import numpy as np
+import pickle
 from scipy.stats import zscore
+from typing import Literal
 
 from neuralib.typing import PathLike
 from .core import RasterOptions, RasterMapResult
@@ -145,7 +145,7 @@ class RunRastermap:
 
     def run_wfield(self, **kwargs):
         """wfield input run. `Array[Any, [T, H, W]]`"""
-        from neuralib.imaging.widefield import compute_singular_vector
+        from neuralib.widefield import compute_singular_vector
 
         try:
             from rastermap import Rastermap

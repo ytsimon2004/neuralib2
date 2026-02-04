@@ -8,7 +8,7 @@ Once installed, the CLI can be invoked directly from the command line.
 
 .. code-block:: bash
 
-    $ neuralib_brainrender -h
+    $ nl_brainrender -h
 
 - **Output**
 
