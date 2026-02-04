@@ -1,0 +1,62 @@
+/* Custom CSS for NeuraLib2 Documentation */
+
+/* Improve card styling */
+.sd-card {
+    border-radius: 8px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.sd-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Style horizontal rules */
+hr {
+    border: none;
+    border-top: 1px solid #e0e0e0;
+    margin: 2rem 0;
+}
+
+/* Improve list-table styling */
+.rst-content table.docutils td {
+    vertical-align: top;
+    padding: 8px 12px;
+}
+
+.rst-content table.docutils td:first-child {
+    font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 0.9em;
+    white-space: nowrap;
+}
+
+/* Badge spacing */
+.rst-content .section > a > img {
+    margin-right: 4px;
+    margin-bottom: 8px;
+}
+
+/* Tab styling improvements */
+.sphinx-tabs-tab {
+    font-weight: 500;
+}
+
+/* Code block improvements */
+.rst-content .highlight pre {
+    border-radius: 4px;
+}
+
+/* Package section headers */
+.rst-content h3 {
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 0.3em;
+    margin-top: 1.5em;
+}
+
+/* Inline code styling */
+.rst-content code.literal {
+    background-color: #f5f5f5;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 0.9em;
+}

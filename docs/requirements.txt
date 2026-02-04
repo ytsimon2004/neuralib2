@@ -8,9 +8,9 @@ sphinx_copybutton
 sphinx-design
 
 # Install all neuralib packages for API documentation
-# Use -e for editable installs to reflect local changes
--e ../packages/neuralib-atlas[all]
--e ../packages/neuralib-imaging[all]
--e ../packages/neuralib-parser[all]
--e ../packages/neuralib-metric[all]
--e ../packages/neuralib-utils[all]
+# RTD runs pip from repo root, paths are relative to root
+./packages/neuralib-utils[all]
+./packages/neuralib-atlas[all]
+./packages/neuralib-imaging[all]
+./packages/neuralib-parser[all]
+./packages/neuralib-metric[all]
