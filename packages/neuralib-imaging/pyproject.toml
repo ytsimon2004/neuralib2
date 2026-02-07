@@ -1,6 +1,6 @@
 [project]
 name = "neuralib-imaging"
-version = "0.7.0"
+version = "0.7.1"
 requires-python = ">=3.11,<3.13"
 description = "Tools for cellular imaging and widefield imaging"
 authors = [

@@ -26,8 +26,7 @@ all-in-one package into several modular packages to minimize dependencies and en
 ## 📖 Documentation
 
 > **[Read the Full Documentation](https://neuralib2.readthedocs.io/)** | *
-*[Installation Guide](https://neuralib2.readthedocs.io/en/latest/installation.html)** | *
-*[API Reference](https://neuralib2.readthedocs.io/en/latest/api.html)**
+*[API Reference](https://neuralib2.readthedocs.io/en/latest/api/neuralib.html)**
 
 ---
 
