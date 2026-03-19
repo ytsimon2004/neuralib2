@@ -263,7 +263,7 @@ Command-Line Tools
 
       .. code-block:: bash
 
-         nl_widefield -h
+         nl_wfield -h
 
 ----
 

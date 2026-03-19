@@ -19,13 +19,13 @@ def main():
         Usage Examples:
         
         Preprocess of widefield image sequence:
-        $ nl_widefield preproc ...
+        $ nl_wfield preproc ...
 
         View HSV map in FFT:
-        $ nl_widefield fft <FILE>
+        $ nl_wfield fft <FILE>
         
         Alignment napari for image sequence
-        $ nl_widefield align <FILE>
+        $ nl_wfield align <FILE>
         
         """
     )
