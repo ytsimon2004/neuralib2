@@ -1,6 +1,6 @@
 [project]
 name = "neuralib-parser"
-version = "0.7.0"
+version = "0.7.1"
 requires-python = ">=3.11,<3.13"
 description = "Parsers for output from open-source packages or specific devices"
 authors = [
