@@ -19,14 +19,14 @@ def main():
         Usage Examples:
     
         Render a brain region:
-        $ neuralib_brainrender area -R <REGION, ...>
-        $ neuralib_brainrender area -R VISal,VISam,VISl,VISli,VISp,VISpl,VISpm,VISpor
+        $ nl_brainrender area -R <REGION, ...>
+        $ nl_brainrender area -R VISal,VISam,VISl,VISli,VISp,VISpl,VISpm,VISpor
     
         Render a region of interest (ROI) from a file:
-        $ neuralib_brainrender roi -F <FILE>
+        $ nl_brainrender roi -F <FILE>
     
         Render a probe placement from a file with depth specification:
-        $ neuralib_brainrender probe -F <FILE> --depth <DEPTH>
+        $ nl_brainrender probe -F <FILE> --depth <DEPTH>
         """
     )
 
