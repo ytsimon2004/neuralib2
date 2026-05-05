@@ -1,10 +1,12 @@
 import traceback
+import colorsys
 from datetime import datetime
 from typing import Literal
 
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
+from argclz import AbstractParser
 from PyQt6.QtCore import Qt, QTimer, QPointF
 from PyQt6.QtGui import (
     QPixmap, QImage, QMouseEvent, QWheelEvent, QPainter,
@@ -14,49 +16,81 @@ from PyQt6.QtWidgets import (
     QMainWindow, QFileDialog, QVBoxLayout, QHBoxLayout, QGridLayout,
     QPushButton, QWidget, QLabel, QGraphicsScene, QGraphicsView, QGraphicsPixmapItem,
     QTextEdit, QSplitter, QListWidget, QComboBox, QSlider, QGroupBox, QSpinBox, QCheckBox,
-    QSizePolicy
+    QSizePolicy, QApplication
 )
 from skimage.io import imread
 
 from .ccf import DorsalCCF
 
-__all__ = ['RegistrationApp']
+__all__ = ['RegistrationApp', 'RegistrationOptions']
 
 
 # TODO might load reference from retinotopic and align with cur widefield?
 # TODO cur widefield apply translation or rotation together with projective2d, and save as 2d
 
-def np_to_qpixmap(arr: np.ndarray) -> QPixmap:
+def _normalize_to_uint8(arr: np.ndarray) -> np.ndarray:
+    if arr.dtype == np.uint8:
+        return np.ascontiguousarray(arr)
+
+    arr_min = arr.min()
+    arr_range = np.ptp(arr)
+    if arr_range == 0:
+        return np.zeros(arr.shape, dtype=np.uint8)
+
+    arr8 = 255 * (arr - arr_min) / arr_range
+    return np.ascontiguousarray(arr8.astype(np.uint8))
+
+
+def _label_image_to_rgb(arr: np.ndarray, label_colors: dict[int, tuple[int, int, int]] | None = None) -> np.ndarray:
+    rgb_img = np.zeros((*arr.shape, 3), dtype=np.uint8)
+    for label in np.unique(arr):
+        if label == 0:
+            continue
+
+        label_int = int(label)
+        if label_colors is not None and label_int in label_colors:
+            color = label_colors[label_int]
+        else:
+            color = tuple(int(c * 255) for c in plt.cm.tab20(label_int % 20)[:3])
+
+        rgb_img[arr == label] = color
+
+    return np.ascontiguousarray(rgb_img)
+
+
+def _distinct_label_colors(labels: list[int]) -> dict[int, tuple[int, int, int]]:
+    colors = {}
+    for index, label in enumerate(sorted(labels)):
+        hue = (index * 0.618033988749895) % 1.0
+        red, green, blue = colorsys.hsv_to_rgb(hue, 0.70, 0.95)
+        colors[label] = (int(red * 255), int(green * 255), int(blue * 255))
+    return colors
+
+
+def np_to_qpixmap(
+        arr: np.ndarray,
+        colorize_labels: bool = False,
+        label_colors: dict[int, tuple[int, int, int]] | None = None
+) -> QPixmap:
     try:
         match arr.ndim:
             case 2:
-                if np.issubdtype(arr.dtype, np.integer):
-                    # Label image with color LUT
-                    lut = np.array([
-                        [0, 0, 0], [230, 25, 75], [60, 180, 75], [255, 225, 25], [0, 130, 200],
-                        [245, 130, 48], [145, 30, 180], [70, 240, 240], [240, 50, 230], [210, 245, 60],
-                        [250, 190, 190], [0, 128, 128], [230, 190, 255], [170, 110, 40], [255, 250, 200],
-                        [128, 0, 0], [170, 255, 195], [128, 128, 0], [255, 215, 180], [0, 0, 128]
-                    ], dtype=np.uint8)
-                    indexed = np.clip(arr, 0, len(lut) - 1).astype(np.uint8)
-                    rgb_img = lut[indexed]
+                if colorize_labels:
+                    rgb_img = _label_image_to_rgb(arr, label_colors)
                 else:
                     # Grayscale
-                    norm = 255 * (arr - arr.min()) / (np.ptp(arr) + 1e-5)
-                    arr8 = norm.astype(np.uint8)
+                    arr8 = _normalize_to_uint8(arr)
                     h, w = arr8.shape
                     image = QImage(arr8.data, w, h, w, QImage.Format.Format_Grayscale8)
                     return QPixmap.fromImage(image)
 
             case 3:
                 if arr.shape[2] == 3:  # RGB image
-                    norm = 255 * (arr - arr.min()) / (np.ptp(arr) + 1e-5)
-                    rgb_img = norm.astype(np.uint8)
+                    rgb_img = _normalize_to_uint8(arr)
                 else:
                     # video stack
                     frame = arr[0]  # Take first frame
-                    norm = 255 * (frame - frame.min()) / (np.ptp(frame) + 1e-5)
-                    arr8 = norm.astype(np.uint8)
+                    arr8 = _normalize_to_uint8(frame)
                     h, w = arr8.shape
                     image = QImage(arr8.data, w, h, w, QImage.Format.Format_Grayscale8)
                     return QPixmap.fromImage(image)
@@ -136,24 +170,51 @@ class ZoomPanGraphicsView(QGraphicsView):
 
 
 class ImageScene(QGraphicsScene):
-    def __init__(self, name, click_callback, parent=None):
+    def __init__(
+            self,
+            name,
+            click_callback,
+            parent=None,
+            colorize_labels=False,
+            label_colors=None,
+            show_boundaries=False
+    ):
         super().__init__(parent)
         self.name = name
         self.pix_item = None
         self.click_callback = click_callback
+        self.colorize_labels = colorize_labels
+        self.label_colors = label_colors
+        self.show_boundaries = show_boundaries
         self.enabled = False
         self.points = []
 
     def set_image(self, array):
         try:
+            display_array = self._display_array(array)
             self.clear()
-            pixmap = np_to_qpixmap(array)
+            pixmap = np_to_qpixmap(
+                display_array,
+                colorize_labels=self.colorize_labels,
+                label_colors=self.label_colors
+            )
             self.pix_item = QGraphicsPixmapItem(pixmap)
             self.addItem(self.pix_item)
             for pt in self.points:
                 self.addEllipse(pt[0] - 2, pt[1] - 2, 4, 4, brush=Qt.GlobalColor.red)
         except Exception as e:
             print(f"Error setting image in {self.name}:", e)
+
+    def _display_array(self, array):
+        if self.show_boundaries and self.colorize_labels:
+            from skimage.segmentation import find_boundaries
+
+            rgb_img = _label_image_to_rgb(array, self.label_colors)
+            boundary = find_boundaries(array, mode='outer')
+            rgb_img[boundary] = (255, 255, 255)
+            return rgb_img
+
+        return array
 
     def clear_scene(self):
         self.clear()
@@ -182,7 +243,12 @@ class RegistrationApp(QMainWindow):
 
         # --- Scenes & Views ---
         self.wf_scene = ImageScene("Wfield", self.on_point_clicked)
-        self.dorsal_scene = ImageScene("Dorsal", self.on_point_clicked)
+        self.dorsal_scene = ImageScene(
+            "Dorsal",
+            self.on_point_clicked,
+            colorize_labels=True,
+            show_boundaries=True
+        )
         self.wf_view = ZoomPanGraphicsView(self.wf_scene)
         self.dorsal_view = ZoomPanGraphicsView(self.dorsal_scene)
 
@@ -218,7 +284,6 @@ class RegistrationApp(QMainWindow):
 
         # Region selection
         self.update_dorsal_btn = QPushButton("Update Dorsal View")
-        self.boundary_btn = QPushButton("Convert to Boundary")
         self.region_list = QListWidget()
         self.region_list.setSelectionMode(QListWidget.SelectionMode.MultiSelection)
         self.region_list.setMinimumHeight(260)
@@ -281,7 +346,6 @@ class RegistrationApp(QMainWindow):
         region_layout.addWidget(QLabel("Select region(s):"))
         region_layout.addWidget(self.region_list)
         region_layout.addWidget(self.update_dorsal_btn)
-        region_layout.addWidget(self.boundary_btn)
 
         # Hemisphere selection sub-layout
         hemisphere_layout = QHBoxLayout()
@@ -378,7 +442,6 @@ class RegistrationApp(QMainWindow):
             (self.undo_btn, self.undo_last_pair),
             (self.zoom_to_fit_btn, self.zoom_to_fit_views),
             (self.update_dorsal_btn, self.update_dorsal_from_region),
-            (self.boundary_btn, self.convert_to_boundary),
             (self.resize_btn, self.resize_both_images)
         ]:
             btn.clicked.connect(self.safe_call(fn))
@@ -416,6 +479,10 @@ class RegistrationApp(QMainWindow):
         self._next_frame = self._next_frame
 
         self.ccf = DorsalCCF.from_json()
+        self.dorsal_scene.label_colors = _distinct_label_colors([
+            label.label
+            for label in self.ccf.region_labels
+        ])
         self.region_list.addItem("[All Regions]")
         for region in self.ccf.region_list:
             self.region_list.addItem(region)
@@ -1084,3 +1151,19 @@ class RegistrationApp(QMainWindow):
 
         except Exception as e:
             self.log(f"Error stopping live overlay: {e}", "error")
+
+
+class RegistrationOptions(AbstractParser):
+    DESCRIPTION = 'Register widefield images to a dorsal cortex map'
+
+    def run(self):
+        app = QApplication.instance()
+        owns_app = app is None
+        if app is None:
+            app = QApplication([])
+
+        window = RegistrationApp()
+        window.show()
+
+        if owns_app:
+            app.exec()

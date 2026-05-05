@@ -3,13 +3,15 @@ from neuralib.widefield.align import NapariAlignmentOptions
 from neuralib.widefield.preproc import PreprocessOptions
 
 from .fft_view import WideFieldFFTViewOption
+from .transform import RegistrationOptions
 
 
 def main():
     parsers = dict(
         preproc=PreprocessOptions,
         align=NapariAlignmentOptions,
-        fft=WideFieldFFTViewOption
+        fft=WideFieldFFTViewOption,
+        trans=RegistrationOptions
     )
 
     parse_command_args(
@@ -26,6 +28,9 @@ def main():
         
         Alignment napari for image sequence
         $ nl_wfield align <FILE>
+
+        Widefield-to-dorsal-map registration GUI
+        $ nl_wfield trans
         
         """
     )

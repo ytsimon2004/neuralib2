@@ -15,13 +15,13 @@ __all__ = [
     'validate_ccf_array'
 ]
 
-type DorsalRegion = str
+DorsalRegion = str
 
 HEMISPHERE_TYPE = Literal['left', 'right', 'both']
 
 _CCF_FILENAME = 'dorsal_cortex_ccf_labels.json'
 _CCF_CACHE = Path.home() / '.neuralib' / _CCF_FILENAME
-_CCF_URL = 'https://raw.githubusercontent.com/ytsimon2004/neuralib2/main/res/dorsal_cortex_ccf_labels.json'
+_CCF_URL = 'https://raw.githubusercontent.com/ytsimon2004/neuralib2/main/res/atlas/dorsal_cortex_ccf_labels.json'
 
 
 def get_dorsal_ccf_file() -> Path:
