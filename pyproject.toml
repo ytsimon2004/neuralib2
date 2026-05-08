@@ -1,0 +1,13 @@
+[tool.uv.workspace]
+members = ["packages/neuralib-*"]
+
+[tool.uv.sources]
+neuralib-atlas = { workspace = true }
+neuralib-imaging = { workspace = true }
+neuralib-metric = { workspace = true }
+neuralib-parser = { workspace = true }
+neuralib-utils = { workspace = true }
+
+[tool.pytest.ini_options]
+testpaths = ["packages"]
+python_files = ["test_*.py"]

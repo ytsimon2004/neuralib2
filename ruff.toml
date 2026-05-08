@@ -1,4 +1,4 @@
-target-version = "py310"
+target-version = "py311"
 extend-exclude = [
     "test",
     # annotation module
@@ -13,7 +13,7 @@ ignore = ["F403", "F405"]
 exclude = ["*.ipynb"]
 
 
-[format]  # not run, only recommand
+[format]
 quote-style = 'single'
 skip-magic-trailing-comma = false
 docstring-code-format = true

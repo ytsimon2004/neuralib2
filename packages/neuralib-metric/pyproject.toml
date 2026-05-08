@@ -9,7 +9,7 @@ authors = [
 ]
 license = { text = "BSD-3-Clause" }
 readme = "README.md"
-keywords = ["Parser", "Segmentation", "Morphology"]
+keywords = ["Metrics", "Decoding", "Neuroscience"]
 classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",

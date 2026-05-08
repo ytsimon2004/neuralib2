@@ -8,7 +8,7 @@ authors = [
 ]
 license = { file = "LICENSE" }
 readme = "README.md"
-keywords = ["Utilies"]
+keywords = ["Utilities"]
 classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",

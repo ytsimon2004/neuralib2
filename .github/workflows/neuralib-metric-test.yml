@@ -42,6 +42,7 @@ jobs:
 
       - name: Install package with test dependencies
         run: |
+          uv pip install -e "../neuralib-utils[all]"
           uv pip install -e ".[all]"
           uv pip install pytest
 

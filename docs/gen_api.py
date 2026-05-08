@@ -4,8 +4,10 @@ import textwrap
 from pathlib import Path
 
 # === Configuration ===
-PACKAGES_ROOT = Path('../packages').resolve()
-DST = Path('source/api')
+DOCS_ROOT = Path(__file__).resolve().parent
+REPO_ROOT = DOCS_ROOT.parent
+PACKAGES_ROOT = REPO_ROOT / 'packages'
+DST = DOCS_ROOT / 'source' / 'api'
 DST.mkdir(parents=True, exist_ok=True)
 
 AUTOSUMMARY_DIR = DST / '_autosummary'
