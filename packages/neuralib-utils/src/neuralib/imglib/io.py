@@ -2,6 +2,7 @@ from pathlib import Path
 
 import cv2
 import numpy as np
+import numpy.typing as npt
 from PIL import Image
 from tifffile import tifffile
 from tqdm import tqdm
@@ -104,7 +105,7 @@ def read_pdf(file: PathLike,
              single_image: bool = True,
              poppler_path: str | None = None,
              **kwargs) -> np.ndarray:
-    """
+    r"""
     Read pdf as an image array
 
     :param file:
@@ -120,6 +121,8 @@ def read_pdf(file: PathLike,
     """
     from pdf2image import convert_from_path
     from pdf2image.exceptions import PDFInfoNotInstalledError
+
+    file = str(file)
 
     if single_image:
         try:
@@ -142,9 +145,11 @@ def tif_to_gif(image_file: PathLike,
     """Convert tif sequences to GIF"""
     import imageio
 
-    frames = imageio.mimread(image_file, memtest=False)
+    frames = imageio.mimread(str(image_file))
+    frames = [np.asarray(frame) for frame in frames]
     frames = normalize_sequences(frames, **kwargs)
-    imageio.mimsave(output_path, frames, duration=1 / fps)
+    gif_frames: list[npt.ArrayLike] = [frame for frame in frames]
+    imageio.mimsave(str(output_path), gif_frames, duration=1 / fps)
 
 
 def gif_show(file: PathLike) -> None:
@@ -154,8 +159,7 @@ def gif_show(file: PathLike) -> None:
     :param file: Path to the GIF file to be displayed.
     :raises ValueError: If the provided file is not a GIF.
     """
-    if isinstance(file, str):
-        file = Path(file)
+    file = Path(file)
 
     if not file.suffix == '.gif':
         raise ValueError('must be gif file!')
@@ -179,7 +183,7 @@ def gif_show(file: PathLike) -> None:
     cv2.destroyAllWindows()
 
 
-def write_avi(file_path: str, frames: np.ndarray, fps: int = 30.0) -> None:
+def write_avi(file_path: str, frames: np.ndarray, fps: float = 30.0) -> None:
     """
     Write a sequence of frames to an AVI file.
 
@@ -200,7 +204,7 @@ def write_avi(file_path: str, frames: np.ndarray, fps: int = 30.0) -> None:
     else:
         is_color = False
 
-    fourcc = cv2.VideoWriter_fourcc(*'MJPG')
+    fourcc = cv2.VideoWriter.fourcc(*'MJPG')
     out = cv2.VideoWriter(file_path, fourcc, fps, (width, height), isColor=is_color)
 
     for frame in tqdm(frames, desc='write frames to avi', unit='frames'):

@@ -1,6 +1,6 @@
 import numpy as np
-from collections.abc import Callable
-from typing import Literal, Union, Iterable
+from collections.abc import Callable, Iterable
+from typing import Literal
 
 from neuralib.typing import ArrayLike
 
@@ -42,7 +42,7 @@ __all__ = [
 ]
 
 Segment = np.ndarray  # (N, 2) value array ([(start, stop)]), as a segment.
-SegmentLike = Union[Segment, tuple[float, float], list[tuple[float, float]]]
+SegmentLike = Segment | tuple[float, float] | list[tuple[float, float]]
 SegmentGroup = np.ndarray  # (N,) int array, where a unique value indicate a unique group/segment.
 
 
@@ -74,9 +74,9 @@ def is_sorted(a: np.ndarray, strict: bool = False) -> bool:
     :return: Returns True if the input array is sorted based on the specified criteria, else False.
     """
     if strict:
-        return np.all(a[:-1] < a[1:])
+        return bool(np.all(a[:-1] < a[1:]))
     else:
-        return np.all(a[:-1] <= a[1:])
+        return bool(np.all(a[:-1] <= a[1:]))
 
 
 def segment_mask(x: np.ndarray,
@@ -169,7 +169,7 @@ def has_gap(y: np.ndarray, gap: float) -> bool:
     :param gap: V
     :return:
     """
-    return np.any(np.abs(np.diff(y)) > gap)
+    return bool(np.any(np.abs(np.diff(y)) > gap))
 
 
 def segment_gap(x: np.ndarray, gap: float) -> SegmentGroup:
@@ -477,10 +477,11 @@ def segment_index(segs: SegmentLike, t: np.ndarray) -> np.ndarray:
     :return: (R,) N-value index array
     :raise ValueError: *segs* has overlapped segments or not sorted
     """
-    if len(segment_flatten(segs, closed=False)) != len(segs):
+    a = as_segment(segs)
+    if len(segment_flatten(a, closed=False)) != len(a):
         raise ValueError()
 
-    f = segs.ravel()
+    f = a.ravel()
     if not is_sorted(f):
         raise ValueError()
 
@@ -492,7 +493,7 @@ def segment_index(segs: SegmentLike, t: np.ndarray) -> np.ndarray:
     return i
 
 
-def segment_overlap(segs: SegmentLike, t: Segment, mode: Literal['in', 'out', 'overlap']) -> np.ndarray:
+def segment_overlap(segs: SegmentLike, t: SegmentLike, mode: Literal['in', 'out', 'overlap']) -> np.ndarray:
     """
     * mode == 'in' ::
 
@@ -512,11 +513,12 @@ def segment_overlap(segs: SegmentLike, t: Segment, mode: Literal['in', 'out', 'o
     :return: (R,) bool array
     """
     segs = segment_flatten(segs)
+    t = as_segment(t)
     msk = _segment_overlap(segs, t, mode)
     return np.logical_or.reduce(msk, axis=0)
 
 
-def segment_overlap_index(segs: SegmentLike, t: Segment, mode: Literal['in', 'out', 'overlap']) -> np.ndarray:
+def segment_overlap_index(segs: SegmentLike, t: SegmentLike, mode: Literal['in', 'out', 'overlap']) -> np.ndarray:
     """
     * mode == 'in' (t is smaller) ::
 
@@ -537,11 +539,13 @@ def segment_overlap_index(segs: SegmentLike, t: Segment, mode: Literal['in', 'ou
     :param mode:
     :return: (2, R) N-value index array
     """
+    segs = segment_flatten(segs)
+    t = as_segment(t)
     msk = _segment_overlap(segs, t, mode)
-    n, t = msk.shape
+    n, nt = msk.shape
     low = np.full_like(msk, n, dtype=int)
     hig = np.full_like(msk, -1, dtype=int)
-    grd = np.meshgrid(np.arange(t), np.arange(n))[1]
+    grd = np.meshgrid(np.arange(nt), np.arange(n))[1]
     low[msk] = grd[msk]
     hig[msk] = grd[msk]
     low = np.min(low, axis=0)
@@ -619,7 +623,7 @@ def segment_join_index(segs: Segment, gap: float = 0) -> SegmentGroup:
 def segment_map(f: Callable[[np.ndarray], float],
                 segs: SegmentLike,
                 t: np.ndarray,
-                v: np.ndarray = None) -> np.ndarray:
+                v: np.ndarray | None = None) -> np.ndarray:
     """
 
     :param f: function ((N,) V-value array) -> R-value
@@ -678,7 +682,7 @@ class _SegmentSampleHelper:
         ret[:, 1] = ret[:, 0] + time_duration
         return ret
 
-    def uniform(self, time_duration: float, sample_times: int = None) -> Segment:
+    def uniform(self, time_duration: float, sample_times: int | None = None) -> Segment:
         if time_duration < 0:
             raise ValueError()
 
@@ -690,7 +694,7 @@ class _SegmentSampleHelper:
 
         segs = self.segs[segment_duration(self.segs) >= time_duration]
         count = (segment_duration(segs) / time_duration).astype(int)
-        total = np.sum(count)
+        total = int(np.sum(count))
         if sample_times is None:
             sample_times = total
         if total < sample_times:
@@ -717,14 +721,14 @@ class _SegmentSampleHelper:
 
         return ret
 
-    def bins(self, time_duration: float, sample_times: int = None, interval: float = 0) -> Segment:
+    def bins(self, time_duration: float, sample_times: int | None = None, interval: float = 0) -> Segment:
         return segment_bins(self.segs, time_duration, interval, sample_times)
 
 
 def segment_bins(segs: SegmentLike,
                  duration: float,
                  interval: float = 0,
-                 nbins: int = None) -> Segment:
+                 nbins: int | None = None) -> Segment:
     """
     Divide *segs* into equal-size sub-segments with equal *duration* and equal *interval*.
 
@@ -756,7 +760,7 @@ def segment_bins(segs: SegmentLike,
     count = ((interval + segment_duration(segs)) / (duration + interval)).astype(int)
 
     # maximal total bins
-    total = np.sum(count)
+    total = int(np.sum(count))
 
     if nbins is None:
         nbins = total
@@ -779,9 +783,9 @@ def segment_bins(segs: SegmentLike,
 
 def shuffle_time(t: np.ndarray,
                  method: Callable[[np.ndarray], np.ndarray],
-                 segs: Segment = None,
+                 segs: Segment | None = None,
                  duration: float = np.inf,
-                 circular=True):
+                 circular: bool = True) -> np.ndarray:
     """
     Shuffle *t* by remapping function *method* for *t* in *segs*.
 
@@ -808,10 +812,10 @@ def shuffle_time(t: np.ndarray,
 
 
 def shuffle_time_uniform(t: np.ndarray,
-                         segs: Segment = None,
+                         segs: Segment | None = None,
                          *,
                          duration: float = np.inf,
-                         circular=True) -> np.ndarray:
+                         circular: bool = True) -> np.ndarray:
     """
     Shuffle *t* for *t* in *segs*.
 
@@ -833,10 +837,10 @@ def shuffle_time_uniform(t: np.ndarray,
 def shuffle_time_normal(t: np.ndarray,
                         loc: float = 0,
                         scale: float = 1,
-                        segs: Segment = None,
+                        segs: Segment | None = None,
                         *,
                         duration: float = np.inf,
-                        circular=True) -> np.ndarray:
+                        circular: bool = True) -> np.ndarray:
     """
     Shuffle *t* with add a value from a normal distribution for *t* in *segs*.
 
@@ -857,10 +861,10 @@ def shuffle_time_normal(t: np.ndarray,
 
 def shift_time(t: np.ndarray,
                shift: float,
-               segs: Segment = None,
+               segs: Segment | None = None,
                *,
                duration: float = np.inf,
-               circular=True):
+               circular: bool = True) -> np.ndarray:
     """
     Shift *t* with a *shift* value for *t* in *segs*.
 
@@ -885,7 +889,7 @@ def _shuffle_time_in_segment(t: np.ndarray,
                              shift: Callable[[np.ndarray], np.ndarray],
                              epochs: Segment,
                              duration: tuple[float, float],
-                             circular=True):
+                             circular: bool = True) -> np.ndarray:
     epochs = segment_flatten(epochs)  # Array[float, E', 2]
 
     ret = t.astype(float, copy=True)  # Array[float, T]

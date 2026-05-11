@@ -18,20 +18,20 @@ class JsonEncodeHandler(json.JSONEncoder):
     **Usage**: Add kwarg, e.g., ``json_dump(..., cls=JsonEncodeHandler)``
     """
 
-    def default(self, obj: Any) -> Any:
+    def default(self, o: Any) -> Any:
         """handle array/Path type"""
-        if isinstance(obj, np.integer):
-            return int(obj)
-        elif isinstance(obj, np.floating):
-            return float(obj)
-        elif isinstance(obj, np.ndarray):
-            return obj.tolist()
-        elif isinstance(obj, np.bool_):
-            return bool(obj)
-        elif isinstance(obj, Path):
-            return str(obj)
+        if isinstance(o, np.integer):
+            return int(o)
+        elif isinstance(o, np.floating):
+            return float(o)
+        elif isinstance(o, np.ndarray):
+            return o.tolist()
+        elif isinstance(o, np.bool_):
+            return bool(o)
+        elif isinstance(o, Path):
+            return str(o)
         else:
-            return json.JSONEncoder.default(self, obj)
+            return json.JSONEncoder.default(self, o)
 
 
 def load_json(filepath: PathLike, verbose=True, **kwargs) -> dict[str, Any]:

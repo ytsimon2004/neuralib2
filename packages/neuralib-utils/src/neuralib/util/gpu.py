@@ -1,7 +1,7 @@
 import platform
 import polars as pl
 import subprocess
-from typing import TypedDict, Literal
+from typing import Literal, TypedDict, cast
 
 from neuralib.util.table import rich_data_frame_table
 from neuralib.util.verbose import fprint
@@ -52,7 +52,7 @@ def print_gpu_table(backend: RUN_BACKEND, *, check_smi: bool = False) -> None:
 
     #
     if isinstance(info, dict):
-        rich_data_frame_table(info)
+        rich_data_frame_table(dict(info))
     elif isinstance(info, list):
         df = pl.concat([pl.DataFrame(it) for it in info])
         rich_data_frame_table(df)
@@ -79,7 +79,7 @@ class GPUInfoWin(TypedDict, total=False):
 
 
 def _get_gpu_windows() -> list[GPUInfoWin]:
-    import GPUtil
+    import GPUtil  # pyright: ignore[reportMissingImports]
 
     ret = []
     gpus = GPUtil.getGPUs()
@@ -125,11 +125,11 @@ def check_nvidia_cuda_available(backend: RUN_BACKEND,
     is_available = False
 
     if backend == 'torch':
-        import torch
+        import torch  # pyright: ignore[reportMissingImports]
         if torch.cuda.is_available():
             is_available = True
     elif backend == 'tensorflow':
-        import tensorflow as tf
+        import tensorflow as tf  # pyright: ignore[reportMissingModuleSource]
         if tf.test.is_built_with_cuda():
             is_available = True
     else:
@@ -169,7 +169,7 @@ def _get_gpu_mac(backend: RUN_BACKEND) -> GPUInfoMac:
     output = subprocess.check_output(["system_profiler", "SPDisplaysDataType"], universal_newlines=True)
     lines = output.splitlines()
 
-    ret = {}
+    ret: dict[str, str | bool] = {}
     cur_gpu = None
 
     for line in lines:
@@ -187,7 +187,7 @@ def _get_gpu_mac(backend: RUN_BACKEND) -> GPUInfoMac:
 
     ret['mps_available'] = check_mps_available(backend=backend)
 
-    return ret
+    return cast(GPUInfoMac, ret)
 
 
 def check_mps_available(backend: RUN_BACKEND) -> bool:
@@ -200,7 +200,7 @@ def check_mps_available(backend: RUN_BACKEND) -> bool:
     is_available = True
 
     if backend == 'torch':
-        import torch
+        import torch  # pyright: ignore[reportMissingImports]
         if not torch.backends.mps.is_available():
             if not torch.backends.mps.is_built():
                 fprint('MPS not available because pytorch install not built with MPS enable', vtype='warning')
@@ -210,7 +210,7 @@ def check_mps_available(backend: RUN_BACKEND) -> bool:
             is_available = False
 
     elif backend == 'tensorflow':
-        import tensorflow as tf
+        import tensorflow as tf  # pyright: ignore[reportMissingModuleSource]
         if not tf.test.is_gpu_available():
             fprint('MPS not available in tensorflow backend', vtype='warning')
             is_available = False

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import NamedTuple, Any, get_args
+from typing import NamedTuple, Any
 
 import attrs
 import cv2
@@ -14,7 +14,7 @@ from scipy.io.matlab import MatlabOpaque
 from neuralib.atlas.typing import PLANE_TYPE
 from neuralib.atlas.view import SlicePlane, get_slice_view
 from neuralib.imglib.transform import apply_transformation
-from neuralib.typing import PathLike
+from neuralib.typing import PathLike, PathLikeType
 
 __all__ = [
     'SLICE_DIMENSION_10um',
@@ -173,7 +173,7 @@ def slice_transform_helper(raw_image: PathLike | np.ndarray,
     """
     if isinstance(raw_image, np.ndarray):
         pass
-    elif isinstance(raw_image, get_args(PathLike)):
+    elif isinstance(raw_image, PathLikeType):
         raw_image = iio.imread(raw_image)
     else:
         raise TypeError(f"Unsupported type {type(raw_image)}")
@@ -186,7 +186,7 @@ def slice_transform_helper(raw_image: PathLike | np.ndarray,
         raw_image = np.fliplr(raw_image)
 
     #
-    if isinstance(trans_matrix, get_args(PathLike)):
+    if isinstance(trans_matrix, PathLikeType):
         s = Path(trans_matrix).suffix
         if s == '.mat':
             mtx = loadmat(trans_matrix)['t'].T

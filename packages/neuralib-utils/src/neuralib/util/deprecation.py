@@ -87,7 +87,7 @@ def deprecated_class(*, new: str | None = None,
 
 def deprecated_func(*, new: str | None = None,
                     remarks: str | None = None,
-                    removal_version: str = None):
+                    removal_version: str | None = None):
     """Mark deprecated functions.
 
     :param new: The renamed new usage

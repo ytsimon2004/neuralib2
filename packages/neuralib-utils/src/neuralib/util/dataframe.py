@@ -97,11 +97,11 @@ class DataFrameWrapper(metaclass=abc.ABCMeta):
         pass
 
     @overload
-    def dataframe(self, dataframe: pl.DataFrame, may_inplace=True) -> Self:
+    def dataframe(self, dataframe: pl.DataFrame, may_inplace: bool = True) -> Self:
         pass
 
     @abc.abstractmethod
-    def dataframe(self, dataframe: pl.DataFrame = None, may_inplace=True):
+    def dataframe(self, dataframe: pl.DataFrame | None = None, may_inplace: bool = True) -> pl.DataFrame | Self:
         """
         Getter/setter for the internal Polars DataFrame.
 
@@ -133,24 +133,7 @@ class DataFrameWrapper(metaclass=abc.ABCMeta):
         """See `polars.DataFrame.__dataframe__`."""
         return self.dataframe().__dataframe__(*args, **kwargs)
 
-    @overload
-    def __getitem__(self, key: (
-            str
-            | tuple[[pty.MultiIndexSelector, pty.SingleColSelector]]
-    )) -> pl.Series:
-        ...
-
-    @overload
-    def __getitem__(self, key: (
-            pty.SingleIndexSelector
-            | pty.MultiIndexSelector
-            | pty.MultiColSelector
-            | tuple[pty.SingleIndexSelector, pty.MultiColSelector]
-            | tuple[pty.MultiIndexSelector, pty.MultiColSelector]
-    )) -> pl.DataFrame:
-        ...
-
-    def __getitem__(self, item):
+    def __getitem__(self, item: Any) -> Any:
         """See `polars.DataFrame.__getitem__`."""
         return self.dataframe().__getitem__(item)
 
@@ -183,19 +166,22 @@ class DataFrameWrapper(metaclass=abc.ABCMeta):
         """See `polars.DataFrame.limit`."""
         return self.dataframe(self.dataframe().limit(n))
 
-    @overload
     def sort(self,
-             by: pty.IntoExpr | Iterable[[pty.IntoExpr]],
+             by: pty.IntoExpr | Iterable[pty.IntoExpr],
              *more_by: pty.IntoExpr,
              descending: bool | Sequence[bool] = False,
              nulls_last: bool | Sequence[bool] = False,
              multithreaded: bool = True,
              maintain_order: bool = False) -> Self:
-        ...
-
-    def sort(self, by, *more_by, **kwargs) -> Self:
         """See `polars.DataFrame.sort`."""
-        return self.dataframe(self.dataframe().sort(by, *more_by, **kwargs))
+        return self.dataframe(self.dataframe().sort(
+            by,
+            *more_by,
+            descending=descending,
+            nulls_last=nulls_last,
+            multithreaded=multithreaded,
+            maintain_order=maintain_order
+        ))
 
     def drop(self, *columns: pty.ColumnNameOrSelector | Iterable[pty.ColumnNameOrSelector],
              strict: bool = True) -> Self:
@@ -242,10 +228,11 @@ class DataFrameWrapper(metaclass=abc.ABCMeta):
 
     def partition_by(self, by, *more_by, as_dict=False, **kwargs):
         """See `polars.DataFrame.partition_by`."""
-        dataframe = self.dataframe().partition_by(by, *more_by, as_dict=as_dict, **kwargs)
         if as_dict:
+            dataframe = self.dataframe().partition_by(by, *more_by, as_dict=True, **kwargs)
             return {k: self.dataframe(it, may_inplace=False) for k, it in dataframe.items()}
         else:
+            dataframe = self.dataframe().partition_by(by, *more_by, as_dict=False, **kwargs)
             return [self.dataframe(it, may_inplace=False) for it in dataframe]
 
     def select(self, *exprs: pty.IntoExpr | Iterable[pty.IntoExpr],
@@ -262,7 +249,6 @@ class DataFrameWrapper(metaclass=abc.ABCMeta):
         """See `polars.DataFrame.with_row_index`."""
         return self.dataframe(self.dataframe().with_row_index(name, offset))
 
-    @overload
     def join(self, other: pl.DataFrame | DataFrameWrapper,
              on: str | pl.Expr | Sequence[str | pl.Expr],
              how: pty.JoinStrategy = "inner", *,
@@ -272,13 +258,20 @@ class DataFrameWrapper(metaclass=abc.ABCMeta):
              validate: pty.JoinValidation = "m:m",
              join_nulls: bool = False,
              coalesce: bool | None = None) -> Self:
-        ...
-
-    def join(self, other: pl.DataFrame | DataFrameWrapper, on, *args, **kwargs) -> Self:
         """See `polars.DataFrame.join`."""
         if isinstance(other, DataFrameWrapper):
             other = other.dataframe()
-        return self.dataframe(self.dataframe().join(other, on, *args, **kwargs))
+        return self.dataframe(self.dataframe().join(
+            other,
+            on,
+            how=how,
+            left_on=left_on,
+            right_on=right_on,
+            suffix=suffix,
+            validate=validate,
+            nulls_equal=join_nulls,
+            coalesce=coalesce
+        ))
 
     def pipe(self, function: Callable[Concatenate[pl.DataFrame, P], pl.DataFrame],
              *args: P.args,
@@ -317,70 +310,72 @@ class LazyDataFrameWrapper(Generic[T]):
     def collect(self, **kwargs) -> T:
         return self.__wrapper.dataframe(self.__lazy.collect(**kwargs))
 
-    def rename(self, mapping: dict[str, str] | Callable[[str], str]) -> Self:
+    def rename(self, mapping: dict[str, str] | Callable[[str], str]) -> LazyDataFrameWrapper[T]:
         return LazyDataFrameWrapper(self.__wrapper, self.__lazy.rename(mapping))
 
-    def slice(self, offset: int, length: int | None = None) -> Self:
+    def slice(self, offset: int, length: int | None = None) -> LazyDataFrameWrapper[T]:
         return LazyDataFrameWrapper(self.__wrapper, self.__lazy.slice(offset, length))
 
-    def head(self, n: int = 5) -> Self:
+    def head(self, n: int = 5) -> LazyDataFrameWrapper[T]:
         return LazyDataFrameWrapper(self.__wrapper, self.__lazy.head(n))
 
-    def tail(self, n: int = 5) -> Self:
+    def tail(self, n: int = 5) -> LazyDataFrameWrapper[T]:
         return LazyDataFrameWrapper(self.__wrapper, self.__lazy.tail(n))
 
-    def limit(self, n: int = 5) -> Self:
+    def limit(self, n: int = 5) -> LazyDataFrameWrapper[T]:
         return LazyDataFrameWrapper(self.__wrapper, self.__lazy.limit(n))
 
-    def clear(self, n: int = 0) -> Self:
+    def clear(self, n: int = 0) -> LazyDataFrameWrapper[T]:
         return LazyDataFrameWrapper(self.__wrapper, self.__lazy.clear(n))
 
     def filter(self, *predicates: pty.IntoExprColumn | Iterable[pty.IntoExprColumn] | bool | list[bool] | np.ndarray,
-               **constraints: Any) -> Self:
+               **constraints: Any) -> LazyDataFrameWrapper[T]:
         return LazyDataFrameWrapper(self.__wrapper, self.__lazy.filter(*predicates, **constraints))
 
-    @overload
     def sort(self,
-             by: pty.IntoExpr | Iterable[[pty.IntoExpr]],
+             by: pty.IntoExpr | Iterable[pty.IntoExpr],
              *more_by: pty.IntoExpr,
              descending: bool | Sequence[bool] = False,
              nulls_last: bool | Sequence[bool] = False,
              multithreaded: bool = True,
-             maintain_order: bool = False) -> Self:
-        pass
-
-    def sort(self, by, *more_by, **kwargs) -> Self:
-        df = self.__lazy.sort(by, *more_by, **kwargs)
+             maintain_order: bool = False) -> LazyDataFrameWrapper[T]:
+        df = self.__lazy.sort(
+            by,
+            *more_by,
+            descending=descending,
+            nulls_last=nulls_last,
+            multithreaded=multithreaded,
+            maintain_order=maintain_order
+        )
         return LazyDataFrameWrapper(self.__wrapper, df)
 
     def drop(self, *columns: pty.ColumnNameOrSelector | Iterable[pty.ColumnNameOrSelector],
-             strict: bool = True) -> Self:
+             strict: bool = True) -> LazyDataFrameWrapper[T]:
         return LazyDataFrameWrapper(self.__wrapper, self.__lazy.drop(*columns, strict=strict))
 
-    def drop_nulls(self, subset: pty.ColumnNameOrSelector | Collection[pty.ColumnNameOrSelector]) -> Self:
+    def drop_nulls(self, subset: pty.ColumnNameOrSelector | Collection[pty.ColumnNameOrSelector]) -> LazyDataFrameWrapper[T]:
         return LazyDataFrameWrapper(self.__wrapper, self.__lazy.drop_nulls(subset))
 
     def fill_null(self, value: Any | pl.Expr | None = None,
                   strategy: pty.FillNullStrategy | None = None,
-                  limit: int | None = None, **kwargs) -> Self:
+                  limit: int | None = None, **kwargs) -> LazyDataFrameWrapper[T]:
         return LazyDataFrameWrapper(self.__wrapper, self.__lazy.fill_null(value, strategy, limit, **kwargs))
 
-    def fill_nan(self, value: pl.Expr | int | float | None = None) -> Self:
+    def fill_nan(self, value: pl.Expr | int | float | None = None) -> LazyDataFrameWrapper[T]:
         return LazyDataFrameWrapper(self.__wrapper, self.__lazy.fill_nan(value))
 
     def select(self, *exprs: pty.IntoExpr | Iterable[pty.IntoExpr],
-               **named_exprs: pty.IntoExpr) -> Self:
+               **named_exprs: pty.IntoExpr) -> LazyDataFrameWrapper[T]:
         return LazyDataFrameWrapper(self.__wrapper, self.__lazy.select(*exprs, **named_exprs))
 
     def with_columns(self, *exprs: pty.IntoExpr | Iterable[pty.IntoExpr],
-                     **named_exprs: pty.IntoExpr) -> Self:
+                     **named_exprs: pty.IntoExpr) -> LazyDataFrameWrapper[T]:
         return LazyDataFrameWrapper(self.__wrapper, self.__lazy.with_columns(*exprs, **named_exprs))
 
-    def with_row_index(self, name: str = "index", offset: int = 0) -> Self:
+    def with_row_index(self, name: str = "index", offset: int = 0) -> LazyDataFrameWrapper[T]:
         return LazyDataFrameWrapper(self.__wrapper, self.__lazy.with_row_index(name, offset))
 
-    @overload
-    def join(self, other: pl.DataFrame | DataFrameWrapper,
+    def join(self, other: pl.DataFrame | pl.LazyFrame | DataFrameWrapper,
              on: str | pl.Expr | Sequence[str | pl.Expr],
              how: pty.JoinStrategy = "inner", *,
              left_on=None,
@@ -388,21 +383,28 @@ class LazyDataFrameWrapper(Generic[T]):
              suffix: str = "_right",
              validate: pty.JoinValidation = "m:m",
              join_nulls: bool = False,
-             coalesce: bool | None = None) -> Self:
-        pass
-
-    def join(self, other: pl.DataFrame | DataFrameWrapper, on, *args, **kwargs) -> Self:
+             coalesce: bool | None = None) -> LazyDataFrameWrapper[T]:
         if isinstance(other, DataFrameWrapper):
             other = other.dataframe()
         if not isinstance(other, pl.LazyFrame):
             other = other.lazy()
 
-        df = self.__lazy.join(other, on, *args, **kwargs)
+        df = self.__lazy.join(
+            other,
+            on,
+            how=how,
+            left_on=left_on,
+            right_on=right_on,
+            suffix=suffix,
+            validate=validate,
+            nulls_equal=join_nulls,
+            coalesce=coalesce
+        )
         return LazyDataFrameWrapper(self.__wrapper, df)
 
     def pipe(self, function: Callable[Concatenate[pl.LazyFrame, P], pl.LazyFrame],
              *args: P.args,
-             **kwargs: P.kwargs) -> Self:
+             **kwargs: P.kwargs) -> LazyDataFrameWrapper[T]:
         return LazyDataFrameWrapper(self.__wrapper, self.__lazy.pipe(function, *args, **kwargs))
 
 
@@ -423,29 +425,27 @@ def helper_with_index_column(df: T,
     :raise RuntimeError: strict mode fail.
     """
     if isinstance(index, (int, np.integer)):
-        ret = df.filter(pl.col(column) == index)
-        if len(ret) == 0 and strict:
-            raise RuntimeError(f'missing {column}: [{index}]')
+        index_values = np.asarray([index])
     elif isinstance(index, type(df)):
-        index = index[column].to_numpy()
+        index_values = index[column].to_numpy()
     else:
-        index = np.asarray(index)
+        index_values = np.asarray(index)
 
     if strict:
-        if len(miss := np.setdiff1d(index, df.dataframe()[column].unique().to_numpy())) > 0:
+        if len(miss := np.setdiff1d(index_values, df.dataframe()[column].unique().to_numpy())) > 0:
             raise RuntimeError(f'missing {column}: {list(miss)}')
 
     if maintain_order:
         _column = '_' + column
-        index = pl.DataFrame(
-            {column: index},
+        index_frame = pl.DataFrame(
+            {column: index_values},
             schema_overrides={column: df.schema[column]}
         ).with_row_index(_column)
-        ret = df.lazy().join(index, on=column, how='left')
+        ret = df.lazy().join(index_frame, on=column, how='left')
         ret = ret.filter(pl.col(_column).is_not_null())
         return ret.sort(_column).drop(_column).collect()
     else:
-        return df.filter(pl.col(column).is_in(index))
+        return df.filter(pl.col(column).is_in(index_values))
 
 
 def assert_polars_equal_verbose(df1: pl.DataFrame, df2: pl.DataFrame, **kwargs):
@@ -496,10 +496,10 @@ def assert_polars_equal_verbose(df1: pl.DataFrame, df2: pl.DataFrame, **kwargs):
 
 
 def _highlight_cell_differences(df1: pl.DataFrame, df2: pl.DataFrame) -> pl.DataFrame:
-    return pl.DataFrame({
-        col: df1[col].cast(str).zip_with(
-            df1[col] != df2[col],
-            pl.lit('df1=') + df1[col].cast(str) + ', df2=' + df2[col].cast(str)
-        ).fill_null('')  # Handle NaNs
+    return df1.select([
+        pl.when(df1[col] != df2[col])
+        .then(pl.lit('df1=') + df1[col].cast(str) + ', df2=' + df2[col].cast(str))
+        .otherwise('')
+        .alias(col)
         for col in df1.columns
-    })
+    ])

@@ -79,7 +79,7 @@ def enhance_blood_vessels(image: np.ndarray, enhance_contrast: bool = True) -> n
         gray = image.copy()
 
     # normalize to 0-255 range
-    gray = cv2.normalize(gray, None, 0, 255, cv2.NORM_MINMAX).astype(np.uint8)
+    gray = cv2.normalize(gray, np.empty_like(gray), 0, 255, cv2.NORM_MINMAX).astype(np.uint8)
 
     # apply CLAHE for contrast enhancement
     if enhance_contrast:

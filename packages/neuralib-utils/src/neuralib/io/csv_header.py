@@ -1,3 +1,7 @@
+from io import StringIO, TextIOBase
+from pathlib import Path
+from types import TracebackType
+
 from neuralib.typing import PathLike
 
 __all__ = ['csv_header']
@@ -5,19 +9,19 @@ __all__ = ['csv_header']
 
 class CsvContextManager:
     def __init__(self,
-                 output: PathLike,
+                 output: PathLike | None,
                  header: list[str],
                  append: bool = False,
                  buffer: bool = False,
-                 continuous_mode: str = None,
-                 quotes_header: list[str] = None):
-        self._output = output
+                 continuous_mode: str | None = None,
+                 quotes_header: list[str] | str | None = None):
+        self._output = Path(output) if output is not None else None
         self._header = header
         self._append = append
         self._buffer = buffer
         self._cont_mode = continuous_mode
 
-        self._stream = None
+        self._stream: TextIOBase | StringIO | None = None
         self._cont_column: set[str] | None = None
         self._cont_index = -1
 
@@ -25,7 +29,7 @@ class CsvContextManager:
             quotes_header = [quotes_header]
         self._quotes_header: list[str] | None = quotes_header
 
-    def __enter__(self):
+    def __enter__(self) -> 'CsvContextManager':
         if self._stream is not None:
             raise RuntimeError()
 
@@ -63,25 +67,35 @@ class CsvContextManager:
 
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self,
+                 exc_type: type[BaseException] | None,
+                 exc_val: BaseException | None,
+                 exc_tb: TracebackType | None) -> None:
         if self._output is None:
             return
 
         if self._buffer:
             if exc_type is None:
+                if not isinstance(self._stream, StringIO):
+                    raise RuntimeError('buffer stream was not initialized')
                 mode = 'a' if self._append else 'w'
                 with self._output.open(mode) as out:
                     out.write(self._stream.getvalue())
             else:
                 print('error happen, drop buffer')
 
+        if self._stream is None:
+            raise RuntimeError('csv stream was not initialized')
         self._stream.close()
 
         self._stream = None
 
-    def __call__(self, *args):
+    def __call__(self, *args) -> None:
         if self._output is None:
             return
+
+        if self._stream is None:
+            raise RuntimeError('csv stream was not initialized')
 
         if self._quotes_header is not None:
             ret = list([*args])
@@ -95,7 +109,7 @@ class CsvContextManager:
         if self._cont_column is not None:
             self._cont_column.add(str(args[self._cont_index]))
 
-    def __contains__(self, item):
+    def __contains__(self, item) -> bool:
         if self._cont_column is None:
             return False
 
@@ -105,7 +119,7 @@ class CsvContextManager:
         return str(self._output)
 
 
-def csv_header(output: PathLike,
+def csv_header(output: PathLike | None,
                header: list[str],
                append: bool = False,
                buffer: bool = False,

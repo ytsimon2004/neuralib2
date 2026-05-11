@@ -38,8 +38,9 @@ def is_numeric_arraylike(arr: ArrayLike) -> bool:
 # noinspection PyProtectedMember
 def is_namedtuple(obj: Any) -> bool:
     """Check if is a namedtuple object"""
-    if isinstance(obj, tuple) and hasattr(obj, '_fields'):
-        if isinstance(obj._fields, tuple):
+    if isinstance(obj, tuple):
+        fields = getattr(obj, '_fields', None)
+        if isinstance(fields, tuple):
             return True
 
     return False

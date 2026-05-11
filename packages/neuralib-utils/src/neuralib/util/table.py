@@ -4,10 +4,11 @@ import pandas as pd
 import polars as pl
 import rich
 import textwrap
+from collections.abc import Iterator
 from rich import box
 from rich.console import Console, Capture
 from rich.table import Table, Column
-from typing import Union, ContextManager, Dict, Optional, List, Tuple
+from typing import Any
 
 __all__ = [
     'Column',
@@ -21,11 +22,11 @@ __all__ = [
 
 
 class TableLike:
-    def __init__(self, table: Table, capture: Optional[Capture] = None):
+    def __init__(self, table: Table, capture: Capture | None = None):
         self.__table = table
         self.__capture = capture
 
-    def add_column(self, header=None, footer=None, **kwargs):
+    def add_column(self, header: str = '', footer: str = '', **kwargs):
         self.__table.add_column(header, footer, **kwargs)
 
     def __call__(self, *args):
@@ -35,7 +36,10 @@ class TableLike:
         """
         self.__table.add_row(*[str(it) if it is not None else '' for it in args])
 
-    def get(self, prepend: Union[int, str] = None):
+    def get(self, prepend: int | str | None = None):
+        if self.__capture is None:
+            raise RuntimeError('table content was not captured')
+
         ret = self.__capture.get()
 
         if prepend is not None:
@@ -46,8 +50,8 @@ class TableLike:
         return ret
 
 
-def _rich_table_header(*header: Union[int, str, Column]) -> List[Column]:
-    def _header(ih: Tuple[int, Union[int, str, Column]]) -> Column:
+def _rich_table_header(*header: int | str | Column) -> list[Column]:
+    def _header(ih: tuple[int, int | str | Column]) -> Column:
         i, h = ih
         if isinstance(h, int):
             if i + 1 == len(header):  # last one
@@ -65,7 +69,7 @@ def _rich_table_header(*header: Union[int, str, Column]) -> List[Column]:
 
 
 @functools.wraps(Table.__init__)
-def rich_default_table(*header: Union[str, Column], **kwargs) -> Table:
+def rich_default_table(*header: int | str | Column, **kwargs) -> Table:
     kwargs.setdefault('show_edge', False)
     kwargs.setdefault('box', box.SIMPLE)
     return Table(*_rich_table_header(*header), **kwargs)
@@ -73,8 +77,8 @@ def rich_default_table(*header: Union[str, Column], **kwargs) -> Table:
 
 @contextlib.contextmanager
 @functools.wraps(Table.__init__)
-def rich_table(*header: Union[int, str, Column],
-               **kwargs) -> ContextManager[TableLike]:
+def rich_table(*header: int | str | Column,
+               **kwargs) -> Iterator[TableLike]:
     table = rich_default_table(*header, **kwargs)
     yield TableLike(table)
     rich.get_console().print(table)
@@ -82,8 +86,8 @@ def rich_table(*header: Union[int, str, Column],
 
 @contextlib.contextmanager
 @functools.wraps(Table.__init__)
-def rich_table_content(*header: Union[int, str, Column],
-                       **kwargs) -> ContextManager[TableLike]:
+def rich_table_content(*header: int | str | Column,
+                       **kwargs) -> Iterator[TableLike]:
     console = Console()
     with console.capture() as capture:
         table = rich_default_table(*header, **kwargs)
@@ -91,7 +95,7 @@ def rich_table_content(*header: Union[int, str, Column],
         console.print(table)
 
 
-def rich_data_frame_table(frame: Union[pd.DataFrame, pl.DataFrame, Dict], *,
+def rich_data_frame_table(frame: pd.DataFrame | pl.DataFrame | dict[str, Any], *,
                           show_dytpe=False) -> Table:
     if isinstance(frame, pd.DataFrame):
         return _rich_pandas_data_frame_table(frame, show_dytpe=show_dytpe)
@@ -104,9 +108,9 @@ def rich_data_frame_table(frame: Union[pd.DataFrame, pl.DataFrame, Dict], *,
 def _rich_pandas_data_frame_table(frame: pd.DataFrame, *,
                                   show_dytpe=False) -> Table:
     table = rich_default_table()
-    table.add_column(frame.index.name or '')
+    table.add_column(str(frame.index.name or ''))
     for c in frame.columns:
-        table.add_column(c)
+        table.add_column(str(c))
 
     if show_dytpe:
         # TODO
@@ -123,7 +127,7 @@ def _rich_polars_data_frame_table(frame: pl.DataFrame, *,
                                   show_dytpe=False) -> Table:
     table = rich_default_table()
     for c in frame.columns:
-        table.add_column(c)
+        table.add_column(str(c))
 
     if show_dytpe:
         table.add_row(*list(map(str, frame.dtypes)))

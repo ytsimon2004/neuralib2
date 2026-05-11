@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import cv2
 import numpy as np
-from typing import Literal, Sequence
+from typing import Literal, Sequence, cast
 from typing import Self
 
-from neuralib.typing import PathLike
+from neuralib.typing import PathLike, PathLikeType
 
 __all__ = ['image_array',
            'ImageArrayWrapper']
@@ -39,19 +39,21 @@ class ImageArrayWrapper(np.ndarray):
         :param mode: Color mode {'RGB', 'RGBA', 'gray'}. Optional if dat is ndarray.
         :param alpha: If True and loading from file, convert to RGBA
         """
-        if isinstance(dat, PathLike):
+        if isinstance(dat, PathLikeType):
             img = cv2.imread(str(dat))
+            if img is None:
+                raise FileNotFoundError(str(dat))
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             if alpha:
                 img = cv2.cvtColor(img, cv2.COLOR_RGB2RGBA)
                 mode = 'RGBA'
             else:
                 mode = 'RGB'
-            dat = img
+            arr = cast(np.ndarray, img)
         else:
-            dat = np.asarray(dat)
+            arr = np.asarray(dat)
 
-            match (mode, dat.ndim, dat.shape[-1] if dat.ndim == 3 else None):
+            match (mode, arr.ndim, arr.shape[-1] if arr.ndim == 3 else None):
                 case (None, 2, _):
                     mode = 'gray'
                 case (None, 3, 3):
@@ -65,11 +67,11 @@ class ImageArrayWrapper(np.ndarray):
                 case ('RGBA', 3, 4):
                     pass  # valid rgba
                 case _:
-                    raise ValueError(f"Invalid shape {dat.shape} for mode={mode!r}")
+                    raise ValueError(f"Invalid shape {arr.shape} for mode={mode!r}")
 
-        obj = dat.view(cls)
+        obj = arr.view(cls)
         obj.mode = mode
-        return obj
+        return cast(Self, obj)
 
     def __array_finalize__(self, obj):
         if obj is None:
@@ -86,7 +88,7 @@ class ImageArrayWrapper(np.ndarray):
         """image width"""
         return self.shape[1]
 
-    def to_gray(self) -> Self:
+    def to_gray(self) -> ImageArrayWrapper:
         """convert the image array to grayscale"""
         if self.ndim == 2:
             ret = self.copy().astype("uint8")
@@ -99,15 +101,15 @@ class ImageArrayWrapper(np.ndarray):
 
         return ImageArrayWrapper(ret, mode='gray')
 
-    def flipud(self) -> Self:
+    def flipud(self) -> ImageArrayWrapper:
         """flip the image array upside down (vertical)"""
         return ImageArrayWrapper(np.flipud(self))
 
-    def fliplr(self) -> Self:
+    def fliplr(self) -> ImageArrayWrapper:
         """flip the image array left to right (horizontal flip)"""
         return ImageArrayWrapper(np.fliplr(self))
 
-    def select_channel(self, channel: RGB_CHANNEL_TYPE) -> Self:
+    def select_channel(self, channel: RGB_CHANNEL_TYPE) -> ImageArrayWrapper:
         """extract a single color channel from an RGB or RGBA image
 
         :param channel: one of 'r'/'red', 'g'/'green', or 'b'/'blue'.
@@ -128,7 +130,7 @@ class ImageArrayWrapper(np.ndarray):
 
         return ImageArrayWrapper(ret, mode='gray')
 
-    def view_2d(self, flipud: bool = False) -> Self:
+    def view_2d(self, flipud: bool = False) -> ImageArrayWrapper:
         """
         Convert a multi-channel image to a 2D representation.
 
@@ -157,7 +159,7 @@ class ImageArrayWrapper(np.ndarray):
 
         return zelf
 
-    def gaussian_blur(self, ksize: Sequence[int], sigma_x: float, sigma_y: float, **kwargs) -> Self:
+    def gaussian_blur(self, ksize: Sequence[int], sigma_x: float, sigma_y: float, **kwargs) -> ImageArrayWrapper:
         """
         Apply a Gaussian blur to the image.
 
@@ -169,7 +171,7 @@ class ImageArrayWrapper(np.ndarray):
         img = cv2.GaussianBlur(self, ksize=ksize, sigmaX=sigma_x, sigmaY=sigma_y, **kwargs)
         return ImageArrayWrapper(img)
 
-    def canny_filter(self, threshold_1: float = 30, threshold_2: float = 150, **kwargs) -> Self:
+    def canny_filter(self, threshold_1: float = 30, threshold_2: float = 150, **kwargs) -> ImageArrayWrapper:
         """
         Apply the Canny edge detection algorithm to the grayscale version of the image.
 
@@ -180,7 +182,7 @@ class ImageArrayWrapper(np.ndarray):
         img = cv2.Canny(self.to_gray(), threshold1=threshold_1, threshold2=threshold_2, **kwargs)
         return ImageArrayWrapper(img)
 
-    def binarize(self, thresh: float, maxval: float = 255, **kwargs) -> Self:
+    def binarize(self, thresh: float, maxval: float = 255, **kwargs) -> ImageArrayWrapper:
         """
         Convert the image to a binary image using a fixed threshold.
 
@@ -191,7 +193,7 @@ class ImageArrayWrapper(np.ndarray):
         _, img = cv2.threshold(self, thresh, maxval=maxval, type=cv2.THRESH_BINARY, **kwargs)
         return ImageArrayWrapper(img)
 
-    def denoise(self, h: int = 10, temp_win_size: int = 7, search_win_size: int = 21, **kwargs) -> Self:
+    def denoise(self, h: int = 10, temp_win_size: int = 7, search_win_size: int = 21, **kwargs) -> ImageArrayWrapper:
         """
         Apply Non-local Means Denoising to the image.
 
@@ -210,7 +212,7 @@ class ImageArrayWrapper(np.ndarray):
         img = fn(self, h=h, templateWindowSize=temp_win_size, searchWindowSize=search_win_size, **kwargs)
         return ImageArrayWrapper(img)
 
-    def enhance_contrast(self) -> Self:
+    def enhance_contrast(self) -> ImageArrayWrapper:
         """Enhance the contrast of the image using histogram equalization"""
         match self.mode:
             case 'gray':
@@ -232,7 +234,7 @@ class ImageArrayWrapper(np.ndarray):
             case _:
                 raise ValueError(f'invalid mode: {self.mode}')
 
-    def local_maxima(self, channel: RGB_CHANNEL_TYPE, **kwargs) -> Self:
+    def local_maxima(self, channel: RGB_CHANNEL_TYPE, **kwargs) -> ImageArrayWrapper:
         """
         Compute the local maxima of the image on a specified color channel.
 
@@ -248,4 +250,4 @@ class ImageArrayWrapper(np.ndarray):
         if np.sum(img) == 0:
             return ImageArrayWrapper(np.zeros_like(img, dtype=np.uint8), mode='gray')
         else:
-            return ImageArrayWrapper(local_maxima(img, **kwargs), mode='gray')
+            return ImageArrayWrapper(np.asarray(local_maxima(img, **kwargs)), mode='gray')

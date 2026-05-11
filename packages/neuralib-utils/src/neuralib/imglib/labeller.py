@@ -15,7 +15,6 @@ from typing import Self
 
 from neuralib.io import csv_header
 from neuralib.typing import PathLike
-from neuralib.util.utils import keys_with_value
 from neuralib.util.verbose import fprint
 
 __all__ = ['SequenceLabeller']
@@ -99,6 +98,8 @@ def get_keymapping() -> KeyMapping:
         return MAC_KEYMAPPING
     elif p == 'win32':
         return WIN_KEYMAPPING
+    else:
+        raise RuntimeError(f'unsupported platform: {p}')
 
 
 @attrs.define
@@ -153,7 +154,7 @@ class SequenceLabeller:
     def __init__(self, seqs_info: list[FrameInfo],
                  output: PathLike | None = None):
         self.seqs_info = seqs_info
-        self.output = output  # for notes
+        self.output: Path | None = Path(output) if output is not None else None  # for notes
 
         self.message_queue: list[str] = []
         self.buffer = ''  # input buffer
@@ -179,11 +180,11 @@ class SequenceLabeller:
         n_frames = len(seqs)
 
         if filenames is None:
-            filenames = np.arange(n_frames).astype(str)
+            filenames = list(np.arange(n_frames).astype(str))
 
         seqs_info = [FrameInfo(filenames[i], seqs[i], None) for i in range(n_frames)]
 
-        return SequenceLabeller(seqs_info, Path(output) if output is not None else None)
+        return cls(seqs_info, output)
 
     @classmethod
     def load_from_dir(cls, directory: PathLike,
@@ -200,7 +201,8 @@ class SequenceLabeller:
         :param output:
         :return:
         """
-        if not Path(directory).is_dir():
+        directory = Path(directory)
+        if not directory.is_dir():
             raise NotADirectoryError(f'{directory}')
 
         files = sorted(list(directory.glob(f'*{file_suffix}')), key=sort_func)
@@ -220,7 +222,9 @@ class SequenceLabeller:
             else:
                 if single_frame_per_file:
                     img = cv2.imread(str(f))
-                    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+                    if img is None:
+                        raise FileNotFoundError(f'Failed to read image: {f}')
+                    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)  # pyright: ignore[reportCallIssue]
                     seqs.append(img)
                 elif not single_frame_per_file and file_suffix in ('.tif', '.tiff'):
                     seqs.append(tifffile.imread(str(f)))
@@ -230,7 +234,7 @@ class SequenceLabeller:
         filenames = [it.stem for it in files]
         seqs_info = [FrameInfo(filenames[i], seqs[i], None) for i in range(len(seqs))]
 
-        return SequenceLabeller(seqs_info, Path(output) if output is not None else None)
+        return cls(seqs_info, output)
 
     @property
     def n_frames(self) -> int:
@@ -265,6 +269,9 @@ class SequenceLabeller:
         """save image-related notes to file"""
         from datetime import datetime
 
+        if self.output is None:
+            raise RuntimeError('specify output first for writing notes!')
+
         fields = ['filename', 'notes', 'datetime']
         t = datetime.now().replace(second=0, microsecond=0).strftime("%Y-%m-%d %H:%M")  # TODO to frame dependent
         with csv_header(self.output, fields, quotes_header='notes') as csv:
@@ -277,6 +284,9 @@ class SequenceLabeller:
         """read image-related notes from file"""
         from neuralib.util.verbose import printdf
 
+        if self.output is None:
+            raise RuntimeError('specify output first for loading notes!')
+
         df = self._prev_note = pl.read_csv(self.output, schema_overrides={'filename': pl.Utf8})
         printdf(df)
         for i, info in enumerate(self.seqs_info):
@@ -286,7 +296,7 @@ class SequenceLabeller:
     def write_note(self, note: str, *, append_mode: bool = False):
         if append_mode:
             prev = self.seqs_info[self.current_frame_index].notes
-            self.seqs_info[self.current_frame_index].notes = prev + ';' + note
+            self.seqs_info[self.current_frame_index].notes = note if prev is None else prev + ';' + note
         else:
             self.seqs_info[self.current_frame_index].notes = note
 
@@ -351,8 +361,8 @@ class SequenceLabeller:
         :return: int value if cannot find key in keymapping, otherwise return None
         """
         try:
-            ret = keys_with_value(mapping, value, to_item=True)
-        except (KeyError, ValueError):
+            ret = next(key for key, key_value in mapping.items() if key_value == value)
+        except StopIteration:
             return value
         else:
             if ret == 'left':
@@ -399,6 +409,8 @@ class SequenceLabeller:
             self.enqueue_message(f'current file index: {self.current_frame_index}')
         elif re.match(r'^:(\d)', command):
             match = re.search(r'^:(\d)', command)
+            if match is None:
+                raise RuntimeError(f'unknown command : "{command}"')
             self.go_to(int(match.group(1)))
         elif command.startswith('+'):
             self.write_note(command[1:], append_mode=True)

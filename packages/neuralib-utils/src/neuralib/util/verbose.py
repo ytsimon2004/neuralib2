@@ -1,13 +1,13 @@
 from datetime import datetime
 from pathlib import Path
-from typing import Literal, Callable
+from typing import Literal, Callable, cast
 
 import h5py
 import pandas as pd
 import polars as pl
 from colorama import Fore, Style
 
-from neuralib.typing import DataFrame, PathLike
+from neuralib.typing import DataFrame, PathLike, PathLikeType
 
 __all__ = ['fprint',
            'printdf',
@@ -93,10 +93,10 @@ def printdf(df: DataFrame,
             if do_print:
                 print(df)
 
-            return df.__repr__()
+            return repr(df)
 
     elif isinstance(df, pd.DataFrame):
-        ret = df.to_markdown()
+        ret = df.to_markdown() or ''
         print(ret)
         return ret
 
@@ -106,19 +106,25 @@ def printdf(df: DataFrame,
 
 def print_h5py(group: h5py.Group | PathLike, indent: int = 0) -> None:
     """print .h5 file"""
-    if isinstance(group, PathLike):
+    close_file = False
+    if isinstance(group, PathLikeType):
         group = h5py.File(group)
+        close_file = True
 
-    for key in group:
-        item = group[key]
-        prefix = " " * indent
-        if isinstance(item, h5py.Group):
-            print(f"{prefix}Group: {key}")
-            print_h5py(item, indent=indent + 4)
-        elif isinstance(item, h5py.Dataset):
-            print(f"{prefix}Dataset: {key} (shape: {item.shape}, dtype: {item.dtype})")
-        else:
-            print(f"{prefix}{key}: Unknown type {type(item)}")
+    try:
+        for key in group:
+            item = group[key]
+            prefix = " " * indent
+            if isinstance(item, h5py.Group):
+                print(f"{prefix}Group: {key}")
+                print_h5py(item, indent=indent + 4)
+            elif isinstance(item, h5py.Dataset):
+                print(f"{prefix}Dataset: {key} (shape: {item.shape}, dtype: {item.dtype})")
+            else:
+                print(f"{prefix}{key}: Unknown type {type(item)}")
+    finally:
+        if close_file:
+            cast(h5py.File, group).close()
 
 
 def print_load(file: PathLike, verb='LOAD') -> Path:
@@ -227,10 +233,10 @@ def publish_annotation(level: Literal['main', 'sup', 'appendix', 'test'],
                 if hasattr(target, attr):
                     raise AttributeError(f"Class {target.__name__} already has an attribute named '{attr}'.")
 
-            target.__publish_level__ = level
-            target.__publish_project__ = project
-            target.__publish_figure__ = figure
-            target.__publish_caption__ = caption
+            setattr(target, '__publish_level__', level)
+            setattr(target, '__publish_project__', project)
+            setattr(target, '__publish_figure__', figure)
+            setattr(target, '__publish_caption__', caption)
 
         return target
 

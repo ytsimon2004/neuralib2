@@ -1,14 +1,10 @@
 import functools
 import warnings
-from typing import ParamSpec
-from typing import TypeVar, Callable, Type
+from typing import Any, Callable, TypeVar, cast
 
 __all__ = ['unstable']
 
-P = ParamSpec("P")
-R = TypeVar("R")
-F = TypeVar('F', bound=Callable[P, R])
-T = TypeVar('T', Type[R], F)
+T = TypeVar('T')
 
 
 def unstable(doc: bool = True,
@@ -28,11 +24,7 @@ def unstable(doc: bool = True,
         if getattr(obj, '__unstable_marker', False):
             return obj
 
-        try:
-            obj.__unstable_marker = True
-        except AttributeError:
-            # AttributeError: 'wrapper_descriptor' object has no attribute
-            pass
+        setattr(obj, '__unstable_marker', True)
 
         if doc:
             new_doc = 'UNSTABLE.'
@@ -61,12 +53,14 @@ def unstable(doc: bool = True,
 
         else:  # func/meth
             if runtime:
-                @functools.wraps(obj)
-                def _unstable_meth(*args: P.args, **kwargs: P.kwargs) -> R:
-                    warnings.warn(f"{obj.__qualname__} is unstable and under development.", stacklevel=2)
-                    return obj(*args, **kwargs)
+                func = cast(Callable[..., Any], obj)
 
-                return _unstable_meth
+                @functools.wraps(func)
+                def _unstable_meth(*args: Any, **kwargs: Any) -> Any:
+                    warnings.warn(f"{obj.__qualname__} is unstable and under development.", stacklevel=2)
+                    return func(*args, **kwargs)
+
+                return cast(T, _unstable_meth)
             else:
                 return obj
 

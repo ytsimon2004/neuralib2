@@ -1,12 +1,15 @@
+from __future__ import annotations
+
+from os import PathLike as OsPathLike
 from pathlib import Path
+from typing import TYPE_CHECKING, Any, Sequence, TypeAlias, Union
 
 import numpy as np
-import pandas as pd
-import polars as pl
-from io import BufferedIOBase, BufferedReader
-from matplotlib.axes import Axes
 from numpy.typing import NDArray
-from typing import TypeVar, Union, BinaryIO, Sequence
+
+if TYPE_CHECKING:
+    import pandas as pd
+    import polars as pl
 
 __all__ = [
     'ArrayLike',
@@ -14,6 +17,7 @@ __all__ = [
     'AxesArray',
     #
     'PathLike',
+    'PathLikeType',
     #
     'Series',
     'DataFrame'
@@ -23,31 +27,31 @@ __all__ = [
 # Array #
 # ===== #
 
-T = TypeVar('T')
-"""Numeric"""
-
-ArrayLike = Union[NDArray[T], Sequence[T], pd.Series, pl.Series]
+ArrayLike: TypeAlias = Union[NDArray[Any], Sequence[Any], 'pd.Series', 'pl.Series']
 """Alias for array-like objects, including numpy arrays, lists, tuples, and series"""
 
-ArrayLikeStr = Union[NDArray[np.str_], list[str], tuple[str, ...], pd.Series, pl.Series]
+ArrayLikeStr: TypeAlias = Union[NDArray[np.str_], list[str], tuple[str, ...], 'pd.Series', 'pl.Series']
 """Alias for array-like objects of strings, including numpy arrays, lists, tuples, and series"""
 
-AxesArray = Union[np.ndarray, list[Axes]]
+AxesArray: TypeAlias = Union[np.ndarray, list[Any]]
 """Alias for matplotlib Axes numpy array"""
 
 # ==== #
 # Path #
 # ==== #
 
-PathLike = Union[str, Path, bytes, BinaryIO, BufferedIOBase, BufferedReader]
-"""Alias for path-like objects, including strings, Paths, and file-like objects"""
+PathLike: TypeAlias = Union[str, Path, OsPathLike[str]]
+"""Alias for filesystem path-like objects."""
+
+PathLikeType = (str, Path, OsPathLike)
+"""Runtime-checkable types accepted by :data:`PathLike`."""
 
 # ================== #
 # Series / DataFrame #
 # ================== #
 
-Series = Union[pd.Series, pl.Series]
+Series: TypeAlias = Union['pd.Series', 'pl.Series']
 """Alias for series objects from pandas or polars"""
 
-DataFrame = Union[pd.DataFrame, pl.DataFrame]
+DataFrame: TypeAlias = Union['pd.DataFrame', 'pl.DataFrame']
 """Alias for dataframe objects from pandas or polars"""

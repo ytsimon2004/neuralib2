@@ -7,19 +7,19 @@ import polars as pl
 import shutil
 from PIL import Image
 from contextlib import contextmanager
-from typing import Any, ContextManager, TYPE_CHECKING
+from collections.abc import Iterator
+from typing import Any, TypeAlias
 
 from neuralib.io import NEUROLIB_DATASET_DIRECTORY
 from neuralib.typing import PathLike
 
-if TYPE_CHECKING:
-    from neuralib.deeplabcut import DeepLabCutDataFrame
-    from neuralib.suite2p import Suite2PResult
-    from neuralib.scanbox import SBXInfo
-    from neuralib.facemap import FaceMapResult
-    from neuralib.rastermap import RasterMapResult
-    from neuralib.scan.czi import CziScanner
-    from neuralib.scan.lsm import TiffScanner
+DeepLabCutDataFrame: TypeAlias = Any
+Suite2PResult: TypeAlias = Any
+SBXInfo: TypeAlias = Any
+FaceMapResult: TypeAlias = Any
+RasterMapResult: TypeAlias = Any
+CziScanner: TypeAlias = Any
+TiffScanner: TypeAlias = Any
 
 __all__ = [
     'google_drive_file',
@@ -58,7 +58,7 @@ def google_drive_file(file_id: str,
                       output_dir: PathLike | None = None,
                       rename_file: str | None = None,
                       cached: bool = False,
-                      invalid_cache: bool = False) -> ContextManager[Path]:
+                      invalid_cache: bool = False) -> Iterator[Path]:
     """
     Download file from Google Drive. If not ``cached``, then delete afterward.
 
@@ -77,6 +77,8 @@ def google_drive_file(file_id: str,
 
     if output_dir is None:
         output_dir = NEUROLIB_DATASET_DIRECTORY
+    else:
+        output_dir = Path(output_dir)
 
     output_dir.mkdir(exist_ok=True, parents=True)
     output_file = output_dir / file
@@ -100,7 +102,7 @@ def google_drive_folder(folder_id: str,
                         output_dir: Path | None = None,
                         rename_folder: str | None = None,
                         cached: bool = False,
-                        invalid_cache: bool = False) -> ContextManager[Path]:
+                        invalid_cache: bool = False) -> Iterator[Path]:
     """
     Download a entire folder from Google Drive. If not ``cached``, then delete afterward.
 
@@ -225,7 +227,7 @@ def load_example_scanbox(**kwargs) -> 'SBXInfo':
     :param kwargs: Additional keyword arguments pass to ``google_drive_file`` to customize the loading behavior.
     :return: An instance of ``SBXInfo`` loaded from the specified Google Drive file.
     """
-    from neuralib.scanbox import SBXInfo
+    from neuralib.scanbox import SBXInfo  # pyright: ignore[reportMissingImports]
     with google_drive_file('1Gcz_xRVWQJ9QMxq3vzZS8VruSbNiuh_s', **kwargs) as file:
         return SBXInfo.load(file)
 
@@ -237,14 +239,14 @@ def load_example_suite2p_result(**kwargs) -> 'Suite2PResult':
     :param kwargs: Additional keyword arguments pass to ``google_drive_folder`` to customize the loading behavior.
     :return: An instance of ``Suite2PResult`` loaded with data from the specified Google Drive folder.
     """
-    from neuralib.suite2p import read_suite2p
+    from neuralib.suite2p import read_suite2p  # pyright: ignore[reportMissingImports]
     with google_drive_folder('1iVImr_rIywWhCiBDYhcphcSODaWJrhy7', **kwargs) as suite2p_dir:
         return read_suite2p(suite2p_dir)
 
 
 def load_example_rastermap_2p_result(**kwargs) -> 'RasterMapResult':
     """Load example rastermap 2P data"""
-    from neuralib.rastermap import read_rastermap
+    from neuralib.rastermap import read_rastermap  # pyright: ignore[reportMissingImports]
     with google_drive_file('1KSic4sXyF3hTgQbGijMpa3D3TGJUU097', **kwargs) as file:
         return read_rastermap(file)
 
@@ -276,14 +278,14 @@ def load_example_retinotopic_data(**kwargs) -> Path:
 def load_example_dlc_h5(**kwargs) -> 'DeepLabCutDataFrame':
     """Load example Deeplabcut h5"""
     with google_drive_file('1JNhx6Dpe8beP8vnh0yF3o3vY2DfUM-8A', rename_file='test_dlc.h5', **kwargs) as h5:
-        from neuralib.deeplabcut.core import read_dlc
+        from neuralib.deeplabcut.core import read_dlc  # pyright: ignore[reportMissingImports]
         with google_drive_file('1juICYcrXa7Vk-fQSBBSg2QcP9DGyHO2E', rename_file='test_dlc.pickle', **kwargs) as meta:
             return read_dlc(h5, meta)
 
 
 def load_example_dlc_csv(**kwargs) -> 'DeepLabCutDataFrame':
     """Load example Deeplabcut csv"""
-    from neuralib.deeplabcut.core import read_dlc
+    from neuralib.deeplabcut.core import read_dlc  # pyright: ignore[reportMissingImports]
     with google_drive_file('1R2Ze5xjWlavcKvu45JOH3_QkOD4SSkVN', rename_file='test_dlc.csv', **kwargs) as csv:
         with google_drive_file('1juICYcrXa7Vk-fQSBBSg2QcP9DGyHO2E', rename_file='test_dlc.pickle', **kwargs) as meta:
             return read_dlc(csv, meta)
@@ -291,14 +293,14 @@ def load_example_dlc_csv(**kwargs) -> 'DeepLabCutDataFrame':
 
 def load_example_facemap_pupil(**kwargs) -> 'FaceMapResult':
     """Load example facemap pupil data"""
-    from neuralib.facemap import read_facemap
+    from neuralib.facemap import read_facemap  # pyright: ignore[reportMissingImports]
     with google_drive_folder('1cacH5DWLmYqh_7PLwqEasmER_TfKgZ1b', **kwargs) as pupil_dir:
         return read_facemap(pupil_dir)
 
 
 def load_example_facemap_keypoints(**kwargs) -> 'FaceMapResult':
     """Load example facemap keypoint data"""
-    from neuralib.facemap import read_facemap
+    from neuralib.facemap import read_facemap  # pyright: ignore[reportMissingImports]
     with google_drive_folder('1FWz70HE_hQuhE6K9hoO_y1OgeG11NsGM', **kwargs) as pupil_dir:
         return read_facemap(pupil_dir)
 
@@ -309,7 +311,7 @@ def load_example_facemap_keypoints(**kwargs) -> 'FaceMapResult':
 
 def load_example_lsm(**kwargs) -> 'TiffScanner':
     """load example lsm file"""
-    from neuralib.scan.lsm import lsm_file
+    from neuralib.scan.lsm import lsm_file  # pyright: ignore[reportMissingImports]
     with google_drive_file('1beq6PCY8XmZjyWiOk2-KkcXLrmbLpWmS', rename_file='test.lsm', **kwargs) as file:
         with lsm_file(file) as lsm:
             return lsm
@@ -317,7 +319,7 @@ def load_example_lsm(**kwargs) -> 'TiffScanner':
 
 def load_example_czi(**kwargs) -> 'CziScanner':
     """load example czi file"""
-    from neuralib.scan.czi import czi_file
+    from neuralib.scan.czi import czi_file  # pyright: ignore[reportMissingImports]
     with google_drive_file('1gSPz_a7kCZ3UQABC-v-_sNnAxhfY_ly0', rename_file='test.czi', **kwargs) as file:
         with czi_file(file) as czi:
             return czi

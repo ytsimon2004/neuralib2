@@ -54,7 +54,8 @@ opt = [
     "opencv-python",
     "scikit-image",
     "tiffile",
-    "pdf2image"
+    "pdf2image",
+    "joblib"
 ]
 
 all = [
@@ -81,3 +82,6 @@ requires = ["setuptools>=61.0"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+neuralib = ["py.typed"]

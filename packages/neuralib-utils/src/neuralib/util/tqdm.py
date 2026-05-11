@@ -1,6 +1,6 @@
 import contextlib
 from io import BytesIO
-from typing import ContextManager
+from collections.abc import Iterator
 
 import requests
 from tqdm import tqdm
@@ -33,7 +33,7 @@ def download_with_tqdm(url: str) -> BytesIO:
 
 
 @contextlib.contextmanager
-def tqdm_joblib(tqdm_obj: tqdm) -> ContextManager[tqdm]:
+def tqdm_joblib(tqdm_obj: tqdm) -> Iterator[tqdm]:
     """Context manager to patch joblib multiprocessing to report into tqdm progress bar given as argument
 
     Example of running foreach neuron shuffle:

@@ -44,6 +44,8 @@ import functools
 import sys
 import threading
 import time
+from types import TracebackType
+from typing import Self
 
 from neuralib.util.verbose import fprint
 
@@ -51,12 +53,12 @@ __all__ = ['profile_test', 'trace_line']
 
 
 class profile_test:
-    def __init__(self, enable=False, output_file='profile.png'):
+    def __init__(self, enable: bool = False, output_file: str = 'profile.png'):
         self._enable = enable
         self._profile = None
         self._output_file = output_file
 
-    def __enter__(self):
+    def __enter__(self) -> Self:
         if self._enable:
             import cProfile
 
@@ -65,27 +67,32 @@ class profile_test:
 
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self,
+                 exc_type: type[BaseException] | None,
+                 exc_val: BaseException | None,
+                 exc_tb: TracebackType | None) -> None:
         if self._enable:
-            self._profile.disable()
+            if self._profile is None:
+                return
+
+            profile = self._profile
+            profile.disable()
 
             if self._output_file.endswith('.dat'):
-                self._profile.dump_stats(self._output_file)
+                profile.dump_stats(self._output_file)
 
             elif self._output_file.endswith('.txt'):
                 import pstats
 
-                stat = pstats.Stats(self._profile)
-
                 with open(self._output_file, 'w') as f:
-                    stat.stream = f
+                    stat = pstats.Stats(profile, stream=f)
                     stat.print_stats()
 
             elif self._output_file.endswith('.png'):
                 import subprocess
 
                 f1 = self._output_file.replace('.png', '.dat')
-                self._profile.dump_stats(f1)
+                profile.dump_stats(f1)
                 cmd_line = f'python -m gprof2dot -f pstats {f1} | dot -T png -o {self._output_file}'
 
                 with subprocess.Popen(['bash', '-c', cmd_line]) as proc:
@@ -112,6 +119,9 @@ def trace_line(f=None, *, interval: float = 0.1):
             _file = None
             _lineno = None
             _prev_time = None
+            caller_thread = threading.current_thread().ident
+            if caller_thread is None:
+                raise RuntimeError('Cannot trace a thread without an identifier')
 
             def update():
                 nonlocal done
@@ -142,7 +152,6 @@ def trace_line(f=None, *, interval: float = 0.1):
                                flush=True)
 
             thread = threading.Thread(target=update)
-            caller_thread = threading.current_thread().ident
             thread.start()
 
             try:
