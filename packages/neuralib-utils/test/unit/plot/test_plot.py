@@ -2,6 +2,7 @@ import unittest
 from unittest.mock import patch
 
 import numpy as np
+import pytest
 
 from neuralib.plot import plot_figure, dotplot, VennDiagram
 from neuralib.plot.tools import AxesExtendHelper
@@ -55,6 +56,14 @@ def test_axes_extend_helper_bar(mock):
         x = y = np.arange(10)
         helper.xbar(x, np.mean(img, axis=0), align='center')
         helper.ybar(y, np.mean(img, axis=1), align='center')
+
+
+@patch("matplotlib.pyplot.show")
+def test_axes_extend_helper_bar_rejects_invalid_align(mock):
+    with plot_figure(None) as ax:
+        helper = AxesExtendHelper(ax, mode='x')
+        with pytest.raises(ValueError, match='align'):
+            helper.xbar(np.arange(3), np.arange(3), align='invalid')
 
 
 # ================= #

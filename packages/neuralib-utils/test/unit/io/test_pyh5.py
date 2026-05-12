@@ -129,6 +129,16 @@ class TestH5pyDataWrapperTable(unittest.TestCase):
     def test_read_write_table_pytables(self):
         pass
 
+    def test_pytables_backend_is_explicitly_unsupported(self):
+        class Test(pyh5.H5pyData):
+            df: pl.DataFrame = pyh5.table(backend='pytables')
+
+        df = pl.DataFrame(data=dict(a=[0, 1]))
+        test = Test(self.TMP_FILE, 'w')
+
+        with self.assertRaisesRegex(RuntimeError, 'unsupported'):
+            test.df = df
+
 
 if __name__ == '__main__':
     unittest.main()
