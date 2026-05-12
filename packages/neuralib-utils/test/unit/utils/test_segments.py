@@ -10,7 +10,10 @@ from neuralib.util.segments import *
 class TestSegment(unittest.TestCase):
     @classmethod
     def random_segment(cls, high, length):
-        return np.sort(np.round(np.random.random((2 * length,)) * high, 4)).reshape(-1, 2)
+        while True:
+            values = np.round(np.random.random((2 * length,)) * high, 4)
+            if len(np.unique(values)) == 2 * length:
+                return np.sort(values).reshape(-1, 2)
 
     def test_is_sorted(self):
         self.assertTrue(is_sorted(np.array([0, 1, 2, 3, 4])))
