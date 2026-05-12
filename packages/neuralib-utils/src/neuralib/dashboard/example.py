@@ -1,6 +1,8 @@
 import random
 from bokeh.model import Model
-from bokeh.models import ColumnDataSource, GlyphRenderer
+from bokeh.models.ranges import Range1d
+from bokeh.models.renderers.glyph_renderer import GlyphRenderer
+from bokeh.models.sources import ColumnDataSource
 from bokeh.plotting import figure
 
 from neuralib.dashboard import ViewComponent, View, BokehServer
@@ -19,8 +21,8 @@ class Graph(ViewComponent):
         self.h = 0
 
     def plot(self, fig: figure, **kwargs):
-        self.w = fig.width
-        self.h = fig.height
+        self.w = fig.width or 800
+        self.h = fig.height or 800
         self.render_dots = fig.dot(
             x='x', y='y', source=self.data,
             size=self.w / 20)
@@ -46,8 +48,8 @@ class Top(View):
     def setup(self) -> Model:
         fig = figure(
             width=800, height=800,
-            x_range=(-10, 810),
-            y_range=(-10, 810),
+            x_range=Range1d(start=-10, end=810),
+            y_range=Range1d(start=-10, end=810),
             toolbar_location='above')
         self.graph = Graph()
         self.graph.plot(fig)

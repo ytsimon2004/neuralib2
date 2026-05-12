@@ -38,10 +38,14 @@ class VennHandler(NamedTuple):
         return tuple([a, b, self.subset_overlap])
 
     def get_pure_fraction(self) -> tuple[float, ...]:
+        if self.total_set is None:
+            raise ValueError('call with_total first')
+
         a, b, o = self.get_pure_number()
-        return tuple([a / self.total_set * 100,
-                      b / self.total_set * 100,
-                      o / self.total_set * 100])
+        total = self.total_set
+        return tuple([a / total * 100,
+                      b / total * 100,
+                      o / total * 100])
 
 
 class VennDiagram:
@@ -247,11 +251,14 @@ class VennDiagram:
     def _venn2(self):
         """subsets = (a, b, a&b)"""
         from matplotlib_venn import venn2
-        subsets = list(self.subsets.values()) + [self.get_intersection(*self.labels)]
+        values = list(self.subsets.values())
+        subsets = (values[0], values[1], self.get_intersection(*self.labels))
+        labels = (self.labels[0], self.labels[1])
+        colors = (self.colors[0], self.colors[1])
 
-        venn2(subsets=tuple(subsets),
-              set_labels=self.labels,
-              set_colors=self.colors[:2],
+        venn2(subsets=subsets,
+              set_labels=labels,
+              set_colors=colors,
               ax=self.ax,
               **self.kwargs)
 
@@ -268,8 +275,11 @@ class VennDiagram:
         bc = self.get_intersection(*self.labels[1:])
         abc = self.get_intersection(*self.labels)
 
+        labels = (self.labels[0], self.labels[1], self.labels[2])
+        colors = (self.colors[0], self.colors[1], self.colors[2])
+
         venn3(subsets=(a, b, ab, c, ac, bc, abc),
-              set_labels=self.labels,
-              set_colors=self.colors,
+              set_labels=labels,
+              set_colors=colors,
               ax=self.ax,
               **self.kwargs)

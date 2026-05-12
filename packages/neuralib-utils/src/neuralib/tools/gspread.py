@@ -4,8 +4,7 @@ import gspread
 import numpy as np
 import pandas as pd
 import polars as pl
-from typing import Self
-from typing import Union, Any, get_args, Final, Literal
+from typing import Union, Any, get_args, Literal
 
 from neuralib.typing import PathLike, DataFrame
 from neuralib.util.verbose import fprint
@@ -53,7 +52,7 @@ class GoogleWorkSheet:
         if isinstance(primary_key, str) and primary_key not in self._headers:
             raise ValueError(f'col not found: {primary_key}')
         elif isinstance(primary_key, (str, tuple)):
-            self.primary_key: Final[str, tuple[str, ...]] = primary_key
+            self.primary_key: str | tuple[str, ...] = primary_key
         else:
             raise TypeError(f'{primary_key}')
 
@@ -62,7 +61,7 @@ class GoogleWorkSheet:
            name: SpreadSheetName,
            page: WorkPageName,
            service_account_path: PathLike,
-           primary_key: str | tuple[str, ...] = 'Data') -> Self:
+           primary_key: str | tuple[str, ...] = 'Data') -> 'GoogleWorkSheet':
         """
         Get a worksheet from spreadsheet
 
@@ -128,7 +127,7 @@ class GoogleWorkSheet:
         col = self._col(head)
         return list(self._worksheet.col_values(col)[1:])
 
-    def _row(self, data: DataIndex) -> Union[None, int, list[int], np.ndarray]:
+    def _row(self, data: DataIndex) -> int | list[int] | np.ndarray | None:
         """
         Get row(s) index
 
@@ -144,7 +143,13 @@ class GoogleWorkSheet:
         elif isinstance(data, list):
             if len(data) == 0:
                 return []
-            return [self._row(it) for it in data]
+            rows: list[int] = []
+            for it in data:
+                row = self._row(it)
+                if not isinstance(row, int):
+                    raise TypeError()
+                rows.append(row)
+            return rows
         elif isinstance(data, (slice, np.ndarray)):
             return np.arange(len(self.primary_key_list))[data] + 2
 
@@ -154,7 +159,7 @@ class GoogleWorkSheet:
         """Get column index based on header (one-base)"""
         return self._headers.index(head) + 1
 
-    def _rowcol(self, data: DataIndex, head: str) -> tuple[None | int | list[int], int]:
+    def _rowcol(self, data: DataIndex, head: str) -> tuple[int | list[int] | np.ndarray | None, int]:
         """Get row in col indices"""
         return self._row(data), self._col(head)
 
@@ -178,9 +183,9 @@ class GoogleWorkSheet:
         row, col = self._rowcol(data, head)
 
         if row is None:
-            return self._worksheet.col_values(col, value_render_option=value_render_option)[1:]
+            return self._worksheet.col_values(col, value_render_option=value_render_option)[1:]  # pyright: ignore[reportArgumentType]
         elif isinstance(row, int):
-            return self._worksheet.cell(row, col, value_render_option=value_render_option).value
+            return self._worksheet.cell(row, col, value_render_option=value_render_option).value  # pyright: ignore[reportArgumentType]
         else:
             # single API call
             sheet_title = self._worksheet.title
@@ -225,6 +230,8 @@ class GoogleWorkSheet:
             self._worksheet.batch_update(batch_updates)
 
         elif isinstance(row, int):
+            if isinstance(value, list):
+                raise TypeError('single cell update requires a scalar value')
             old_val = self.get_cell(data, head)
             self._worksheet.update_cell(row, col, value)
             fprint(f'UPDATES: {rowcol_to_a1(row, col)} from {old_val} -> {value}', vtype='io')
@@ -298,7 +305,7 @@ class GoogleSpreadSheet:
             If tuple str type, the primary key is join using "_" per row
         """
 
-        self._client = gspread.service_account(filename=service_account_path)
+        self._client = gspread.service_account(filename=str(service_account_path))
 
         self._sheet: gspread.Spreadsheet = self._client.open(name)
         self._worksheets: list[gspread.Worksheet] = self._sheet.worksheets()
@@ -377,6 +384,9 @@ def upload_dataframe_to_spreadsheet(df: DataFrame,
             If str type, it must be one of the column name.
             If tuple str type, the primary key is join using "_" per row
     """
+    if service_account_path is None:
+        raise ValueError('service_account_path is required')
+
     gs = GoogleSpreadSheet(gspread_name, service_account_path, primary_key)
     spreadsheet = gs._sheet
 

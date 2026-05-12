@@ -1,7 +1,7 @@
 from typing import Union, Optional
 
 from bokeh.model import Model
-from bokeh.models import Div
+from bokeh.models.widgets.markups import Div
 
 from neuralib.dashboard import View
 from .model import list_date
@@ -14,7 +14,7 @@ class AnimalFigureView(View):
     content_title: Div
     content_date: Div
 
-    def __init__(self, animal: str = None, figure: str = None):
+    def __init__(self, animal: str | None = None, figure: str | None = None):
         self._animal: Union[None, str, BaseException] = animal
         self._figure: Optional[str] = figure
 
@@ -46,9 +46,13 @@ class AnimalFigureView(View):
         return self._figure
 
     def setup(self) -> Model:
+        animal = self.current_animal
+        if animal is None:
+            animal = ''
+
         self.content_title = Div(text=f"animal {self.current_animal} with figure {self.current_figure}")
         self.content_date = Div(text="Date:<ol>" + "\n".join([
-            f"<li>{date}</li>" for date in list_date(self.current_animal)
+            f"<li>{date}</li>" for date in list_date(animal)
         ]) + "</ol>")
 
         from bokeh.layouts import column

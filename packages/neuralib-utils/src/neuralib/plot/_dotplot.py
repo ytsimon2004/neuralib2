@@ -31,7 +31,7 @@ class DotPlot:
             size_legend_num: int | None = None,
             size_legend_as_int: bool = True,
             with_color: bool = False,
-            cmap: mcolors.Colormap = 'Reds',
+            cmap: str | mcolors.Colormap = 'Reds',
             colorbar_title: str | None = None,
             norm: mcolors.Normalize | None = None,
             cbar_vmin: float | None = None,
@@ -57,8 +57,8 @@ class DotPlot:
         self.with_color = with_color
         self.colorbar_title = colorbar_title or DotPlot.DEFAULT_COLOR_TITLE
         self.cmap = cmap
-        self.cbar_vmin = cbar_vmin or np.min(values)
-        self.cbar_vmax = cbar_vmax or np.max(values)
+        self.cbar_vmin = cbar_vmin if cbar_vmin is not None else float(np.min(values))
+        self.cbar_vmax = cbar_vmax if cbar_vmax is not None else float(np.max(values))
         self.norm = norm or self._default_norm()
 
         # figure
@@ -116,6 +116,9 @@ class DotPlot:
     def _plot_figure(self, x, y, values, **kwargs):
         """Plot in figure level"""
         with plot_figure(self.figure_output, 7, 4, figsize=(8, 5)) as _ax:
+            if not isinstance(_ax, np.ndarray):
+                raise TypeError('plot_figure should yield an axes grid')
+
             ax = ax_merge(_ax)[:, :3]
             if self.with_color:
                 ax.scatter(x.ravel(), y.ravel(),
@@ -147,34 +150,38 @@ class DotPlot:
 
     def _plot_ax(self, x, y, values, **kwargs):
         """Plot wit existing Axes"""
-        if self.with_color:
-            im = self.ax.scatter(x.ravel(), y.ravel(),
-                                 s=self.size,
-                                 c=values,
-                                 cmap=self.cmap,
-                                 clip_on=False,
-                                 norm=self.norm,
-                                 edgecolor='gray',
-                                 **kwargs)
+        ax = self.ax
+        if ax is None:
+            raise RuntimeError('ax is required')
 
-            cbar = self.ax.figure.colorbar(im)
+        if self.with_color:
+            im = ax.scatter(x.ravel(), y.ravel(),
+                            s=self.size,
+                            c=values,
+                            cmap=self.cmap,
+                            clip_on=False,
+                            norm=self.norm,
+                            edgecolor='gray',
+                            **kwargs)
+
+            cbar = ax.figure.colorbar(im)
             cbar.ax.set_ylabel(self.colorbar_title)
 
         else:
-            self.ax.scatter(x.ravel(), y.ravel(),
-                            s=self.size,
-                            c='k',
-                            clip_on=False,
-                            **kwargs)
+            ax.scatter(x.ravel(), y.ravel(),
+                       s=self.size,
+                       c='k',
+                       clip_on=False,
+                       **kwargs)
 
         if self.figure_title is not None:
-            self.ax.set_title(self.figure_title)
+            ax.set_title(self.figure_title)
 
-        self._plot_size_legend(self.ax)
+        self._plot_size_legend(ax)
 
     def _plot_size_legend(self, size_ax: Axes):
         values = np.round(
-            np.linspace(self.norm.vmin, self.norm.vmax, num=self.size_legend_num), 2
+            np.linspace(self.cbar_vmin, self.cbar_vmax, num=self.size_legend_num), 2
         )
 
         if self.size_as_int:

@@ -1,11 +1,10 @@
-from pathlib import Path
-
 import abc
+from pathlib import Path
+from typing import Literal, get_type_hints, ClassVar, Generic, TypeVar, Any
+
 import h5py
 import numpy as np
 import polars as pl
-from numpy import issubdtype
-from typing import Literal, get_type_hints, overload, ClassVar, Generic, TypeVar, Any
 
 from neuralib.util.unstable import unstable
 from neuralib.util.verbose import fprint
@@ -58,32 +57,38 @@ class H5pyData:
         return self.__file[item]
 
 
-def attr(name: str = None):
+def attr(name: str | None = None) -> Any:
     return _H5pyAttr(name)
 
 
-def group(name: str = None):
+def group(name: str | None = None) -> Any:
     return _H5pyGroup(name)
 
 
-@overload
-def array(key: str = None,
-          chunks: bool | int | tuple[int, ...] = None,
-          maxshape: int | tuple[int, ...] = None,
-          compression: int | str = None,
-          compression_opts: int | tuple = None,
-          scaleoffset: int = None,
-          shuffle: bool = None,
-          fillvalue: int | float | str = None,
-          **kwargs) -> np.ndarray:
-    pass
-
-
-def array(key: str = None, **kwargs) -> np.ndarray:
+def array(key: str | None = None,
+          chunks: bool | int | tuple[int, ...] | None = None,
+          maxshape: int | tuple[int, ...] | None = None,
+          compression: int | str | None = None,
+          compression_opts: int | tuple | None = None,
+          scaleoffset: int | None = None,
+          shuffle: bool | None = None,
+          fillvalue: int | float | str | None = None,
+          **kwargs) -> Any:
+    for key_, value in dict(
+        chunks=chunks,
+        maxshape=maxshape,
+        compression=compression,
+        compression_opts=compression_opts,
+        scaleoffset=scaleoffset,
+        shuffle=shuffle,
+        fillvalue=fillvalue
+    ).items():
+        if value is not None:
+            kwargs[key_] = value
     return _H5pyArray(key, **kwargs)
 
 
-def table(key: str = None, backend: Literal['default', 'pytables'] = 'default', **kwargs) -> T:
+def table(key: str | None = None, backend: Literal['default', 'pytables'] = 'default', **kwargs) -> Any:
     if backend == 'default':
         return _H5PyTable_Default(key, **kwargs)
     elif backend == 'pytables':
@@ -96,9 +101,15 @@ def table(key: str = None, backend: Literal['default', 'pytables'] = 'default', 
 class _H5pyAttr:
     __slots__ = '__attr', '__type'
 
-    def __init__(self, name: str = None):
+    def __init__(self, name: str | None = None):
         self.__attr = name
         self.__type = None
+
+    @property
+    def _attr(self) -> str:
+        if self.__attr is None:
+            raise RuntimeError('h5 attribute descriptor has no bound name')
+        return self.__attr
 
     def __set_name__(self, owner: type[H5pyData], name: str):
         """called when the descriptor is assigned to a class attribute"""
@@ -113,12 +124,10 @@ class _H5pyAttr:
         if instance is None:
             return self
         else:
-            file: h5py.File = instance.file
-
             try:
-                ret = file.attrs[self.__attr]
+                ret = instance.file.attrs[self._attr]
             except KeyError as e:
-                raise AttributeError(self.__attr) from e
+                raise AttributeError(self._attr) from e
 
             if self.__type is not None:
                 ret = self.__type(ret)
@@ -126,23 +135,29 @@ class _H5pyAttr:
 
     def __set__(self, instance: H5pyData, value):
         try:
-            instance.file.attrs[self.__attr] = value
+            instance.file.attrs[self._attr] = value
         except OSError as e:
-            raise AttributeError(self.__attr) from e
+            raise AttributeError(self._attr) from e
 
     def __delete__(self, instance: H5pyData):
         try:
-            del instance.file.attrs[self.__attr]
+            del instance.file.attrs[self._attr]
         except OSError as e:
-            raise AttributeError(self.__attr) from e
+            raise AttributeError(self._attr) from e
 
 
 class _H5pyGroup:
     __slots__ = '__group', '__type'
 
-    def __init__(self, group: str = None):
+    def __init__(self, group: str | None = None):
         self.__group = group
         self.__type = None
+
+    @property
+    def _group(self) -> str:
+        if self.__group is None:
+            raise RuntimeError('h5 group descriptor has no bound name')
+        return self.__group
 
     def __set_name__(self, owner: type[H5pyData], name):
         if not issubclass(owner, H5pyData):
@@ -161,17 +176,22 @@ class _H5pyGroup:
         if instance is None:
             return self
         else:
-            file: h5py.File = instance.file
-
-            return self.__type(file.require_group(self.__group))
+            cls = self.__type or H5pyData
+            return cls(instance.file.require_group(self._group))
 
 
 class _H5pyArray:
     __slots__ = '__key', '__kwargs'
 
-    def __init__(self, key: str = None, **kwargs):
+    def __init__(self, key: str | None = None, **kwargs):
         self.__key = key
         self.__kwargs = kwargs
+
+    @property
+    def _key(self) -> str:
+        if self.__key is None:
+            raise RuntimeError('h5 array descriptor has no bound name')
+        return self.__key
 
     def __set_name__(self, owner: type[H5pyData], name):
         if not issubclass(owner, H5pyData):
@@ -184,31 +204,30 @@ class _H5pyArray:
         if instance is None:
             return self
         else:
-            file: h5py.File = instance.file
-
             try:
-                ret = file[self.__key]
+                ret = instance.file[self._key]
             except KeyError:
                 pass
             else:
+                if not isinstance(ret, h5py.Dataset):
+                    raise TypeError(f'{self._key} is not a dataset')
                 return _H5pyLazyArray(ret)
 
             return None
 
     def __set__(self, instance: H5pyData, value: np.ndarray):
-        file: h5py.File = instance.file
+        file = instance.file
         try:
-            file[self.__key]
+            file[self._key]
         except KeyError:
             pass
         else:
-            del file[self.__key]
+            del file[self._key]
 
-        file.create_dataset(self.__key, data=value, **self.__kwargs)
+        file.create_dataset(self._key, data=value, **self.__kwargs)
 
     def __delete__(self, instance: H5pyData):
-        file: h5py.File = instance.file
-        del file[self.__key]
+        del instance.file[self._key]
 
 
 class _H5pyLazyArray:
@@ -237,10 +256,16 @@ class _H5pyLazyArray:
 class _H5pyTable(Generic[T], metaclass=abc.ABCMeta):
     __slots__ = '__key', '_type', '_kwargs'
 
-    def __init__(self, key: str = None, **kwargs):
+    def __init__(self, key: str | None = None, **kwargs):
         self.__key = key
         self._type = None
         self._kwargs = kwargs
+
+    @property
+    def _key(self) -> str:
+        if self.__key is None:
+            raise RuntimeError('h5 table descriptor has no bound name')
+        return self.__key
 
     def __set_name__(self, owner, name):
         if not issubclass(owner, H5pyData):
@@ -259,37 +284,36 @@ class _H5pyTable(Generic[T], metaclass=abc.ABCMeta):
     def _set_table(self, group: h5py.Group, table: T):
         pass
 
-    def __get__(self, instance: H5pyData, owner) -> T:
+    def __get__(self, instance: H5pyData, owner) -> T | None:
         if instance is None:
             return self
         else:
-            file: h5py.File = instance.file
-
             try:
-                ret = file[self.__key]
+                ret = instance.file[self._key]
             except KeyError:
                 pass
             else:
+                if not isinstance(ret, h5py.Group):
+                    raise TypeError(f'{self._key} is not a group')
                 return self._get_table(ret)
 
             return None
 
     def __set__(self, instance: H5pyData, value: T):
-        file: h5py.File = instance.file
+        file = instance.file
 
         try:
-            ret = file[self.__key]
+            ret = file[self._key]
             if not isinstance(ret, h5py.Group):
-                del file[self.__key]
+                del file[self._key]
                 raise KeyError
         except KeyError:
-            ret = file.create_group(self.__key)
+            ret = file.create_group(self._key)
 
         self._set_table(ret, value)
 
     def __delete__(self, instance: H5pyData):
-        file: h5py.File = instance.file
-        del file[self.__key]
+        del instance.file[self._key]
 
 
 class _H5PyTable_Default(_H5pyTable[pl.DataFrame]):
@@ -297,12 +321,15 @@ class _H5PyTable_Default(_H5pyTable[pl.DataFrame]):
     def _get_table(self, table: h5py.Group) -> pl.DataFrame:
         import polars.datatypes as pty
 
-        print(f'{dir(table)=}')
-        attrs = table['schema'].attrs
+        schema_group = table['schema']
         content = table['table']
+        if not isinstance(schema_group, h5py.Group) or not isinstance(content, h5py.Group):
+            raise TypeError('invalid h5 table layout')
+
+        attrs = schema_group.attrs
 
         schema = {
-            name: getattr(pty, attrs[name])
+            name: getattr(pty, str(attrs[name]))
             for name in attrs
         }
 
@@ -338,29 +365,11 @@ class _H5PyTable_Default(_H5pyTable[pl.DataFrame]):
 
 
 class _H5pyTable_PyTable(_H5pyTable[Any]):
-    def __init__(self, key: str = None, **kwargs):
+    def __init__(self, key: str | None = None, **kwargs):
         super().__init__(key, **kwargs)
 
     def _get_table(self, table: h5py.Group):
-        import pandas as pd
-        df = pd.read_hdf(table, **self._kwargs)
-        if issubdtype(self._type, pd.DataFrame):
-            return df
-
-        import polars as pl
-        df = pl.from_pandas(df)
-        if issubdtype(self._type, pl.DataFrame):
-            return df
-
-        try:
-            from neuralib.util.util_polars import DataFrameWrapper
-            if issubdtype(self._type, DataFrameWrapper):
-                return self._type(df)
-        except ImportError:
-            # in ts-dev branch
-            pass
-
-        return df
+        raise RuntimeError('pytables backend is unsupported now')
 
     def _set_table(self, group: h5py.Group, table):
         raise RuntimeError('unsupported now')

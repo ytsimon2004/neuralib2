@@ -1,5 +1,5 @@
 from bokeh.model import Model
-from bokeh.models import Div
+from bokeh.models.widgets.markups import Div
 
 from neuralib.dashboard import View, BokehServer
 

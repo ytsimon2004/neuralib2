@@ -1,14 +1,13 @@
 
-from pathlib import Path
-
 import matplotlib
 import numpy as np
 import platform
 from contextlib import contextmanager
 from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
-from numpy.typing import NDArray
-from typing import Literal, ContextManager
+from typing import Iterator, Literal
+
+from neuralib.typing import PathLike
 
 __all__ = ['plot_figure',
            'ax_set_default_style',
@@ -24,7 +23,7 @@ MPL_BACKEND_TYPE = Literal[
 
 
 @contextmanager
-def plot_figure(output: Path | None,
+def plot_figure(output: PathLike | None,
                 *args,
                 set_square: bool = False,
                 set_equal_scale: bool = False,
@@ -33,7 +32,7 @@ def plot_figure(output: Path | None,
                 default_style: bool = True,
                 tight_layout: bool = True,
                 font_sans_serif: str | None = 'Arial',
-                **kwargs) -> ContextManager[Axes] | ContextManager[NDArray[Axes]]:
+                **kwargs) -> Iterator[Axes | np.ndarray]:
     """
     Context manager for creating and saving a matplotlib figure
 

@@ -1,7 +1,7 @@
 import abc
 import datetime
 from pathlib import Path
-from typing import Generic, TypeVar
+from typing import Any, Generic, TypeVar
 
 import numpy as np
 
@@ -29,8 +29,10 @@ def _to_datetime(obj: float | Path | tuple[int, int, int] | datetime.date | date
         if not obj.exists():
             raise FileNotFoundError
         return datetime.datetime.fromtimestamp(obj.stat().st_mtime)
-    elif isinstance(obj, (datetime.datetime, datetime.date)):
+    elif isinstance(obj, datetime.datetime):
         return obj
+    elif isinstance(obj, datetime.date):
+        return datetime.datetime.combine(obj, datetime.time.min)
     else:
         raise TypeError(str(type(obj).__name__))
 
@@ -64,7 +66,7 @@ def create_date_validate(obj: float | Path | tuple[int, int, int] | datetime.dat
 
     if verbose:
         if isinstance(ref, float):
-            msg = str(datetime.date.fromtimestamp(obj))
+            msg = str(datetime.date.fromtimestamp(ref))
         elif isinstance(obj, tuple):
             msg = str(datetime.date(obj[0], obj[1], obj[2]))
         elif isinstance(ref, Path):
@@ -77,7 +79,7 @@ def create_date_validate(obj: float | Path | tuple[int, int, int] | datetime.dat
     return False
 
 
-def attributes_validate(obj: T, *exclude: str) -> bool:
+def attributes_validate(obj: object, *exclude: str) -> bool:
     info = ensure_persistence_class(obj)
     for field in info.fields:
         attr = field.field_name
@@ -100,7 +102,7 @@ class PersistenceConcatError(Exception):
     pass
 
 
-def validate_concat_etl_persistence(data: list[T], field_check: tuple[str, ...] | None = None) -> None:
+def validate_concat_etl_persistence(data: list[Any], field_check: tuple[str, ...] | None = None) -> None:
     """
 
     :param data: list of persistence instance

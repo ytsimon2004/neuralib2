@@ -5,7 +5,13 @@ from bokeh.document import Document
 __all__ = ['TimeoutUpdateValue']
 
 T = TypeVar('T')
-missing = object()
+
+
+class _Missing:
+    pass
+
+
+missing = _Missing()
 
 
 class TimeoutUpdateValue(Generic[T]):
@@ -14,7 +20,7 @@ class TimeoutUpdateValue(Generic[T]):
                  callback: Callable[[T], None],
                  delay=1000):
         self.__document = document
-        self.__value = missing
+        self.__value: T | _Missing = missing
         self.__callback = callback
         self.delay = delay
 
@@ -27,5 +33,5 @@ class TimeoutUpdateValue(Generic[T]):
     def callback(self):
         value = self.__value
         self.__value = missing
-        if value is not missing:
+        if not isinstance(value, _Missing):
             self.__callback(value)

@@ -1,7 +1,8 @@
 from typing import Optional, Union
 
 from bokeh.model import Model
-from bokeh.models import Div, Select
+from bokeh.models.widgets.inputs import Select
+from bokeh.models.widgets.markups import Div
 
 from neuralib.dashboard import BokehServer, View
 from .view_figure import AnimalFigureView
@@ -13,7 +14,7 @@ class AnimalView(View):
     select: Select
     content: Div
 
-    def __init__(self, animal: str = None):
+    def __init__(self, animal: str | None = None):
         self._animal: Union[None, str, BaseException] = animal
 
     @property

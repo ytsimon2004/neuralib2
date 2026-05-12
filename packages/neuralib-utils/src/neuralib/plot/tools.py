@@ -1,4 +1,4 @@
-from typing import Literal, Sequence
+from typing import Any, Literal, Sequence
 
 import numpy as np
 from matplotlib import pyplot as plt
@@ -72,19 +72,19 @@ class AnchoredScaleBar(AnchoredOffsetbox):
             bars.add_artist(Rectangle((0, 0), 0, sizey, fc="none", color=color, lw=lw))
 
         if sizex and labelx:
-            bars = VPacker(children=[bars, TextArea(labelx, minimumdescent=False, textprops=dict(color=color_txt))],
+            bars = VPacker(children=[bars, TextArea(labelx, textprops=dict(color=color_txt))],
                            align="center",
                            pad=0,
-                           sep=sep)
+                           sep=sep)  # pyright: ignore[reportArgumentType]
         if sizey and labely:
             bars = HPacker(children=[TextArea(labely, textprops=dict(color=color_txt)), bars],
                            align="center",
                            pad=0,
-                           sep=sep)
+                           sep=sep)  # pyright: ignore[reportArgumentType]
 
         AnchoredOffsetbox.__init__(
             self,
-            loc,
+            loc,  # pyright: ignore[reportArgumentType]
             pad=pad,
             borderpad=borderpad,
             child=bars,
@@ -193,7 +193,7 @@ class AxesExtendHelper:
     def xbar(self, x: ArrayLike,
              height: np.ndarray,
              width: float | np.ndarray | None = None,
-             **kwargs):
+             **kwargs: Any):
         """x axis bar
 
         :param x: x axis
@@ -201,26 +201,28 @@ class AxesExtendHelper:
         :param width: bar width
         :param kwargs: additional arguments passed to ``Axes.bar()``
         """
-        default_kw = {
+        align = kwargs.pop('align', 'edge')
+        if align not in ('center', 'edge'):
+            raise ValueError("align must be 'center' or 'edge'")
+
+        default_kw: dict[str, Any] = {
             'color': 'grey',
             'edgecolor': 'black',
-            'align': 'edge'
         }
 
         kw = default_kw | kwargs
 
-        if width is None:
-            width = np.diff(x)[0]
+        bar_width = np.diff(np.asarray(x))[0] if width is None else width
 
         if self.ax_x is not None:
-            self.ax_x.bar(x, height, width=width, **kw)
+            self.ax_x.bar(x, height, width=bar_width, align=align, **kw)
 
             self.ax_x.tick_params(axis="x", labelbottom=False)
 
     def ybar(self, y: ArrayLike,
              width: np.ndarray,
              height: float | np.ndarray | None = None,
-             **kwargs):
+             **kwargs: Any):
         """y axis bar
 
         :param y: y axis
@@ -228,19 +230,21 @@ class AxesExtendHelper:
         :param width: bar width
         :param kwargs: additional arguments passed to ``Axes.bar()``
         """
-        default_kw = {
+        align = kwargs.pop('align', 'edge')
+        if align not in ('center', 'edge'):
+            raise ValueError("align must be 'center' or 'edge'")
+
+        default_kw: dict[str, Any] = {
             'color': 'grey',
             'edgecolor': 'black',
-            'align': 'edge'
         }
 
         kw = default_kw | kwargs
 
-        if height is None:
-            height = np.diff(y)[0]
+        bar_height = np.diff(np.asarray(y))[0] if height is None else height
 
         if self.ax_y is not None:
-            self.ax_y.barh(y, width, height=height, **kw)
+            self.ax_y.barh(y, width, height=bar_height, align=align, **kw)
 
             self.ax_y.tick_params(axis="y", labelleft=False)
 

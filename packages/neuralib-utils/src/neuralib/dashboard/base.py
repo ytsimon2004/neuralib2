@@ -2,10 +2,11 @@ import abc
 import functools
 from bokeh.application import Application
 from bokeh.document import Document
-from bokeh.models import Model, GlyphRenderer
+from bokeh.models import Model
+from bokeh.models.renderers.glyph_renderer import GlyphRenderer
 from bokeh.plotting import figure
 from bokeh.server.server import Server
-from typing import Callable, ClassVar, cast, Union, Optional
+from typing import Any, Callable, ClassVar, Union, Optional
 
 __all__ = ['Figure', 'View', 'ViewComponent', 'BokehServer']
 
@@ -77,7 +78,12 @@ class View(metaclass=abc.ABCMeta):
         return type(self).__name__
 
     def get_arg(self, key: str) -> list[str]:
-        return list(map(bytes.decode, self.document.session_context.request.arguments[key]))
+        session_context = self.document.session_context
+        if session_context is None:
+            raise RuntimeError('Bokeh session context is not available')
+
+        request = getattr(session_context, 'request')
+        return list(map(bytes.decode, request.arguments[key]))
 
     @abc.abstractmethod
     def setup(self) -> Model:
@@ -146,7 +152,7 @@ class ViewComponent(metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def plot(self, fig: Figure, **kwargs):
+    def plot(self, fig: Any, **kwargs):
         """plot data in *figure*.
 
         :param fig: Figure.
@@ -159,7 +165,7 @@ class ViewComponent(metaclass=abc.ABCMeta):
         """update the plot"""
         pass
 
-    def set_visible(self, visible: bool, pattern: str = None):
+    def set_visible(self, visible: bool, pattern: str | None = None):
         """Set the visible state of renders for those name contain *pattern*.
         It is a recursive function that it also update the renders inside the
         :class:`ViewComponent` attributes.
@@ -173,16 +179,16 @@ class ViewComponent(metaclass=abc.ABCMeta):
                 if pattern is None or pattern in name:
                     if isinstance(render, list):
                         for _render in render:
-                            cast(GlyphRenderer, _render).visible = visible
+                            _render.visible = visible
                     elif isinstance(render, dict):
                         for _render in render.values():
-                            cast(GlyphRenderer, _render).visible = visible
+                            _render.visible = visible
                     else:
-                        cast(GlyphRenderer, render).visible = visible
+                        render.visible = visible
             elif isinstance(render, ViewComponent):
                 render.set_visible(visible, pattern)
 
-    def list_renders(self, pattern: str = None, recursive: bool = False) -> list[GlyphRenderer]:
+    def list_renders(self, pattern: str | None = None, recursive: bool = False) -> list[GlyphRenderer]:
         """list all renders for those name contain *pattern*.
 
         :param pattern: str in attribute name
@@ -215,7 +221,7 @@ class BokehServer:
 
     """
 
-    INSTANCE: ClassVar['BokehServer'] = None
+    INSTANCE: ClassVar['BokehServer | None'] = None
 
     server: Server
 

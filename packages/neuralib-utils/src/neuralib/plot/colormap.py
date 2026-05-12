@@ -150,6 +150,9 @@ def insert_cyclic_colorbar(ax: Axes,
         vmin = im.norm.vmin
     if vmax is None:
         vmax = im.norm.vmax
+    if vmin is None or vmax is None:
+        raise ValueError('vmin and vmax are required when the image norm does not define them')
+
     values = np.linspace(vmin, vmax, num_labels, endpoint=False)
 
     for angle, value in zip(angles, values):

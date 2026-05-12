@@ -2,7 +2,8 @@ from html import escape
 from typing import Optional
 
 from bokeh.model import Model
-from bokeh.models import Select, Div
+from bokeh.models.widgets.inputs import Select
+from bokeh.models.widgets.markups import Div
 
 from neuralib.dashboard import BokehServer, View
 from .model import *

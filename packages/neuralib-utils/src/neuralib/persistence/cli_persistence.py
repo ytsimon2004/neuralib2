@@ -3,7 +3,7 @@ from pathlib import Path
 import abc
 from typing import Generic, TypeVar, get_origin, get_args
 
-from argclz import argument, copy_argument
+from argclz import argument, copy_argument  # pyright: ignore[reportMissingImports]
 from neuralib.persistence import (
     persistence,
     PickleHandler,
@@ -18,7 +18,7 @@ __all__ = ['PersistenceOptions',
 T = TypeVar('T')
 
 
-def persistence_filename(cache: T) -> str:
+def persistence_filename(cache: object) -> str:
     return persistence.filename(cache) + '.pkl'
 
 
@@ -37,7 +37,7 @@ class PersistenceOptions(Generic[T], metaclass=abc.ABCMeta):
     @property
     def persistence_class(self) -> type[T]:
         # https://stackoverflow.com/a/50101934
-        for t in type(self).__orig_bases__:
+        for t in getattr(type(self), '__orig_bases__', ()):
             if get_origin(t) == PersistenceOptions:
                 return get_args(t)[0]
         raise TypeError('unable to retrieve cache class T')
@@ -58,7 +58,7 @@ class PersistenceOptions(Generic[T], metaclass=abc.ABCMeta):
         """
         pass
 
-    def find_cache(self, result: T, dest: Path = None, validator=False) -> list[T]:
+    def find_cache(self, result: T, dest: Path | None = None, validator=False) -> list[T]:
         """Find the persistence.
 
         for all fields
@@ -73,7 +73,7 @@ class PersistenceOptions(Generic[T], metaclass=abc.ABCMeta):
         :param validator:
         :return:
         """
-        handler = self.persistence_handler(dest)
+        handler = self.persistence_handler(Path() if dest is None else dest)
 
         ret = []
 
@@ -102,9 +102,9 @@ class PersistenceOptions(Generic[T], metaclass=abc.ABCMeta):
         persistence.save(result, save_path)
 
     def load_cache(self,
-                   result: T = None,
+                   result: T | None = None,
                    error_when_missing=False,
-                   dest: Path = None,
+                   dest: Path | None = None,
                    **kwargs) -> T:
         """load persistence from disk according to *result*'s required fields.
 
@@ -116,7 +116,7 @@ class PersistenceOptions(Generic[T], metaclass=abc.ABCMeta):
         :raise FileNotFoundError: error_when_missing and file not found.
         """
         do_load = not self.invalid_cache
-        handler = self.persistence_handler(dest)
+        handler = self.persistence_handler(Path() if dest is None else dest)
 
         if result is None:
             result = self.empty_cache()
@@ -130,7 +130,7 @@ class PersistenceOptions(Generic[T], metaclass=abc.ABCMeta):
             do_load = False
             output_file = None
 
-        if do_load:
+        if do_load and output_file is not None:
             try:
                 print_load(output_file)
                 ref = result

@@ -1,5 +1,5 @@
 import os
-from slack import WebClient
+from slack.web.client import WebClient
 from slack.errors import SlackApiError
 
 from neuralib.typing import PathLike
@@ -20,7 +20,7 @@ def send_slack_message(env_file: PathLike,
     """
 
     try:
-        from dotenv import load_dotenv
+        from dotenv import load_dotenv  # pyright: ignore[reportMissingImports]
         load_dotenv(dotenv_path=env_file)
 
         try:

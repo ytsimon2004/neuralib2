@@ -1,6 +1,10 @@
 from pathlib import Path
 
-from bokeh.models import ColorBar, LinearColorMapper, GlyphRenderer, TextAreaInput, Div
+from bokeh.models.annotations.legends import ColorBar
+from bokeh.models.mappers import LinearColorMapper
+from bokeh.models.renderers.glyph_renderer import GlyphRenderer
+from bokeh.models.widgets.inputs import TextAreaInput
+from bokeh.models.widgets.markups import Div
 from bokeh.plotting import figure
 
 __all__ = ['ColorBarView',

@@ -3,7 +3,8 @@ from pathlib import Path
 from typing import Literal, Union, Optional
 
 import numpy as np
-from bokeh.models import GlyphRenderer, ColumnDataSource
+from bokeh.models.renderers.glyph_renderer import GlyphRenderer
+from bokeh.models.sources import ColumnDataSource
 from bokeh.plotting import figure
 
 from neuralib.dashboard.base import ViewComponent
@@ -37,7 +38,8 @@ class AbstractBrainView(ViewComponent):
         self._height = value
 
     def plot(self, fig: figure,
-             palette='Greys256'):
+             palette='Greys256',
+             **kwargs):
         self.render_brain_slice = fig.image(
             'image', x='x', y='y', dw='dw', dh='dh',
             source=self.data_brain_slice,
@@ -46,7 +48,7 @@ class AbstractBrainView(ViewComponent):
 
     @property
     @abc.abstractmethod
-    def brain_image(self) -> np.ndarray:
+    def brain_image(self) -> np.ndarray | None:
         pass
 
     def update(self, x: float = 0, y: float = 0):
@@ -71,10 +73,10 @@ class AbstractBrainView(ViewComponent):
 class BrainView(AbstractBrainView):
     def __init__(self):
         super().__init__()
-        self.reference: np.ndarray = None
+        self.reference: np.ndarray | None = None
 
     @property
-    def brain_image(self) -> np.ndarray:
+    def brain_image(self) -> np.ndarray | None:
         return self.reference
 
     @brain_image.setter
@@ -113,7 +115,7 @@ class AtlasBrainView(AbstractBrainView):
     def __init__(self, source: str, check_latest=False, plane: PLANE = 'coronal'):
         super().__init__()
 
-        from brainglobe_atlasapi.bg_atlas import BrainGlobeAtlas
+        from brainglobe_atlasapi.bg_atlas import BrainGlobeAtlas  # pyright: ignore[reportMissingImports]
         atlas = BrainGlobeAtlas(
             source,
             check_latest=check_latest,
@@ -126,6 +128,7 @@ class AtlasBrainView(AbstractBrainView):
 
         self.grid_x: np.ndarray
         self.grid_y: np.ndarray
+        self._plane: AtlasBrainView.PLANE
         self.plane = plane  # invoke setter
         self._offset = 0
         self._offset_h = 0
@@ -193,9 +196,17 @@ class AtlasBrainView(AbstractBrainView):
     def width(self) -> float:
         return self.width_n * self.resolution
 
+    @width.setter
+    def width(self, value: float):
+        raise AttributeError('AtlasBrainView.width is derived from atlas resolution')
+
     @property
     def height(self) -> float:
         return self.height_n * self.resolution
+
+    @height.setter
+    def height(self, value: float):
+        raise AttributeError('AtlasBrainView.height is derived from atlas resolution')
 
     @property
     def offset(self) -> int:

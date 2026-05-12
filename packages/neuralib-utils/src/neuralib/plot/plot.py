@@ -6,7 +6,8 @@ import seaborn as sns
 from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
 from matplotlib.patches import Polygon
-from typing import Literal, Callable, Sequence
+from matplotlib.patches import Rectangle
+from typing import Any, Literal, Callable, Sequence
 
 from neuralib.plot._dotplot import DotPlot
 from neuralib.typing import ArrayLikeStr, ArrayLike
@@ -39,7 +40,7 @@ def dotplot(xlabel: ArrayLikeStr,
             size_legend_num: int | None = None,
             size_legend_as_int: bool = True,
             with_color: bool = False,
-            cmap: mcolors.Colormap = 'Reds',
+            cmap: str | mcolors.Colormap = 'Reds',
             colorbar_title: str | None = None,
             norm: mcolors.Normalize | None = None,
             cbar_vmin: float | None = None,
@@ -143,8 +144,6 @@ def scatter_histplot(x: np.ndarray,
     :param kwargs: additional args pass through ``ax.set()``
     :return:
     """
-    from scipy.stats import pearsonr
-
     sns.set_theme(style='white', font_scale=1.2)
 
     g = sns.JointGrid(x=x, y=y, height=5)
@@ -161,7 +160,7 @@ def scatter_histplot(x: np.ndarray,
 
     #
     if linear_reg:
-        cc = pearsonr(x, y)[0]
+        cc = float(np.corrcoef(x, y)[0, 1])
         ax.text(0.5, 0.8, f'r = {round(cc, 4)}', fontstyle='italic',
                 horizontalalignment='center',
                 verticalalignment='center',
@@ -200,8 +199,6 @@ def scatter_binx_plot(ax: Axes,
     :return:
     """
     import seaborn as sns
-    from scipy.stats import pearsonr
-
     sns.regplot(
         x=x,
         y=y,
@@ -219,7 +216,7 @@ def scatter_binx_plot(ax: Axes,
     ax.set_aspect(1.0 / ax.get_data_ratio(), adjustable='box')
 
     if linear_reg:
-        cc = pearsonr(x, y)[0]
+        cc = float(np.corrcoef(x, y)[0, 1])
         ax.set_title(f'r = {round(cc, 4)}', fontstyle='italic')
 
 
@@ -318,7 +315,7 @@ def diag_histplot(x: ArrayLike,
         [-1 / np.sqrt(2), 1 / np.sqrt(2)]
     ])
 
-    for i in range(bins):
+    for i in range(len(counts)):
         c = counts[i]
         if c == 0:
             continue
@@ -471,36 +468,49 @@ def violin_boxplot(ax: Axes,
     :param kwargs: Common args pass through ``sns.violinplot()``, ``sns.boxplot()`` and ``sns.stripplot()``
     :return:
     """
-    kwargs = dict(
-        ax=ax,
+    common_kws: dict[str, Any] = dict(kwargs)
+
+    sns.violinplot(
+        data=data,
         x=x,
         y=y,
         hue=hue,
-        data=data,
-        **kwargs
+        ax=ax,
+        dodge=False,
+        density_norm="width",
+        inner=None,
+        **common_kws
     )
-
-    sns.violinplot(dodge=False, density_norm="width", inner=None, **kwargs)
 
     xlim = ax.get_xlim()
     ylim = ax.get_ylim()
     for violin in ax.collections:
         bbox = violin.get_paths()[0].get_extents()
         x0, y0, width, height = bbox.bounds
-        violin.set_clip_path(plt.Rectangle((x0, y0), width / 2, height, transform=ax.transData))
+        violin.set_clip_path(Rectangle((x0, y0), width / 2, height, transform=ax.transData))
 
     sns.boxplot(saturation=1,
                 showfliers=False,
                 width=0.3,
                 boxprops={'zorder': 3, 'facecolor': 'none'},
-                **kwargs)
+                data=data,
+                x=x,
+                y=y,
+                hue=hue,
+                ax=ax,
+                **common_kws)
 
     old_len_collections = len(ax.collections)
 
     sns.stripplot(dodge=False,
                   alpha=scatter_alpha,
                   size=scatter_size,
-                  **kwargs)
+                  data=data,
+                  x=x,
+                  y=y,
+                  hue=hue,
+                  ax=ax,
+                  **common_kws)
 
     for dots in ax.collections[old_len_collections:]:
         dots.set_offsets(dots.get_offsets() + np.array([0.12, 0]))
@@ -577,7 +587,7 @@ def grid_subplots(data: np.ndarray | list[np.ndarray],
             if dtype == 'xy':
                 dat = data[i]
                 if dat.shape[1] != 2:
-                    raise ValueError(f'invalid {data.size}')
+                    raise ValueError(f'invalid data shape: {dat.shape}')
                 f(dat[:, 0], dat[:, 1], **kwargs)
             elif dtype == 'img':
                 f(data[i], **kwargs)
