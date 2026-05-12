@@ -6,7 +6,7 @@ import attrs
 import datetime
 import numpy as np
 import polars as pl
-from typing import Literal, TypedDict, final
+from typing import Literal, Required, TypedDict, cast, final
 from typing import Self
 
 from neuralib.typing import PathLike
@@ -110,7 +110,8 @@ class Suite2PResult:
 
     def _check_frame_rate(self):
         """User specific check suite2p config is correct"""
-        if self.fs * self.n_plane > self.runtime_frate_check:
+        runtime_frate_check = self.runtime_frate_check
+        if runtime_frate_check is not None and self.fs * self.n_plane > runtime_frate_check:
             fprint(f'the fr: {self.fs} and n_etl: {self.n_plane} might not set properly in suite2p,'
                    f'check output ops.json', vtype='error')
             raise RuntimeError('fs and n_plane are not set properly in suite2p')
@@ -175,7 +176,7 @@ class Suite2PResult:
         if redcell is not None:
             redcell = redcell[x]
 
-        return Suite2PResult(
+        return cls(
             directory,
             F,
             FNeu,
@@ -216,10 +217,9 @@ class Suite2PResult:
     @property
     def n_red_neuron(self) -> int:
         """number of identified neuron based on red cell threshold"""
-        if self.has_chan2:
-            return np.count_nonzero(self.red_cell_prob >= self.redcell_threshold)
-        else:
+        if not self.has_chan2 or self.red_cell_prob is None or self.redcell_threshold is None:
             raise RuntimeError('no channel 2')
+        return int(np.count_nonzero(self.red_cell_prob >= self.redcell_threshold))
 
     @property
     def red_cell_prob(self) -> np.ndarray | None:
@@ -314,8 +314,7 @@ class Suite2PResult:
         return self.ops['corrXY1']
 
     @classmethod
-    def load_total_neuron_number(cls,
-                                 directory: Path,
+    def load_total_neuron_number(cls, directory: Path,
                                  cell_prob: float | None = 0.5) -> int:
         """
         Load number of neuron based on iscell.npy
@@ -328,9 +327,9 @@ class Suite2PResult:
         """
         iscell = np.load(directory / 'iscell.npy', allow_pickle=True)
         if cell_prob is None:
-            return np.count_nonzero(iscell[:, 0] == 1)
+            return int(np.count_nonzero(iscell[:, 0] == 1))
         else:
-            return np.count_nonzero(iscell[:, 1] >= cell_prob)
+            return int(np.count_nonzero(iscell[:, 1] >= cell_prob))
 
     def get_rois_pixels(self) -> np.ndarray:
         """ROIs pixel (N, 2)"""
@@ -352,11 +351,11 @@ class Suite2PResult:
         :return: A Polars DataFrame containing two columns: `neuron_id` and  `raw_index`.
         """
         n = np.arange(len(self.f_raw))
-        if self.cell_prob is None:
+        if self.cell_prob_thres is None:
             return pl.DataFrame([n, n], schema=['neuron_id', 'raw_index'], orient='col')
         else:
             iscell = np.load(self.directory / 'iscell.npy', allow_pickle=True)
-            mx = np.nonzero(iscell[:, 1] >= self.cell_prob)[0]
+            mx = np.nonzero(iscell[:, 1] >= self.cell_prob_thres)[0]
             return pl.DataFrame([n, mx], schema=['neuron_id', 'raw_index'], orient='col')
 
 
@@ -375,11 +374,11 @@ class Suite2pGUIOptions(TypedDict, total=False):
     save_folder: str
     subfolders: list
     move_bin: bool
-    nplanes: int
-    nchannels: int
+    nplanes: Required[int]
+    nchannels: Required[int]
     functional_chan: int
-    tau: float
-    fs: float
+    tau: Required[float]
+    fs: Required[float]
     force_sktiff: bool
     frames_include: int
     multiplane_parallel: float
@@ -440,10 +439,10 @@ class Suite2pGUIOptions(TypedDict, total=False):
     classifier_path: int
     chan2_thres: float
     baseline: str
-    win_baseline: float
-    sig_baseline: float
-    prctile_baseline: float
-    neucoeff: int
+    win_baseline: Required[float]
+    sig_baseline: Required[float]
+    prctile_baseline: Required[float]
+    neucoeff: Required[int]
     suite2p_version: str
     data_path: list[str]
     sbx_ndeadcols: int
@@ -454,11 +453,11 @@ class Suite2pGUIOptions(TypedDict, total=False):
     filelist: list[str]
     nframes_per_folder: np.ndarray
     sbx_ndeadrows: int
-    meanImg: np.ndarray
-    meanImg_chan2: np.ndarray  # if chan_2
+    meanImg: Required[np.ndarray]
+    meanImg_chan2: Required[np.ndarray]  # if chan_2
     nframes: int
-    Ly: int
-    Lx: int
+    Ly: Required[int]
+    Lx: Required[int]
     date_proc: datetime.datetime
     refImg: np.ndarray
     rmin: int
@@ -467,12 +466,12 @@ class Suite2pGUIOptions(TypedDict, total=False):
     xblock: list[np.ndarray]
     nblocks: list[int]
     NRsm: np.ndarray
-    yoff: np.ndarray
-    xoff: np.ndarray
-    corrXY: np.ndarray
-    yoff1: np.ndarray
-    xoff1: np.ndarray
-    corrXY1: np.ndarray
+    yoff: Required[np.ndarray]
+    xoff: Required[np.ndarray]
+    corrXY: Required[np.ndarray]
+    yoff1: Required[np.ndarray]
+    xoff1: Required[np.ndarray]
+    corrXY1: Required[np.ndarray]
     badframes: np.ndarray
     yrange: list[int]
     xrange: list[int]
@@ -497,10 +496,10 @@ class Suite2pRoiStat(TypedDict, total=False):
 
     .. seealso:: `<https://suite2p.readthedocs.io/en/latest/outputs.html#stat-npy-fields>`_
     """
-    ypix: np.ndarray
-    xpix: np.ndarray
+    ypix: Required[np.ndarray]
+    xpix: Required[np.ndarray]
     lam: np.ndarray
-    med: list[int, int]
+    med: tuple[int, int]
     footprint: float
     mrs: float
     mrs0: float
@@ -509,7 +508,7 @@ class Suite2pRoiStat(TypedDict, total=False):
     npix: int
     npix_soma: int
     soma_crop: np.ndarray
-    overlap: np.ndarray
+    overlap: Required[np.ndarray]
     radius: float
     aspect_ratio: float
     npix_norm_no_crop: float
@@ -534,26 +533,30 @@ def get_s2p_coords(s2p: Suite2PResult,
     if neuron_list is None:
         neuron_list = np.arange(s2p.n_neurons)
 
-    n_neurons = len(neuron_list)
+    if isinstance(neuron_list, int):
+        neuron_indices = np.array([neuron_list])
+        src_plane_index = np.array([plane_index])
+    elif isinstance(neuron_list, slice):
+        neuron_indices = np.arange(s2p.n_neurons)[neuron_list]
+        src_plane_index = np.full(len(neuron_indices), plane_index)
+    else:
+        neuron_indices = np.asarray(neuron_list)
+        src_plane_index = np.full(len(neuron_indices), plane_index)
+
+    n_neurons = len(neuron_indices)
     xpix = np.zeros(n_neurons)
     ypix = np.zeros(n_neurons)
 
-    for i, n in enumerate(neuron_list):
-        xpix[i] = np.mean(s2p.stat[i]['xpix'])
-        ypix[i] = np.mean(s2p.stat[i]['ypix'])
+    for i, n in enumerate(neuron_indices):
+        stat = cast(Suite2pRoiStat, s2p.stat[int(n)])
+        xpix[i] = np.mean(stat['xpix'])
+        ypix[i] = np.mean(stat['ypix'])
 
     xcord = xpix * factor / 1000  # ap
     ycord = ypix * factor / 1000  # ml
 
-    if isinstance(neuron_list, int):
-        src_plane_index = plane_index
-    elif isinstance(neuron_list, (list, np.ndarray, slice)):
-        src_plane_index = np.full_like(neuron_list, plane_index)
-    else:
-        raise TypeError('')
-
     return get_cellular_coordinate(
-        np.array(neuron_list),
+        neuron_indices,
         xcord,
         ycord,
         unit='mm',

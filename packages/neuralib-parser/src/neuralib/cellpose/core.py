@@ -133,7 +133,7 @@ class CellposeSegmentation:
     @property
     def nan_masks(self) -> np.ndarray:
         """value 0 in :attr:`CellposeSegmentation.masks` to nan"""
-        masks = self.masks.copy().astype(np.float_)
+        masks = self.masks.copy().astype(np.float64)
         masks[masks == 0] = np.nan
 
         return masks
@@ -141,7 +141,7 @@ class CellposeSegmentation:
     @property
     def nan_outlines(self) -> np.ndarray:
         """value 0 in :attr:`CellposeSegmentation.outlines` to nan"""
-        outlines = self.outlines.copy().astype(np.float_)
+        outlines = self.outlines.copy().astype(np.float64)
         outlines[outlines == 0] = np.nan
 
         return outlines
@@ -159,7 +159,7 @@ class CellposeSegmentation:
 
         :param output_file: ``*.roi`` output file path
         """
-        from roifile import ImagejRoi, ROI_TYPE, ROI_OPTIONS
+        from roifile import ImagejRoi, ROI_TYPE, ROI_OPTIONS  # pyright: ignore[reportMissingImports]
 
         if Path(output_file).suffix != '.roi':
             raise ValueError('output file must have .roi extension')

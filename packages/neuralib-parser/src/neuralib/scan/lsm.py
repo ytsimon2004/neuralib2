@@ -54,6 +54,8 @@ class TiffScanner(AbstractScanner):
     @property
     def image(self) -> np.ndarray:
         """image array"""
+        if self._image is None:
+            raise RuntimeError('image file is closed')
         return self._image
 
     @property
@@ -82,7 +84,8 @@ class TiffScanner(AbstractScanner):
     def view(self, channel: int = 0,
              depth: int | slice | np.ndarray | None = None,
              project_type: Literal['avg', 'max', 'min', 'std', 'median'] = 'max',
-             norm: bool = True) -> np.ndarray:
+             norm: bool = True,
+             **kwargs: Any) -> np.ndarray:
         """
         Generates a view of the image data based on the provided parameters.
         Only provide a single scene view for now.

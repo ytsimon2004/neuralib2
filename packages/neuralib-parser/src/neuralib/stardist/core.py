@@ -4,7 +4,7 @@ from pathlib import Path
 
 import numpy as np
 from numpy.lib.npyio import NpzFile
-from typing import Self, Literal
+from typing import Self, Literal, cast
 
 from neuralib.typing import PathLike
 
@@ -73,7 +73,7 @@ class StarDistSegmentation:
         self._prob = prob
 
         self._filename = filename
-        self._model = model
+        self._model: STARDIST_MODEL = model
 
     @classmethod
     def load(cls, file: PathLike) -> Self:
@@ -87,8 +87,8 @@ class StarDistSegmentation:
         return cls(labels=cls._reconstruct_labels_from_index_value(dat),
                    cords=dat['cords'],
                    prob=dat['prob'],
-                   filename=dat['filename'],
-                   model=dat['model'])
+                   filename=str(dat['filename']),
+                   model=cast(STARDIST_MODEL, str(dat['model'])))
 
     @classmethod
     def _reconstruct_labels_from_index_value(cls, dat: NpzFile) -> np.ndarray:
@@ -200,7 +200,7 @@ class StarDistSegmentation:
         """Covert segmented roi to point roi, and save it as ``.roi`` for imageJ.
 
         :param output_file: ``*.roi`` output file path"""
-        from roifile import ImagejRoi, ROI_TYPE, ROI_OPTIONS
+        from roifile import ImagejRoi, ROI_TYPE, ROI_OPTIONS  # pyright: ignore[reportMissingImports]
 
         points = np.fliplr(self.points)  # XY rotate in .roi format
         roi = ImagejRoi(

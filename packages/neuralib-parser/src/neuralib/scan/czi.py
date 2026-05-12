@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import aicspylibczi
+import aicspylibczi  # pyright: ignore[reportMissingImports]
 import numpy as np
-import xmltodict
+import xmltodict  # pyright: ignore[reportMissingModuleSource]
 from contextlib import contextmanager
 from typing import Any, Generator, final, Literal
 from xml.etree.ElementTree import tostring
@@ -46,7 +46,8 @@ class CziScanner(AbstractScanner):
         super().__init__(filepath)
 
     def _load_metadata(self) -> dict[str, Any]:
-        dim = self._czi_file.get_dims_shape()
+        czi_file = self.czi_file
+        dim = czi_file.get_dims_shape()
         first_scene_dims = dim[0]
         if 'S' in first_scene_dims and len(dim) == 1:
             self._n_scenes = first_scene_dims['S'][1]
@@ -58,7 +59,7 @@ class CziScanner(AbstractScanner):
             self._n_scenes = 1
             self._consistent_scan_configs = True
 
-        xml_string = tostring(self._czi_file.meta, encoding='utf-8').decode('utf-8')
+        xml_string = tostring(czi_file.meta, encoding='utf-8').decode('utf-8')
         return xmltodict.parse(xml_string)
 
     def close(self):
@@ -68,6 +69,8 @@ class CziScanner(AbstractScanner):
     @property
     def czi_file(self) -> aicspylibczi.CziFile:
         """get ``aicspylibczi.CziFile`` object"""
+        if self._czi_file is None:
+            raise RuntimeError('CZI file is closed')
         return self._czi_file
 
     @property
@@ -78,7 +81,7 @@ class CziScanner(AbstractScanner):
     @property
     def is_mosaic(self) -> bool:
         """Checks if the CZI file is marked as mosaic by the reader."""
-        return self._czi_file.is_mosaic()
+        return self.czi_file.is_mosaic()
 
     @property
     def n_scenes(self) -> int:
@@ -161,7 +164,8 @@ class CziScanner(AbstractScanner):
              channel: int = 0,
              depth: int | slice | np.ndarray | None = None,
              project_type: Literal['avg', 'max', 'min', 'std', 'median'] = 'max',
-             norm: bool = True) -> np.ndarray:
+             norm: bool = True,
+             **kwargs: Any) -> np.ndarray:
         """
         Generates a view of the image data based on the provided parameters such as scene,
         channel, depth, projection type, and normalization. The function retrieves image data
@@ -182,23 +186,27 @@ class CziScanner(AbstractScanner):
               and/or projected based on the input parameters.
         """
 
-        kwargs = {}
+        read_kwargs = {}
+        czi_file = self.czi_file
         if self.is_mosaic:
-            fn = self._czi_file.read_mosaic
+            fn = czi_file.read_mosaic
             nz = np.max([self.get_code(i, 'Z') for i in range(self.n_scenes)])
         else:
-            fn = self._czi_file.read_image
+            fn = czi_file.read_image
             scene = 0 if scene is None else scene
             nz = self.get_code(scene, 'Z')
-            kwargs.update({'S': scene})
+            read_kwargs.update({'S': scene})
 
         #
         if depth is None:
             depth = np.arange(nz)
         if isinstance(depth, int):
-            img = fn(C=channel, Z=depth, **kwargs).squeeze()
-        elif isinstance(depth, (np.ndarray, slice)):
-            stacks = np.array([fn(C=channel, Z=z, **kwargs)[0].squeeze() for z in depth])  # (C, )
+            img = fn(C=channel, Z=depth, **read_kwargs).squeeze()
+        elif isinstance(depth, np.ndarray):
+            stacks = np.array([fn(C=channel, Z=z, **read_kwargs)[0].squeeze() for z in depth])  # (C, )
+            img = self.z_projection(stacks, project_type)
+        elif isinstance(depth, slice):
+            stacks = np.array([fn(C=channel, Z=z, **read_kwargs)[0].squeeze() for z in range(nz)[depth]])  # (C, )
             img = self.z_projection(stacks, project_type)
         else:
             raise TypeError(f'unknown type {type(depth)}')

@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pickle
 import polars as pl
-from typing import TypedDict
+from typing import Any, Self, TypedDict, cast, overload
 
 from neuralib.typing import PathLike
 from neuralib.util.dataframe import DataFrameWrapper
@@ -31,8 +31,7 @@ def read_dlc(file: PathLike, meta_file: PathLike | None = None) -> DeepLabCutDat
     :return:
     """
     file = Path(file)
-    meta_file = Path(meta_file)
-    meta = _load_meta(meta_file)
+    meta = _load_meta(Path(meta_file)) if meta_file is not None else None
 
     match file.suffix:
         case '.h5' | '.hdf5':
@@ -79,13 +78,21 @@ class DeepLabCutDataFrame(DataFrameWrapper):
         self._filtered = filtered
 
     def __repr__(self):
-        raise repr(self.dataframe())
+        return repr(self.dataframe())
 
-    def dataframe(self, dataframe: pl.DataFrame = None, may_inplace=True):
+    @overload
+    def dataframe(self) -> pl.DataFrame:
+        ...
+
+    @overload
+    def dataframe(self, dataframe: pl.DataFrame, may_inplace: bool = True) -> Self:
+        ...
+
+    def dataframe(self, dataframe: pl.DataFrame | None = None, may_inplace: bool = True) -> pl.DataFrame | Self:
         if dataframe is None:
             return self._df
         else:
-            return DeepLabCutDataFrame(dataframe, meta=self._meta, filtered=self._filtered)
+            return type(self)(dataframe, meta=self._meta, filtered=self._filtered)
 
     @property
     def default_filtered(self) -> bool:
@@ -95,6 +102,8 @@ class DeepLabCutDataFrame(DataFrameWrapper):
     @property
     def meta(self) -> DeepLabCutMeta:
         """:attr:`~neuralib.tracking.deeplabcut.DeepLabCutMeta`"""
+        if self._meta is None:
+            raise RuntimeError('DeepLabCut metadata is not available')
         return self._meta
 
     @property
@@ -153,11 +162,19 @@ class JointDataFrame(DataFrameWrapper):
     def __repr__(self):
         return repr(self.dataframe())
 
-    def dataframe(self, dataframe: pl.DataFrame = None, may_inplace=True):
+    @overload
+    def dataframe(self) -> pl.DataFrame:
+        ...
+
+    @overload
+    def dataframe(self, dataframe: pl.DataFrame, may_inplace: bool = True) -> Self:
+        ...
+
+    def dataframe(self, dataframe: pl.DataFrame | None = None, may_inplace: bool = True) -> pl.DataFrame | Self:
         if dataframe is None:
             return self._df
         else:
-            return JointDataFrame(dataframe)
+            return type(self)(dataframe)
 
 
 class DeepLabCutMeta(TypedDict):
@@ -219,7 +236,7 @@ class DeepLabCutModelConfig(TypedDict):
 def _load_dlc_h5_table(file) -> pl.DataFrame:
     import pandas as pd
 
-    df = pd.read_hdf(file)
+    df = cast(Any, pd.read_hdf(file))
 
     scorers = list(df.columns.levels[0])
     bodyparts = list(df.columns.levels[1])

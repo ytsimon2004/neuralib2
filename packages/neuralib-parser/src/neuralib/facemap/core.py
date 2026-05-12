@@ -4,8 +4,7 @@ import h5py
 import numpy as np
 import pickle
 import polars as pl
-from typing import Self
-from typing import TypedDict
+from typing import Self, TypedDict, cast, overload
 
 from neuralib.typing import PathLike
 from neuralib.util.dataframe import DataFrameWrapper
@@ -81,7 +80,7 @@ class FaceMapResult:
                 meta = pickle.load(f)
 
             data_path = uglob(directory, '*.h5')
-            data = h5py.File(data_path)['Facemap']
+            data = cast(h5py.Group, h5py.File(data_path)['Facemap'])
             keypoints = True
 
         return cls(svd, meta, data, keypoints)
@@ -99,12 +98,12 @@ class FaceMapResult:
 
         :raises RuntimeError: If no pupil data is available.
         """
-        try:
-            pupil: list[PupilDict] = self.svd['pupil']
-        except KeyError:
+        if self.svd is None:
+            raise RuntimeError('no SVD data found')
+        pupil = self.svd.get('pupil')
+        if pupil is None:
             raise RuntimeError('no pupil data found')
-        else:
-            return pupil[0]
+        return pupil[0]
 
     def get_pupil_area(self) -> np.ndarray:
         """pupil area. `Array[float, F]`"""
@@ -124,12 +123,12 @@ class FaceMapResult:
 
         :raises RuntimeError: If no blink data is available.
         """
-        try:
-            ret = self.svd['blink']
-        except KeyError:
+        if self.svd is None:
+            raise RuntimeError('no SVD data found')
+        ret = self.svd.get('blink')
+        if ret is None:
             raise RuntimeError('no blink data found')
-        else:
-            return ret[0]
+        return ret[0]
 
     # ========= #
     # Keypoints #
@@ -138,6 +137,8 @@ class FaceMapResult:
     @property
     def keypoints(self) -> list[KeyPoint]:
         """list of all keypoint name"""
+        if self.data is None:
+            raise RuntimeError('no keypoint data found')
         return list(self.data.keys())
 
     def get(self, *keypoint) -> KeyPointDataFrame:
@@ -149,9 +150,12 @@ class FaceMapResult:
             return KeyPointDataFrame(pl.concat(ret))
 
     def _get(self, keypoint: KeyPoint) -> KeyPointDataFrame:
-        x = np.array(self.data[keypoint]['x'])
-        y = np.array(self.data[keypoint]['y'])
-        llh = np.array(self.data[keypoint]['likelihood'])
+        if self.data is None:
+            raise RuntimeError('no keypoint data found')
+        group = cast(h5py.Group, self.data[keypoint])
+        x = np.array(group['x'])
+        y = np.array(group['y'])
+        llh = np.array(group['likelihood'])
         df = pl.DataFrame({'x': x, 'y': y, 'likelihood': llh}).with_columns(pl.lit(keypoint).alias('keypoint'))
         return KeyPointDataFrame(df)
 
@@ -186,11 +190,19 @@ class KeyPointDataFrame(DataFrameWrapper):
     def __repr__(self):
         return repr(self.dataframe())
 
-    def dataframe(self, dataframe: pl.DataFrame = None, may_inplace=True):
+    @overload
+    def dataframe(self) -> pl.DataFrame:
+        ...
+
+    @overload
+    def dataframe(self, dataframe: pl.DataFrame, may_inplace: bool = True) -> Self:
+        ...
+
+    def dataframe(self, dataframe: pl.DataFrame | None = None, may_inplace: bool = True) -> pl.DataFrame | Self:
         if dataframe is None:
             return self._df
         else:
-            return KeyPointDataFrame(dataframe)
+            return type(self)(dataframe)
 
     def to_zscore(self) -> Self:
         """

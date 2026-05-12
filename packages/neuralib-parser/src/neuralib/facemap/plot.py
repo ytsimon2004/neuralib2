@@ -2,6 +2,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
 from matplotlib.colors import Normalize
+from typing import cast
 
 from neuralib.facemap import FaceMapResult
 from neuralib.plot import plot_figure
@@ -35,6 +36,7 @@ def plot_facemap_keypoints(fmap: FaceMapResult,
     colors = get_customized_cmap('jet', (0, 1), len(kps))
 
     with plot_figure(output) as ax:
+        ax = cast(Axes, ax)
         df = fmap.get(*kps)
         if outlier_filter:
             df = df.with_outlier_filter()
@@ -83,8 +85,8 @@ def plot_cmap_time_series(x: np.ndarray,
 
     #
     if ax is None:
-        with plot_figure(output) as ax:
-            _plot(ax)
+        with plot_figure(output) as new_ax:
+            _plot(cast(Axes, new_ax))
     else:
         _plot(ax)
         if output is not None:

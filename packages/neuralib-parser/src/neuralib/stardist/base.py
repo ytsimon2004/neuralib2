@@ -85,8 +85,11 @@ class AbstractSegmentationOptions(AbstractParser, metaclass=abc.ABCMeta):
 
         :return: `Array[Any, [H, W]]` or `Array[Any, [H, W, C]]`
         """
+        img = cv2.imread(str(self.file))
+        if img is None:
+            raise FileNotFoundError(self.file)
         return process_image(
-            cv2.imread(str(self.file)),
+            img,
             to_gray=to_gray,
             norm=self.with_norm
         )
@@ -103,8 +106,11 @@ class AbstractSegmentationOptions(AbstractParser, metaclass=abc.ABCMeta):
         :rtype: Tuple of filepath, image_array (`Array[Any, [H, W]]` or `Array[Any, [H, W, C]]`) generator
         """
         for file in self.directory.glob(f'*{self.directory_suffix}'):
+            raw = cv2.imread(str(file))
+            if raw is None:
+                raise FileNotFoundError(file)
             img = process_image(
-                cv2.imread(str(file)),
+                raw,
                 to_gray=to_gray,
                 norm=self.with_norm
             )
@@ -155,7 +161,7 @@ def process_image(img: np.ndarray,
         img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
     if norm:
-        from csbdeep.utils import normalize
+        from csbdeep.utils import normalize  # pyright: ignore[reportMissingImports]
         img = normalize(img, clip=True, pmin=20)
 
     return img

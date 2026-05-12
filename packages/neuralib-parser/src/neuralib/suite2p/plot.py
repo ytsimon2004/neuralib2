@@ -1,7 +1,8 @@
 import numpy as np
 from matplotlib.axes import Axes
+from typing import cast
 
-from neuralib.suite2p import Suite2PResult
+from neuralib.suite2p import Suite2PResult, Suite2pRoiStat
 
 __all__ = ['get_soma_pixel',
            'plot_soma_center']
@@ -34,12 +35,14 @@ def get_soma_pixel(s2p: Suite2PResult,
         neuron_ids = np.nonzero(neuron_ids)[0]
 
     for i in neuron_ids:
-        ypix = s2p.stat[i]['ypix']
-        xpix = s2p.stat[i]['xpix']
+        stat = cast(Suite2pRoiStat, s2p.stat[i])
+        ypix = stat['ypix']
+        xpix = stat['xpix']
 
         if not include_overlap_pixel:
-            ypix = ypix[~s2p.stat[i]['overlap']]
-            xpix = xpix[~s2p.stat[i]['overlap']]
+            overlap = stat['overlap']
+            ypix = ypix[~overlap]
+            xpix = xpix[~overlap]
 
         neuron_pix[xpix, ypix] = i + 1 if color_diff else 1
 
@@ -73,8 +76,15 @@ def plot_soma_center(ax: Axes,
             raise ValueError('invalid shape for the mask array')
         neuron_ids = np.nonzero(neuron_ids)[0]
 
-    coords = np.array([(np.mean(s2p.stat[i]['ypix' if invert_xy else 'xpix']),
-                        np.mean(s2p.stat[i]['xpix' if invert_xy else 'ypix'])) for i in neuron_ids])
+    assert neuron_ids is not None
+    coords = []
+    for i in neuron_ids:
+        stat = cast(Suite2pRoiStat, s2p.stat[i])
+        coords.append((
+            np.mean(stat['ypix' if invert_xy else 'xpix']),
+            np.mean(stat['xpix' if invert_xy else 'ypix'])
+        ))
+    coords = np.array(coords)
 
     ax.scatter(coords[:, 0], coords[:, 1], **kwargs)
 

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -127,10 +129,10 @@ class SwcFile:
         pass
 
     @overload
-    def __getitem__(self, item: IdentifierName) -> Self:
+    def __getitem__(self, item: IdentifierName) -> SwcFile:
         pass
 
-    def __getitem__(self, item: int | str) -> SwcNode | Self:
+    def __getitem__(self, item: int | str) -> SwcNode | SwcFile:
         if isinstance(item, int):
             try:
                 ret = self.node[item - 1]  # to index
@@ -187,7 +189,7 @@ class SwcFile:
             for idf in idfs
         ]
 
-    def foreach_identifier(self, as_dict: bool) -> list[Self] | dict[str, Self]:
+    def foreach_identifier(self, as_dict: bool) -> list[SwcFile] | dict[str, SwcFile]:
         if as_dict:
             return {idf: self[idf] for idf in self.unique_identifier}
         else:
@@ -305,7 +307,7 @@ def _plot_swc_3d(swc: SwcFile,
                  color,
                  spheres_size: float = 3,
                  lw: float = 5):
-    import vedo
+    import vedo  # pyright: ignore[reportMissingImports]
 
     plotter = vedo.Plotter()
 

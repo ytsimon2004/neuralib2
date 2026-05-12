@@ -1,8 +1,8 @@
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import numpy as np
-import sbxreader
+import sbxreader  # pyright: ignore[reportMissingImports]
 from rich.pretty import pprint
 
 from argclz import AbstractParser, argument, pos_argument, validator, int_tuple_type
@@ -148,12 +148,12 @@ class ScanBoxViewOptions(AbstractParser):
     )
 
     # -- Config ---------------
-    frames: tuple[int, int] | None = argument(
+    frames: tuple[int, int] | None = cast(Any, argument(
         '--frames',
         type=int_tuple_type,
         default=None,
         help='indices of image sequences, if None, then all frames'
-    )
+    ))
     plane: int = argument('--plane', default=0, help='which optic plane')
     channel: int = argument('--channel', default=0, help='which pmt channel')
 

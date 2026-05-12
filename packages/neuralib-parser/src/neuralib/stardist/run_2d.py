@@ -1,8 +1,8 @@
 from pathlib import Path
 
-import napari
+import napari  # pyright: ignore[reportMissingImports]
 import numpy as np
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, cast
 
 from argclz import argument, as_argument
 from neuralib.util.verbose import fprint
@@ -10,7 +10,7 @@ from .base import AbstractSegmentationOptions
 from .core import read_stardist, StarDistSegmentation, STARDIST_MODEL
 
 if TYPE_CHECKING:
-    from stardist.models import StarDist2D
+    from stardist.models import StarDist2D  # pyright: ignore[reportMissingImports]
 
 __all__ = ['StarDist2DOptions']
 
@@ -18,10 +18,10 @@ __all__ = ['StarDist2DOptions']
 class StarDist2DOptions(AbstractSegmentationOptions):
     DESCRIPTION = 'Run the Stardist model for segmentation'
 
-    model: STARDIST_MODEL = as_argument(AbstractSegmentationOptions.model).with_options(
+    model: STARDIST_MODEL = cast(Any, cast(Any, as_argument(AbstractSegmentationOptions.model)).with_options(  # pyright: ignore[reportIncompatibleVariableOverride]
         default='2D_versatile_fluo',
         help='stardist pretrained model'
-    )
+    ))
 
     prob_thresh: float | None = argument(
         '--prob',
@@ -40,7 +40,7 @@ class StarDist2DOptions(AbstractSegmentationOptions):
         return filepath.with_name(filepath.stem + '_seg').with_suffix('.npz')
 
     def eval(self, **kwargs) -> None:
-        from stardist.models import StarDist2D
+        from stardist.models import StarDist2D  # pyright: ignore[reportMissingImports]
 
         model = StarDist2D.from_pretrained(self.model)
 
@@ -60,7 +60,7 @@ class StarDist2DOptions(AbstractSegmentationOptions):
             return
 
         labels, detail = model.predict_instances(image, prob_thresh=self.prob_thresh, **kwargs)
-        labels = labels.astype(np.float_)
+        labels = labels.astype(np.float64)
         labels[labels == 0] = np.nan
 
         res = StarDistSegmentation(labels, detail['coord'], detail['prob'], str(filepath), self.model)
@@ -76,7 +76,7 @@ class StarDist2DOptions(AbstractSegmentationOptions):
             res.to_roi(self.ij_roi_output(filepath))
 
     # noinspection PyTypeChecker
-    def launch_napari(self, with_widget: bool = False):
+    def launch_napari(self, with_widget: bool = False, **kwargs):
         """
         Launch napari viewer for stardist results
 

@@ -8,7 +8,7 @@ import numpy as np
 from dataclasses import dataclass, field
 from pprint import pprint
 from scipy.io import loadmat
-from typing import TypeVar, TypedDict
+from typing import Any, TypeVar, TypedDict, cast
 
 from neuralib.io import JsonEncodeHandler
 from neuralib.typing import PathLike
@@ -37,7 +37,7 @@ T = TypeVar('T')  # dataclass
 
 def copy_from(t: type[T], o: T, **specials) -> T:
     a = []
-    for f in dataclasses.fields(t):
+    for f in dataclasses.fields(cast(Any, t)):
         if f.name in specials:
             a.append(specials[f.name])
         else:
@@ -118,7 +118,7 @@ class SBXInfo:
     @dataclass(frozen=True)
     class KnobbyInfo:
         """attr from info.config.knobby"""
-        pos: KnobbyPosInfo  # noqa: F821
+        pos: SBXInfo.KnobbyPosInfo
         schedule: np.ndarray
 
     @dataclass(frozen=True)
@@ -129,20 +129,20 @@ class SBXInfo:
     @dataclass(frozen=True)
     class ConfigInfo:
         """attr from config"""
-        agc: AgcInfo  # noqa: F821
+        agc: SBXInfo.AgcInfo
         # calibration: np.ndarray
         coord_abs: np.ndarray
         coord_rel: np.ndarray
         frame_times: np.ndarray
         frames: int  # total frames
         host_name: str  # BSTATION6
-        knobby: KnobbyInfo  # noqa: F821
+        knobby: SBXInfo.KnobbyInfo
         laser_power: float
         laser_power_perc: str  # 75%
         lines: int  # 528
         magnification: int  # idx from 1 in magnification_list
         magnification_list: np.ndarray
-        objective: ObjectiveInfo  # directly get useful attr `name`  # noqa: F821
+        objective: SBXInfo.ObjectiveInfo  # directly get useful attr `name`
         objective_type: int
         pmt0_gain: float  # green channel
         pmt1_gain: float  # red channel
@@ -241,6 +241,8 @@ def sbx_to_json(matfile: PathLike,
     """
     if isinstance(matfile, str):
         matfile = Path(matfile)
+    else:
+        matfile = Path(matfile)
 
     mat = SBXInfo.load(matfile)
     if output is None:
@@ -274,7 +276,7 @@ def screenshot_to_tiff(mat_file: PathLike,
     :param output: save output path, otherwise show
     :return:
     """
-    dat: SBXScreenShot = loadmat(mat_file)
+    dat = cast(SBXScreenShot, loadmat(mat_file))
     img = dat['img']
 
     if output is None:
