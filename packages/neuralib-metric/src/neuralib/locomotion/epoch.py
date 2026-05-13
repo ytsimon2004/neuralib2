@@ -47,7 +47,7 @@ def running_mask1d(time: np.ndarray,
         epoch += 1
 
     # merge gap
-    for i in range(2, np.max(epoch) + 1, 2):
+    for i in range(2, int(np.max(epoch)) + 1, 2):
         t = time[epoch == i]
         dt = np.max(t) - np.min(t)
         if dt < merge_gap:
@@ -55,7 +55,7 @@ def running_mask1d(time: np.ndarray,
             epoch[epoch == i + 1] += 2
 
     # minimal time
-    for i in range(1, np.max(epoch) + 1, 2):  # exclude 0 due to merge special case
+    for i in range(1, int(np.max(epoch)) + 1, 2):  # exclude 0 due to merge special case
         tt = time[epoch == i]
         if len(tt) > 0:  # i is not existed in ep_idx
             td = np.max(tt) - np.min(tt)
@@ -92,7 +92,7 @@ def jump_mask2d(time: np.ndarray,
     seg = [[np.int64(x) for x in range(0)]]
 
     if len(valid) < 2:
-        return ret, seg  # without detect
+        return ret, seg  # pyright: ignore[reportReturnType]  # without detect
 
     found_jump = False
     last_idx = valid[0]
@@ -116,4 +116,4 @@ def jump_mask2d(time: np.ndarray,
         if not found_jump:
             last_idx = idx
 
-    return ret, seg[1:]
+    return ret, seg[1:]  # pyright: ignore[reportReturnType]

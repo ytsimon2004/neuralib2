@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from os import PathLike
-
 import attrs
 import numpy as np
 from typing import Self
-from typing import TypedDict, Any
+from typing import Required, TypedDict, Any
+from typing import cast
 
+from neuralib.typing import PathLike
 from neuralib.util.verbose import print_load, print_save
 
 __all__ = ['read_rastermap',
@@ -48,11 +48,11 @@ class RasterMapResult:
 
     """
 
-    filename: str
+    filename: str | None
     """Filename of the neural activity data
     (i.e., *.tif or *.avi for wfield activity; .npy `Array[float, [N, T]]` file for cellular)"""
 
-    save_path: str
+    save_path: str | None
     """filename for the rastermap result save"""
 
     isort: np.ndarray
@@ -81,7 +81,7 @@ class RasterMapResult:
         dat = np.load(path, allow_pickle=True).item()
         print_load(path)
 
-        return RasterMapResult(
+        return cls(
             filename=dat.get('filename', None),
             save_path=dat.get('save_path', None),
             isort=dat.get('isort', None),
@@ -103,7 +103,7 @@ class RasterMapResult:
             'super_neurons': self.super_neurons,
         }
 
-        np.save(path, proc, allow_pickle=True)
+        np.save(path, cast(Any, proc), allow_pickle=True)
         print_save(path)
 
     def asdict(self) -> dict[str, Any]:
@@ -113,18 +113,16 @@ class RasterMapResult:
     @property
     def n_clusters(self) -> int:
         """number of clusters (super neurons)"""
-        try:
-            return self.super_neurons.shape[0]
-        except AttributeError:
+        if self.super_neurons is None:
             raise RuntimeError('data incomplete')
+        return self.super_neurons.shape[0]
 
     @property
     def n_samples(self) -> int:
         """number of data samples (T)"""
-        try:
-            return self.super_neurons.shape[1]
-        except AttributeError:
+        if self.super_neurons is None:
             raise RuntimeError('data incomplete')
+        return self.super_neurons.shape[1]
 
 
 class UserCluster(TypedDict, total=False):
@@ -142,17 +140,17 @@ class UserCluster(TypedDict, total=False):
 class RasterOptions(TypedDict, total=False):
     """Run Rastermap model options. Refer to the ``rastermap.rastermap.setting_info()``"""
 
-    n_clusters: int
+    n_clusters: Required[int]
     """Number of clusters created from data before upsampling and creating embedding 
     (any number above 150 will be very slow due to NP-hard sorting problem)"""
 
-    n_PCs: int
+    n_PCs: Required[int]
     """Number of PCs to use during optimization"""
 
-    time_lag_window: float
+    time_lag_window: Required[float]
     """Number of time points into the future to compute cross-correlation, useful for sequence finding"""
 
-    locality: float
+    locality: Required[float]
     """How local should the algorithm be -- set to 1.0 for highly local + sequence finding"""
 
     n_splits: int
@@ -161,7 +159,7 @@ class RasterOptions(TypedDict, total=False):
     time_bin: int
     """Binning of data in time before PCA is computed"""
 
-    grid_upsample: int
+    grid_upsample: Required[int]
     """How much to upsample clusters"""
 
     mean_time: bool

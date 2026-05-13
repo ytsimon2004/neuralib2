@@ -8,6 +8,7 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from scipy.interpolate import interp1d
 from typing import NamedTuple, Literal
 from typing import Self
+from typing import cast
 
 from neuralib.rastermap import RasterMapResult
 from neuralib.plot import plot_figure
@@ -140,6 +141,8 @@ class RasterMapPlot:
         if self.covars is not None:
             for cov in self.covars:
                 if cov.dtype == 'continuous':
+                    if cov.value is None:
+                        raise ValueError('value is required for continuous covariant')
                     assert cov.time.shape == cov.value.shape, 'time/value shape mismatch'
                 elif cov.dtype == 'event':
                     assert cov.time.shape[1] == 2, f'event time shape should be [E, 2]: {cov.time.shape}'
@@ -149,10 +152,14 @@ class RasterMapPlot:
     @property
     def super_neurons(self) -> np.ndarray:
         """rastermap sorted 2D array. `Array[float, [N, T]]`"""
+        if self.raster.super_neurons is None:
+            raise RuntimeError('rastermap result has no super neuron data')
         return self.raster.super_neurons[:, self.act_mask]
 
     def process_continuous(self) -> list[Covariant]:
         """process behavioral measurements, select time range and do the interpolation same shape as neural activity"""
+        if self.covars is None:
+            return []
         return [
             cov.masking_time(self.time_range).interp_activity(self.act_time)
             for cov in self.covars
@@ -166,7 +173,7 @@ class RasterMapPlot:
             covars = self.process_continuous()
             n_covars = len(covars)
         else:
-            covars = None
+            covars = []
             n_covars = 1
 
         height_ratios = [1] * n_covars + [7]
@@ -174,21 +181,24 @@ class RasterMapPlot:
                          figsize=figsize,
                          gridspec_kw={'height_ratios': height_ratios},
                          tight_layout=False, sharex=True) as _ax:
+            axes = _ax.ravel() if isinstance(_ax, np.ndarray) else [_ax]
 
             # continuous dtype
             if self.covars is not None:
                 for i, cov in enumerate(covars):
                     if cov.dtype == 'continuous':
-                        ax = _ax[i]
+                        if cov.value is None:
+                            raise ValueError('value is required for continuous covariant')
+                        ax = cast(Axes, axes[i])
                         ax.plot(cov.time, cov.value, color='k')
                         ax.set_xlim(self.time_range)
                         ax.axis('off')
                         ax.set_title(cov.name)
             else:
-                _ax[0].axis('off')
+                cast(Axes, axes[0]).axis('off')
 
             # rastermap
-            ax = _ax[n_covars]
+            ax = cast(Axes, axes[n_covars])
             ax.imshow(
                 self.super_neurons,
                 cmap='gray_r',
@@ -226,6 +236,9 @@ class RasterMapPlot:
         """
         legend_patches = []
         event_colors = event_colors or {}
+
+        if self.covars is None:
+            return
 
         for i, cov in enumerate(self.covars):
             if cov.dtype == 'event':
@@ -276,6 +289,8 @@ class Covariant(NamedTuple):
         """
         if self.dtype == 'event':
             raise ValueError('method only available for continuous dtype')
+        if self.value is None:
+            raise ValueError('value is required for continuous dtype')
 
         mx = np.logical_and(t[0] < self.time, self.time < t[1])
         return self._replace(time=self.time[mx], value=self.value[mx])
@@ -290,6 +305,8 @@ class Covariant(NamedTuple):
         """
         if self.dtype == 'event':
             raise ValueError('method only available for continuous dtype')
+        if self.value is None:
+            raise ValueError('value is required for continuous dtype')
 
         v = interp1d(self.time, self.value, bounds_error=False, fill_value=0)(act_time)
         return self._replace(time=act_time, value=v)

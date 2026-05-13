@@ -168,7 +168,7 @@ def interp_pos1d(time: np.ndarray,
     t1 = np.max(time)
     tt = np.linspace(t0, t1, int((t1 - t0) * sampling_rate))
     pp = interp1d(time, p, kind='nearest', copy=False, bounds_error=False, fill_value=np.nan)(tt)
-    dd = interp1d(time, d, kind='linear', copy=False, bounds_error=False, fill_value='extrapolate')(tt)
+    dd = interp1d(time, d, kind='linear', copy=False, bounds_error=False, fill_value='extrapolate')(tt)  # pyright: ignore[reportArgumentType]
     vv = np.diff(dd, prepend=dd[0]) * sampling_rate
 
     # remove nan from position_value (from interpolation boundary error)
