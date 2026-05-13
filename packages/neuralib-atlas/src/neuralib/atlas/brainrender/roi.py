@@ -1,6 +1,7 @@
 import sys
 from pathlib import Path
 from tempfile import NamedTemporaryFile
+from typing import Any
 
 import numpy as np
 import polars as pl
@@ -18,7 +19,7 @@ class RoiRenderCLI(BrainRenderCLI):
     """ROIs reconstruction with brainrender"""
     DESCRIPTION = 'ROIs reconstruction with brainrender'
 
-    DEFAULT_ROI_COLORS = ['orange', 'magenta', 'dimgray']
+    DEFAULT_ROI_COLORS = ('orange', 'magenta', 'dimgray')
 
     # ========== #
     # GROUP_ROIS #
@@ -109,14 +110,14 @@ class RoiRenderCLI(BrainRenderCLI):
         '--file',
         validator.list().on_item(validator.path.is_suffix(['.csv', '.npy'])) | validator.optional(),
         metavar='FILE',
-        type=list_type(Path),
+        type=list_type(Path),  # pyright: ignore[reportArgumentType]
         default=None,
         action='extend',
         group=GROUP_ROIS_LOAD,
         help="points file as 'npy' or 'csv'"
     )
 
-    _need_close_file: list[NamedTemporaryFile] = []
+    _need_close_file: list[Any] = []
     _point_file_list: list[str] = []
 
     def run(self):
@@ -150,12 +151,14 @@ class RoiRenderCLI(BrainRenderCLI):
             return {'right': 'ipsi', 'left': 'contra', 'both': 'both'}
 
     def _add_points_classifier_csv(self):
+        assert self.classifier_file is not None
+        hemisphere = self._get_hemisphere_lut[self.hemisphere]
         iter_coords = iter_source_coordinates(
             self.classifier_file,
-            area=self.roi_region,
-            source=self.only_source,
+            area=list(self.roi_region) if isinstance(self.roi_region, tuple) else self.roi_region,
+            source=list(self.only_source) if self.only_source is not None else None,
             region_col=self.region_col,
-            hemisphere=self._get_hemisphere_lut[self.hemisphere],
+            hemisphere=hemisphere,  # pyright: ignore[reportArgumentType]
             to_brainrender=True if self.coordinate_space == 'ccf' else False,
             source_order=self.source_order
         )
@@ -176,6 +179,7 @@ class RoiRenderCLI(BrainRenderCLI):
                 self._need_close_file.append(f)
 
     def _add_points_generic_file(self):
+        assert self.file is not None
         for it in self.file:
             self._point_file_list.append(str(it))
 
@@ -206,7 +210,7 @@ class RoiRenderCLI(BrainRenderCLI):
                 if data.shape[1] == 3:
                     colors = get_color(i, self.roi_colors)
                     self.logger.info(f'Plot Rois File: {i}, {file}, {colors}')
-                    points = Points(data, name='roi', colors=colors, alpha=self.roi_alpha, radius=self.radius, res=20)
+                    points = Points(data, name='roi', colors=colors, alpha=self.roi_alpha, radius=self.radius, res=20)  # pyright: ignore[reportArgumentType]
                     self.scene.add(points)
                 elif data.shape[1] == 4:  # TODO not test yet
                     k = data[:, 3].astype(int)
@@ -215,8 +219,8 @@ class RoiRenderCLI(BrainRenderCLI):
                             data[k == t, 0:3],
                             name='rois',
                             colors=get_color(t, self.roi_colors),
-                            alpha=self.roi_alpha,
-                            radius=self.radius
+                            alpha=self.roi_alpha,  # pyright: ignore[reportArgumentType]
+                            radius=self.radius  # pyright: ignore[reportArgumentType]
                         ))
                 else:
                     raise ValueError(f'wrong shape: {data.shape}: {file}')

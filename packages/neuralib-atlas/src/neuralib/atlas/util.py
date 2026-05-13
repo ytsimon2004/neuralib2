@@ -100,7 +100,7 @@ def iter_source_coordinates(
         coords = allen_to_brainrender_coord(coords)
 
     if source_order is None:
-        source_order = df['source'].unique()
+        source_order = tuple(df['source'].unique())
 
     for src in source_order:
         mx = df.select(pl.col('source') == src).to_numpy()[:, 0]

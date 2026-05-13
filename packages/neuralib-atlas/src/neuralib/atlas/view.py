@@ -52,11 +52,11 @@ def get_slice_view(view: VIEW_TYPE,
             atlas_name = f'{name}_{resolution}um'
             if atlas_name not in get_args(ATLAS_NAME):
                 raise ValueError(f'{atlas_name} not found or not implemented')
-            data = getattr(BrainGlobeAtlas(atlas_name, check_latest=check_latest), view)
+            data = getattr(BrainGlobeAtlas(atlas_name, check_latest=check_latest), view)  # pyright: ignore[reportArgumentType]
         case _:
             raise ValueError(f'Unknown view: {view}')
 
-    return AbstractSliceView(view, plane_type, resolution, data)
+    return AbstractSliceView(view, plane_type, resolution, data)  # pyright: ignore[reportAbstractUsage]
 
 
 class AbstractSliceView(metaclass=abc.ABCMeta):
@@ -201,7 +201,7 @@ class AbstractSliceView(metaclass=abc.ABCMeta):
 
     @property
     @abc.abstractmethod
-    def max_projection_axis(self) -> tuple[int, int, int]:
+    def max_projection_axis(self) -> int:
         pass
 
     def plot_max_projection(self, ax: Axes, *,
@@ -263,7 +263,14 @@ class AbstractSliceView(metaclass=abc.ABCMeta):
             ax.legend(handles=legend_elements, title="Regions", loc='upper right')
 
     def plane_at(self, slice_index: int) -> 'SlicePlane':
-        return SlicePlane(slice_index, int(self.width // 2), int(self.height // 2), 0, 0, self)
+        return SlicePlane(
+            slice_index=slice_index,
+            ax=int(self.width // 2),
+            ay=int(self.height // 2),
+            dw=0,
+            dh=0,
+            slice_view=self,
+        )
 
     def offset(self, h: int, v: int) -> np.ndarray:
         """
@@ -295,7 +302,7 @@ class AbstractSliceView(metaclass=abc.ABCMeta):
         return self.reference[self.coor_on(offset, (self.grid_x, self.grid_y))]
 
     def coor_on(self, plane: np.ndarray,
-                o: tuple[np.ndarray, np.ndarray]) -> tuple[np.ndarray, ...]:
+                o: tuple[np.ndarray, np.ndarray]) -> tuple[int | np.ndarray, ...]:
         """
         map slice point (x, y) at plane *plane* back to volume point (ap, dv, ml)
 
@@ -304,7 +311,7 @@ class AbstractSliceView(metaclass=abc.ABCMeta):
         :return: (ap, dv, ml)
         """
         pidx, xidx, yidx = self.project_index
-        ret = [0, 0, 0]
+        ret: list[int | np.ndarray] = [0, 0, 0]
         ret[pidx] = plane
         ret[xidx] = o[0]
         ret[yidx] = o[1]
@@ -392,7 +399,7 @@ class TransverseSliceView(AbstractSliceView):
         return 1, 2, 0
 
     @property
-    def max_projection_axis(self):
+    def max_projection_axis(self) -> int:
         return 1
 
 

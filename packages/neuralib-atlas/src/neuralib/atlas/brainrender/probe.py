@@ -96,10 +96,10 @@ class ProbeRenderCLI(BrainRenderCLI):
         #
         if not self.dye_label_only:
             probe_theo = probe.as_theoretical(self.implant_depth, self.shank_interval, self.remove_outside_brain)
-            self.scene.add(Points(probe_theo, colors='k', name='theo', alpha=0.9))
+            self.scene.add(Points(probe_theo, colors='k', name='theo', alpha=0.9))  # pyright: ignore[reportArgumentType]
 
         probe_dye = probe.interp(ret_type=np.ndarray)
-        self.scene.add(Points(probe_dye, colors='r', name='dye', alpha=0.9))
+        self.scene.add(Points(probe_dye, colors='r', name='dye', alpha=0.9))  # pyright: ignore[reportArgumentType]
 
 
 class ProbeShank:
@@ -158,7 +158,7 @@ class ProbeShank:
         :param verbose:
         :return:
         """
-        df = pl.read_csv(file)
+        df = pl.read_csv(Path(file))
         cols = ['AP_location', 'DV_location', 'ML_location']
         if 'probe_idx' not in df.columns or 'point' not in df.columns:
             df = df.select(cols)
@@ -235,7 +235,7 @@ class ProbeShank:
             ret.append(p)
 
             if interval is not None:
-                depth += self._calc_shank_length_diff(shanks[0], interval)
+                depth = int(depth + self._calc_shank_length_diff(shanks[0], interval))
                 interval += interval
 
         return np.vstack(ret)
@@ -255,7 +255,7 @@ class ProbeShank:
 
         s = np.vstack([d, v])
 
-        return interp1d(s[:, 1], s, axis=0, bounds_error=False, fill_value='extrapolate')(nn)
+        return interp1d(s[:, 1], s, axis=0, bounds_error=False, fill_value='extrapolate')(nn)  # pyright: ignore[reportArgumentType]
 
     def _within_depth_range(self, shank: np.ndarray,
                             depth: int,
@@ -307,7 +307,7 @@ class ProbeShank:
         # inline n value, got following formula
         sin_theta = np.linalg.norm(np.array([v[2], 0, -v[0]]))
 
-        return shank_interval * sin_theta
+        return float(shank_interval * sin_theta)
 
 
 if __name__ == '__main__':

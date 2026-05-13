@@ -11,6 +11,7 @@ from typing import Self
 from argclz import AbstractParser, argument, str_tuple_type, validator
 from neuralib.atlas.brainrender.util import get_color
 from neuralib.atlas.util import allen_to_brainrender_coord
+from neuralib.atlas.data import ATLAS_NAME
 from neuralib.util.logging import setup_clogger
 
 __all__ = ['BrainRenderCLI']
@@ -53,7 +54,7 @@ class BrainRenderCLI(AbstractParser):
         help='title added to the top of the window'
     )
 
-    source: str = argument(
+    source: ATLAS_NAME = argument(
         '-S', '--source',
         metavar='NAME',
         default='allen_mouse_10um',
@@ -229,7 +230,8 @@ class BrainRenderCLI(AbstractParser):
     def render(self):
         """brainrender interactive"""
         self.scene = brainrender.Scene(root=not self.no_root, inset=False, title=self.title, screenshots_folder='.')
-        self.scene.plotter.camera.Zoom(0.3)
+        if self.scene.plotter is not None:
+            self.scene.plotter.camera.Zoom(0.3)
 
         if self.annotation is not None:
             self._reconstruct_annotation()
@@ -247,6 +249,7 @@ class BrainRenderCLI(AbstractParser):
             self.scene.render()
 
     def _reconstruct_annotation(self):
+        assert self.annotation is not None
         for ann in self.annotation:
             ap, dv, ml = tuple(map(float, ann.split(':')))
             dat = allen_to_brainrender_coord(np.array([ap, dv, ml]))  # (N, 3)
@@ -263,7 +266,7 @@ class BrainRenderCLI(AbstractParser):
                     color = get_color(i, [''])
 
                 self.logger.info(f'Plot Rois File: {i}, {region}, {color}')
-                self.scene.add_brain_region(region, color=color, alpha=self.regions_alpha, hemisphere=self.hemisphere)
+                self.scene.add_brain_region(region, color=color, alpha=self.regions_alpha, hemisphere=self.hemisphere)  # pyright: ignore[reportArgumentType]
 
     @classmethod
     def export(cls, reconstructor: Self | None,
@@ -292,7 +295,7 @@ class BrainRenderCLI(AbstractParser):
                 raise TypeError('')
 
             for it in areas:
-                scene.add_brain_region(it, alpha=alpha)
+                scene.add_brain_region(it, alpha=alpha)  # pyright: ignore[reportArgumentType]
 
         scene.export(output)
 
@@ -310,7 +313,7 @@ class BrainRenderCLI(AbstractParser):
 
     def get_atlas_brain_globe(self, check_latest=False) -> BrainGlobeAtlas:
         return BrainGlobeAtlas(
-            self.source,
+            self.source,  # pyright: ignore[reportArgumentType]
             check_latest=check_latest
         )
 

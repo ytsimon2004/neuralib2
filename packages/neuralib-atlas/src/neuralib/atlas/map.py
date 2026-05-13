@@ -326,11 +326,11 @@ DEFAULT_FAMILY_DICT: dict[str, AllenFamilyType] = dict(
 # Implementation #
 # ============== #
 
-def merge_area(ps: Series, region: dict[str, list[Area]]) -> list[str]:
+def merge_area(ps: Series | list[Area], region: dict[str, list[Area]]) -> list[Area]:
     """
     merge the area name series to another level based on the ``region`` dict
 
-    :param ps: pandas/polars series with area name
+    :param ps: pandas/polars series or list of area names
     :param region: ``MERGE_REGION_LV*``
     :return:
     """
@@ -370,15 +370,16 @@ def merge_until_level(ps: Series, level: TreeLevel) -> list[Area]:
     if level not in list(range(NUM_MERGE_LAYER)):
         raise ValueError(f'wrong level: {level}')
 
+    result: list[Area] = list(ps)
     if level <= MERGE_LEVEL_LAYER:
-        ps = merge_area(ps, MERGE_REGION_LV4)
+        result = merge_area(result, MERGE_REGION_LV4)
     if level <= MERGE_LEVEL_DVMLAP:
-        ps = merge_area(ps, MERGE_REGION_LV3)
+        result = merge_area(result, MERGE_REGION_LV3)
     if level <= MERGE_LEVEL_C2:
-        ps = merge_area(ps, MERGE_REGION_LV2)
+        result = merge_area(result, MERGE_REGION_LV2)
     if level <= MERGE_LEVEL_C1:
-        ps = merge_area(ps, MERGE_REGION_LV1)
+        result = merge_area(result, MERGE_REGION_LV1)
     if level <= MERGE_LEVEL_C0:
-        ps = merge_area(ps, MERGE_REGION_LV0)
+        result = merge_area(result, MERGE_REGION_LV0)
 
-    return ps
+    return result

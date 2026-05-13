@@ -13,9 +13,10 @@ def get_color(i: int, color_pattern: str | tuple[str, ...] | list[str]) -> str:
         color name
     """
     if isinstance(color_pattern, (list, tuple)):
-        if i >= len(color_pattern):
-            color_pattern.extend(get_random_colors(i + 2 - len(color_pattern)))
-        return color_pattern[i]
+        color_list = list(color_pattern)
+        if i >= len(color_list):
+            color_list.extend(get_random_colors(i + 2 - len(color_list)))
+        return color_list[i]
     elif isinstance(color_pattern, str):
         return color_pattern
     else:

@@ -35,8 +35,10 @@ def load_cellatlas(file: PathLike | None = None, *,
     """
     if file is None:
         file = ensure_dir(ATLAS_CACHE_DIRECTORY) / 'cellatlas.csv'
+    else:
+        file = Path(file)
 
-    if not Path(file).exists() or reload:
+    if not file.exists() or reload:
         df = _request(file).rename({'Brain region': 'name'})
     else:
         df = pl.read_csv(file).rename({'Brain region': 'name'})

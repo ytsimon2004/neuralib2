@@ -51,10 +51,10 @@ def load_transform_matrix(filepath: PathLike,
         name = default_name
 
     return CCFTransMatrix(
-        name,
-        MatMatrix(mat.allen_location, mat.transform, mat.transform_points),
-        plane_type,
-        resolution=resolution
+        slice_id=name,
+        matrix=MatMatrix(mat.allen_location, mat.transform, mat.transform_points),
+        plane_type=plane_type,
+        resolution=resolution,
     )
 
 
@@ -174,7 +174,7 @@ def slice_transform_helper(raw_image: PathLike | np.ndarray,
     if isinstance(raw_image, np.ndarray):
         pass
     elif isinstance(raw_image, PathLikeType):
-        raw_image = iio.imread(raw_image)
+        raw_image = iio.imread(Path(raw_image))
     else:
         raise TypeError(f"Unsupported type {type(raw_image)}")
 

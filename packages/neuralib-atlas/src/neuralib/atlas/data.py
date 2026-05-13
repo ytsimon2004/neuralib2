@@ -54,7 +54,7 @@ def load_bg_structure_tree(atlas_name: ATLAS_NAME = 'allen_mouse_10um', *,
     :param paired: To only ``acronym`` & ``parent_acronym`` fields
     :return:
     """
-    file = BrainGlobeAtlas(atlas_name, check_latest=check_latest).root_dir / 'structures.csv'
+    file = BrainGlobeAtlas(atlas_name, check_latest=check_latest).root_dir / 'structures.csv'  # pyright: ignore[reportArgumentType]
     df = pl.read_csv(file).with_columns(pl.col('parent_structure_id').cast(pl.Int64))
     df = df.join(
         df.select([pl.col("id").alias("parent_structure_id"), pl.col("acronym").alias("parent_acronym")]),
@@ -99,6 +99,8 @@ def load_bg_volumes(atlas_name: ATLAS_NAME = 'allen_mouse_10um',
     """
     if cached_file is None:
         cached_file = ensure_dir(ATLAS_CACHE_DIRECTORY) / f'{atlas_name}_bg_volumes.csv'
+    else:
+        cached_file = Path(cached_file)
 
     if cached_file.exists() and not force:
         print_load(cached_file)
@@ -106,7 +108,7 @@ def load_bg_volumes(atlas_name: ATLAS_NAME = 'allen_mouse_10um',
     else:
         df = load_bg_structure_tree(atlas_name)
         lut = build_annotation_leaf_map(atlas_name)
-        bg = BrainGlobeAtlas(atlas_name)
+        bg = BrainGlobeAtlas(atlas_name)  # pyright: ignore[reportArgumentType]
         flat_annotation = bg.annotation.ravel()
         voxel_volume_mm3 = (bg.resolution[0] / 1000) ** 3
 
@@ -126,7 +128,7 @@ def load_bg_volumes(atlas_name: ATLAS_NAME = 'allen_mouse_10um',
             volumes.append(vol_mm3)
 
         ret = df.with_columns(pl.Series(name='volume_mm3', values=volumes))
-        ret.write_csv(cached_file)
+        ret.write_csv(cached_file)  # pyright: ignore[reportArgumentType]
         print_save(cached_file)
 
         return ret
@@ -148,7 +150,7 @@ def get_children(parent: str, *,
 
 def get_children(parent: int | str, *,
                  dataframe: bool = False,
-                 atlas_name: ATLAS_NAME = 'allen_mouse_10um') -> list[str] | pl.DataFrame:
+                 atlas_name: ATLAS_NAME = 'allen_mouse_10um') -> list[int] | list[str] | pl.DataFrame:
     """
     Get children brain region id or acronym from its parent
 
@@ -189,7 +191,7 @@ def get_annotation_ids(atlas_name: ATLAS_NAME = 'allen_mouse_10um', check_latest
     :param check_latest:
     :return:
     """
-    annotation = BrainGlobeAtlas(atlas_name, check_latest=check_latest).annotation
+    annotation = BrainGlobeAtlas(atlas_name, check_latest=check_latest).annotation  # pyright: ignore[reportArgumentType]
     return np.unique(annotation)
 
 
@@ -213,7 +215,7 @@ def get_leaf_in_annotation(region: int | str, *,
         region_ids = tree.filter(pl.col('acronym') == region)['id'].to_list()
         if len(region_ids) != 1:
             raise RuntimeError(f"The region {region} is not a valid acronym")
-        region = region_ids[0]
+        region = int(region_ids[0])
 
     dy = build_annotation_leaf_map(cached_file=cached_file)
 
@@ -241,8 +243,10 @@ def build_annotation_leaf_map(atlas_name: ATLAS_NAME = 'allen_mouse_10um', *,
     """
     if cached_file is None:
         cached_file = ensure_dir(ATLAS_CACHE_DIRECTORY) / f'{atlas_name}_annotation_leaf.json'
+    else:
+        cached_file = Path(cached_file)
 
-    if Path(cached_file).suffix != '.json':
+    if cached_file.suffix != '.json':
         raise ValueError('not a json file')
 
     #

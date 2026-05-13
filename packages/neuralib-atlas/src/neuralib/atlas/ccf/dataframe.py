@@ -3,7 +3,7 @@ from __future__ import annotations
 import numpy as np
 import polars as pl
 from polars.exceptions import ColumnNotFoundError
-from typing import Literal, Sequence
+from typing import Any, Literal, Sequence, cast
 from typing import Self
 
 from neuralib.atlas.cellatlas import load_cellatlas
@@ -65,7 +65,7 @@ class RoiClassifierDataFrame(DataFrameWrapper):
     def __repr__(self):
         return repr(self.dataframe())
 
-    def dataframe(self, dataframe: pl.DataFrame = None, may_inplace=True):
+    def dataframe(self, dataframe: pl.DataFrame | None = None, may_inplace: bool = True) -> pl.DataFrame | RoiClassifierDataFrame:  # pyright: ignore[reportIncompatibleMethodOverride]
         if dataframe is None:
             return self._df
         else:
@@ -166,14 +166,14 @@ class RoiClassifierDataFrame(DataFrameWrapper):
             if file.exists():
                 df = pl.read_csv(file)
                 print_load(file)
-                return RoiClassifierDataFrame(
+                return cast(Self, RoiClassifierDataFrame(
                     df, cached_dir=self._cached_dir,
                     invalid_post_processing_cache=self._invalid_post_processing_cache
-                )
+                ))
 
             # write
             ret = self._post_processing(filter_capital, tree, family, hemisphere, copy_overlap, filter_injection)
-            ret.dataframe().write_csv(file)
+            ret._df.write_csv(file)
             print_save(file)
             return ret
 
@@ -257,17 +257,17 @@ class RoiClassifierDataFrame(DataFrameWrapper):
         if not self.__allow_inplace:
             raise RuntimeError('recurrent copy overlap')
 
-        ret = [self.dataframe()]
+        ret: list[pl.DataFrame] = [self._df]
         for channel, source in self.get_channel_source_dict().items():
             if channel not in 'overlap':
                 df = (
-                    self.dataframe().filter(pl.col('channel') == 'overlap')
+                    self._df.filter(pl.col('channel') == 'overlap')
                     .with_columns(pl.lit(channel).alias('channel'))
                     .with_columns(pl.lit(source).alias('source'))
                 )
                 ret.append(df)
 
-        return RoiClassifierDataFrame(pl.concat(ret), cached_dir=self._cached_dir)
+        return cast(Self, RoiClassifierDataFrame(pl.concat(ret), cached_dir=self._cached_dir))
 
     # ==================== #
     # Normalized DataFrame #
@@ -419,7 +419,7 @@ class RoiClassifierDataFrame(DataFrameWrapper):
         :return:
         """
 
-        orig_df = self.dataframe()
+        orig_df = self._df
         source_order = source_order or tuple(orig_df['source'].unique().to_list())
 
         # query based on lowest tree level
@@ -509,7 +509,7 @@ class RoiNormalizedDataFrame(DataFrameWrapper):
 
         self._df = df
         self._classified_column = classified_column
-        self._normalized = normalized
+        self._normalized: ROIS_NORM_TYPE = normalized
 
     def __repr__(self):
         return repr(self.dataframe())
@@ -550,7 +550,7 @@ class RoiNormalizedDataFrame(DataFrameWrapper):
             case _:
                 raise ValueError(f'invalid normalized unit: {self._normalized}')
 
-    def dataframe(self, dataframe: pl.DataFrame = None, may_inplace=True):
+    def dataframe(self, dataframe: pl.DataFrame | None = None, may_inplace: bool = True) -> pl.DataFrame | RoiNormalizedDataFrame:  # pyright: ignore[reportIncompatibleMethodOverride]
         """
         RoiNormalizedDataFrame (Volume normalized as example) ::
 
@@ -574,7 +574,7 @@ class RoiNormalizedDataFrame(DataFrameWrapper):
             ret = RoiNormalizedDataFrame(dataframe, self._classified_column, self._normalized)
             return ret
 
-    def with_density_column(self, backend: Literal['cellatlas', 'brainglobe'] = 'cellatas') -> Self:
+    def with_density_column(self, backend: Literal['cellatlas', 'brainglobe'] = 'cellatlas') -> Self:
         """
 
         :param backend: Volume information calculated from which backend. {'cellatlas', 'brainglobe'}
@@ -612,7 +612,7 @@ class RoiNormalizedDataFrame(DataFrameWrapper):
             areas = [areas]
 
         ret = self.filter(pl.col(self.classified_column).is_in(areas))
-        if ret.dataframe().is_empty():
+        if ret._df.is_empty():
             raise ValueError(f'{areas} not found')
 
         return ret
@@ -623,7 +623,7 @@ class RoiNormalizedDataFrame(DataFrameWrapper):
             source = [source]
 
         ret = self.filter(pl.col('source').is_in(source))
-        if ret.dataframe().is_empty():
+        if ret._df.is_empty():
             raise ValueError(f'{source} not found')
 
         return ret
@@ -657,7 +657,7 @@ class RoiNormalizedDataFrame(DataFrameWrapper):
         """
         expr_calc = (pl.col(source_a) / pl.col(source_b)).map_elements(np.log2, return_dtype=pl.Float64)
         df = (
-            self.dataframe()
+            self._df
             .select(self.classified_column, 'source', 'fraction')
             .sort(self.classified_column, 'source')
             .pivot(values='fraction', index=self.classified_column, on='source', aggregate_function='first')
@@ -691,7 +691,7 @@ class RoiNormalizedDataFrame(DataFrameWrapper):
         :return: Winner dataframe
         """
         df = (
-            self.dataframe()
+            self._df
             .pivot(values=self.value_column, on='source', index=self.classified_column, aggregate_function='first')
             .fill_nan(0)
             .fill_null(0)
@@ -727,7 +727,7 @@ class RoiSubregionDataFrame(DataFrameWrapper):
     def __repr__(self):
         return repr(self.dataframe())
 
-    def dataframe(self, dataframe: pl.DataFrame = None, may_inplace=True):
+    def dataframe(self, dataframe: pl.DataFrame | None = None, may_inplace: bool = True) -> pl.DataFrame | RoiSubregionDataFrame:  # pyright: ignore[reportIncompatibleMethodOverride]
         """
         RoiSubregionDataFrame (VIS as example)::
 
@@ -794,7 +794,7 @@ class RoiSubregionDataFrame(DataFrameWrapper):
         """with animal id column"""
         return self.with_columns(pl.lit(animal).alias('animal'))
 
-    def to_dict(self, as_series: bool = True) -> dict[str, list[float]]:
+    def to_dict(self, as_series: bool = True) -> dict[str, Any]:
         """to subregion:value dict"""
         return self.dataframe().select(pl.exclude('source')).to_dict(as_series=as_series)
 

@@ -6,14 +6,12 @@ from .roi import RoiRenderCLI
 
 
 def main():
-    parsers = dict(
-        area=BrainRenderCLI,
-        roi=RoiRenderCLI,
-        probe=ProbeRenderCLI
-    )
-
     parse_command_args(
-        parsers=parsers,
+        parsers=dict(
+            area=BrainRenderCLI,
+            roi=RoiRenderCLI,
+            probe=ProbeRenderCLI
+        ),
         description='BrainRender CLI Options',
         usage="""
         Usage Examples:
