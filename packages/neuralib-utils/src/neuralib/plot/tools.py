@@ -75,12 +75,12 @@ class AnchoredScaleBar(AnchoredOffsetbox):
             bars = VPacker(children=[bars, TextArea(labelx, textprops=dict(color=color_txt))],
                            align="center",
                            pad=0,
-                           sep=sep)  # pyright: ignore[reportArgumentType]
+                           sep=sep)
         if sizey and labely:
             bars = HPacker(children=[TextArea(labely, textprops=dict(color=color_txt)), bars],
                            align="center",
                            pad=0,
-                           sep=sep)  # pyright: ignore[reportArgumentType]
+                           sep=sep)
 
         AnchoredOffsetbox.__init__(
             self,

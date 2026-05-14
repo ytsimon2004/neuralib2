@@ -224,7 +224,7 @@ class SequenceLabeller:
                     img = cv2.imread(str(f))
                     if img is None:
                         raise FileNotFoundError(f'Failed to read image: {f}')
-                    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)  # pyright: ignore[reportCallIssue]
+                    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
                     seqs.append(img)
                 elif not single_frame_per_file and file_suffix in ('.tif', '.tiff'):
                     seqs.append(tifffile.imread(str(f)))

@@ -45,7 +45,7 @@ class RoiRenderCLI(BrainRenderCLI):
 
     roi_alpha: float = argument(
         '--roi-alpha',
-        validator.float.in_range_closed(0, 1),
+        validator.float.in_range_closed(0, 1),  # pyright: ignore[reportArgumentType]
         default=1,
         group=GROUP_ROIS,
         help='region alpha value'
@@ -91,7 +91,7 @@ class RoiRenderCLI(BrainRenderCLI):
 
     classifier_file: Path | None = argument(
         '--classifier-file',
-        validator.path.is_suffix('.csv').is_exists().optional(),
+        validator.path.is_suffix('.csv').is_exists().optional(),  # pyright: ignore[reportArgumentType]
         metavar='FILE',
         type=Path,
         default=None,
@@ -108,7 +108,7 @@ class RoiRenderCLI(BrainRenderCLI):
 
     file: list[Path] | None = argument(
         '--file',
-        validator.list().on_item(validator.path.is_suffix(['.csv', '.npy'])) | validator.optional(),
+        validator.list().on_item(validator.path.is_suffix(['.csv', '.npy'])) | validator.optional(),  # pyright: ignore[reportArgumentType]
         metavar='FILE',
         type=list_type(Path),  # pyright: ignore[reportArgumentType]
         default=None,

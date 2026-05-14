@@ -159,7 +159,7 @@ class CellposeSegmentation:
 
         :param output_file: ``*.roi`` output file path
         """
-        from roifile import ImagejRoi, ROI_TYPE, ROI_OPTIONS  # pyright: ignore[reportMissingImports]
+        from roifile import ImagejRoi, ROI_TYPE, ROI_OPTIONS
 
         if Path(output_file).suffix != '.roi':
             raise ValueError('output file must have .roi extension')

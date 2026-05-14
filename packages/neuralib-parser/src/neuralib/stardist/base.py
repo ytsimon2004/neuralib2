@@ -161,7 +161,7 @@ def process_image(img: np.ndarray,
         img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
     if norm:
-        from csbdeep.utils import normalize  # pyright: ignore[reportMissingImports]
+        from csbdeep.utils import normalize
         img = normalize(img, clip=True, pmin=20)
 
     return img

@@ -200,7 +200,7 @@ class StarDistSegmentation:
         """Covert segmented roi to point roi, and save it as ``.roi`` for imageJ.
 
         :param output_file: ``*.roi`` output file path"""
-        from roifile import ImagejRoi, ROI_TYPE, ROI_OPTIONS  # pyright: ignore[reportMissingImports]
+        from roifile import ImagejRoi, ROI_TYPE, ROI_OPTIONS
 
         points = np.fliplr(self.points)  # XY rotate in .roi format
         roi = ImagejRoi(

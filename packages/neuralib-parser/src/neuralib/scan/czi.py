@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import aicspylibczi  # pyright: ignore[reportMissingImports]
+import aicspylibczi
 import numpy as np
-import xmltodict  # pyright: ignore[reportMissingModuleSource]
+import xmltodict
 from contextlib import contextmanager
 from typing import Any, Generator, final, Literal
 from xml.etree.ElementTree import tostring
@@ -42,6 +42,7 @@ class CziScanner(AbstractScanner):
     _consistent_scan_configs: bool
 
     def __init__(self, filepath: PathLike):
+        filepath = Path(filepath)
         self._czi_file = aicspylibczi.CziFile(filepath)
         super().__init__(filepath)
 

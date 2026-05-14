@@ -88,7 +88,7 @@ def google_drive_file(file_id: str,
             yield output_file
         else:
             url = f"https://drive.google.com/uc?id={file_id}"
-            gdown.download(url, str(output_file), quiet=quiet)
+            gdown.download(url, str(output_file), quiet=quiet)  # pyright: ignore[reportPrivateImportUsage]
             yield output_file
     finally:
         if not cached:
@@ -127,7 +127,7 @@ def google_drive_folder(folder_id: str,
             yield output_dir
         else:
             output_dir.mkdir(exist_ok=True, parents=True)
-            gdown.download_folder(id=folder_id, output=str(output_dir), quiet=quiet)
+            gdown.download_folder(id=folder_id, output=str(output_dir), quiet=quiet)  # pyright: ignore[reportPrivateImportUsage]
             yield output_dir
     finally:
         if not cached:

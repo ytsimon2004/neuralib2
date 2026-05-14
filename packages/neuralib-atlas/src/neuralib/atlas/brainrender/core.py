@@ -97,7 +97,7 @@ class BrainRenderCLI(AbstractParser):
 
     annotation: tuple[str, ...] | None = argument(
         '--annotation',
-        validator.tuple().on_item(None, validator.str.match(r'^[^;]+:[^;]+:[^;]+$')) | validator.optional(),
+        validator.tuple().on_item(None, validator.str.match(r'^[^;]+:[^;]+:[^;]+$')) | validator.optional(),  # pyright: ignore[reportArgumentType]
         metavar='AV,DV,ML',
         type=str_tuple_type,
         default=None,
@@ -131,7 +131,7 @@ class BrainRenderCLI(AbstractParser):
 
     regions_alpha: float = argument(
         '--region-alpha',
-        validator.float.in_range_closed(0, 1),
+        validator.float.in_range_closed(0, 1),  # pyright: ignore[reportArgumentType]
         default=0.35,
         group=GROUP_REGION,
         help='region alpha value'
@@ -171,7 +171,7 @@ class BrainRenderCLI(AbstractParser):
 
     video_output: Path | None = argument(
         '--video-output',
-        validator.path.is_suffix(['.mp4', '.avi']).optional(),
+        validator.path.is_suffix(['.mp4', '.avi']).optional(),  # pyright: ignore[reportArgumentType]
         default=None,
         group=GROUP_OUTPUT,
         help='video output path'
@@ -179,7 +179,7 @@ class BrainRenderCLI(AbstractParser):
 
     output: Path | None = argument(
         '-O', '--output',
-        validator.path.is_suffix('.html').optional(),
+        validator.path.is_suffix('.html').optional(),  # pyright: ignore[reportArgumentType]
         default=None,
         group=GROUP_OUTPUT,
         help='output path for the html, if None, preview'

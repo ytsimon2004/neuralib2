@@ -3,7 +3,7 @@ from pathlib import Path
 import abc
 from typing import Generic, TypeVar, get_origin, get_args
 
-from argclz import argument, copy_argument  # pyright: ignore[reportMissingImports]
+from argclz import argument, copy_argument
 from neuralib.persistence import (
     persistence,
     PickleHandler,

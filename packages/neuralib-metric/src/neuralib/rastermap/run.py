@@ -111,8 +111,8 @@ class RunRastermap:
     def run_cellular(self, **kwargs) -> RasterMapResult:
         """cellular input run. `Array[float, [N, T]]`"""
         try:
-            from rastermap import Rastermap  # pyright: ignore[reportMissingImports]
-            import rastermap.utils  # pyright: ignore[reportMissingImports]
+            from rastermap import Rastermap
+            import rastermap.utils
         except ImportError:
             raise RuntimeError('pip install rastermap first')
 
@@ -145,11 +145,11 @@ class RunRastermap:
 
     def run_wfield(self, **kwargs):
         """wfield input run. `Array[Any, [T, H, W]]`"""
-        from neuralib.widefield import compute_singular_vector
+        from neuralib.widefield import compute_singular_vector  # pyright: ignore[reportMissingImports]
 
         try:
-            from rastermap import Rastermap  # pyright: ignore[reportMissingImports]
-            import rastermap.utils  # pyright: ignore[reportMissingImports]
+            from rastermap import Rastermap
+            import rastermap.utils
         except ImportError:
             raise RuntimeError('pip install rastermap first')
 

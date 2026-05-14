@@ -1,6 +1,6 @@
 from pathlib import Path
 
-import napari  # pyright: ignore[reportMissingImports]
+import napari
 import numpy as np
 from typing import TYPE_CHECKING, Any, cast
 

@@ -128,7 +128,7 @@ def load_bg_volumes(atlas_name: ATLAS_NAME = 'allen_mouse_10um',
             volumes.append(vol_mm3)
 
         ret = df.with_columns(pl.Series(name='volume_mm3', values=volumes))
-        ret.write_csv(cached_file)  # pyright: ignore[reportArgumentType]
+        ret.write_csv(cached_file)
         print_save(cached_file)
 
         return ret

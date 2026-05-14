@@ -21,6 +21,7 @@ classifiers = [
 ]
 
 dependencies = [
+    "argclz",
     "attrs>=25.3.0",
     "numpy>=2.0",
     "scipy",

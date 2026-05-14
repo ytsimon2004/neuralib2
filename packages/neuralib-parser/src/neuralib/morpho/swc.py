@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.axes import Axes
 from matplotlib.patches import Circle
-from typing import NamedTuple, Iterator
+from typing import Any, NamedTuple, Iterator, cast
 from typing import Self, overload
 
 from argclz import AbstractParser, argument, pos_argument
@@ -307,7 +307,8 @@ def _plot_swc_3d(swc: SwcFile,
                  color,
                  spheres_size: float = 3,
                  lw: float = 5):
-    import vedo  # pyright: ignore[reportMissingImports]
+    import vedo
+    vedo = cast(Any, vedo)
 
     plotter = vedo.Plotter()
 

@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Any, cast
 
 import numpy as np
-import sbxreader  # pyright: ignore[reportMissingImports]
+import sbxreader
 from rich.pretty import pprint
 
 from argclz import AbstractParser, argument, pos_argument, validator, int_tuple_type
