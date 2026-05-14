@@ -1,10 +1,11 @@
 from pathlib import Path
+from typing import Any, cast
 
 import cv2
 import numpy as np
 from bokeh.layouts import column
 from bokeh.model import Model
-from bokeh.models import ColumnDataSource, GlyphRenderer, Slider
+from bokeh.models import ColumnDataSource, GlyphRenderer, Slider  # pyright: ignore[reportPrivateImportUsage]
 from bokeh.plotting import figure
 from tifffile import tifffile
 
@@ -24,7 +25,7 @@ class WideFieldFFTViewComponent(ViewComponent):
         self.dat = dat
         self.source = ColumnDataSource(data=dict(x=[], y=[], map=[]))
 
-    def plot(self, fig: Figure, **kwargs):
+    def plot(self, fig: Any, **kwargs):
         self.render = fig.image_rgba(
             image='map',
             x=0,
@@ -55,14 +56,14 @@ class WideFieldFFTView(View):
     slider_value_perc: Slider
     slider_saturation_perc: Slider
 
-    fig_map: Figure
+    fig_map: Any
     view_map = WideFieldFFTViewComponent
 
     fft: SequenceFFT
 
     def __init__(self, seq_path: PathLike):
         self.seq_path = Path(seq_path)
-        self.fft = SequenceFFT(tifffile.imread(seq_path))
+        self.fft = SequenceFFT(tifffile.imread(self.seq_path))
 
     def setup(self) -> Model:
         w, h = self.fft.width, self.fft.height
@@ -99,7 +100,7 @@ class WideFieldFFTView(View):
         self.slider_saturation_perc.on_change('value', self.on_select_saturation_perc)
 
         # fig
-        self.fig_map = figure(title='image_intensity', width=w, height=h)
+        self.fig_map = cast(Any, figure(title='image_intensity', width=w, height=h))
         self.fig_map = figure(
             title='image_map',
             width=w,

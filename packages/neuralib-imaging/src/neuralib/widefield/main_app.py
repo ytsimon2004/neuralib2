@@ -7,15 +7,13 @@ from .transform import RegistrationOptions
 
 
 def main():
-    parsers = dict(
-        preproc=PreprocessOptions,
-        align=NapariAlignmentOptions,
-        fft=WideFieldFFTViewOption,
-        trans=RegistrationOptions
-    )
-
     parse_command_args(
-        parsers=parsers,
+        parsers=dict(
+            preproc=PreprocessOptions,
+            align=NapariAlignmentOptions,
+            fft=WideFieldFFTViewOption,
+            trans=RegistrationOptions
+        ),
         description='widefield tools',
         usage="""
         Usage Examples:

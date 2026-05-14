@@ -1,4 +1,4 @@
-from typing import TypedDict
+from typing import TypedDict, cast
 from neuralib.io.json import load_json
 
 __all__ = [
@@ -67,4 +67,4 @@ class MotionCorrInfo(TypedDict):
 
 
 def load_preprocess_meta(filepath: PathLike) -> PreprocessMeta:
-    return load_json(filepath, verbose=False)
+    return cast(PreprocessMeta, load_json(filepath, verbose=False))

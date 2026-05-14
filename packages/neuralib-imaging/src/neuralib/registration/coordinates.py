@@ -3,7 +3,7 @@ from __future__ import annotations
 import attrs
 import numpy as np
 from matplotlib.patches import Polygon
-from typing import Sequence, Literal, Self
+from typing import Sequence, Literal, Self, cast
 
 from neuralib.util.unstable import unstable
 
@@ -159,7 +159,7 @@ def get_cellular_coordinate(neuron_idx: np.ndarray,
     :param plane_index: neuron's corresponding image plane. `Array[float, N]`. If None then full_zero
     :return: :class:`~CellularCoordinates`
     """
-    return CellularCoordinates(neuron_idx, ap, ml, unit, plane_index)
+    return CellularCoordinates(neuron_idx, ap, ml, unit=unit, plane_index=plane_index)
 
 
 def _validator_shape(instance: CellularCoordinates, attribute, value: np.ndarray | None):
@@ -181,7 +181,7 @@ class CellularCoordinates:
     """medial lateral coordinates (default in mm). `Array[float, N]`"""
     unit: UNIT = attrs.field(default='mm', validator=attrs.validators.in_(['mm', 'um']))
     """unit of the ap/ml value"""
-    plane_index: np.ndarray = attrs.field(default=None, validator=_validator_shape)
+    plane_index: np.ndarray | None = attrs.field(default=None, validator=_validator_shape)
     """neuron's corresponding image plane. `Array[float, N]`"""
     value: np.ndarray | None = attrs.field(default=None, validator=_validator_shape)
     """metric (i.e., used in topographical analysis). `Array[float, N]`"""
@@ -222,7 +222,7 @@ class CellularCoordinates:
             delta = delta_pts
 
         ml_new, ap_new = delta[:, 0], delta[:, 1]
-        return attrs.evolve(self, ml=ml_new, ap=ap_new, unit='um')
+        return cast(Self, attrs.evolve(self, ml=ml_new, ap=ap_new, unit='um'))
 
     def with_value(self, value: np.ndarray) -> Self:
         """assign value foreach neuron"""
@@ -232,11 +232,15 @@ class CellularCoordinates:
         """do neuronal selection by bool masking
         :param mask: `Array[bool, N]`
         """
+        plane_index = self.plane_index
+        if plane_index is None:
+            raise RuntimeError('plane index is not initialized')
+
         return attrs.evolve(
             self,
             neuron_idx=self.neuron_idx[mask],
             ap=self.ap[mask],
             ml=self.ml[mask],
-            plane_index=self.plane_index[mask],
+            plane_index=plane_index[mask],
             value=None if self.value is None else self.value[mask]
         )

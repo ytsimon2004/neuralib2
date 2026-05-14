@@ -45,7 +45,10 @@ class SequenceFFT:
             fft_movie = np.fft.fft(self.seq, axis=0)
             freq = fft_movie[self.component]
             self._freq_map = freq
-        return self._freq_map
+        freq_map = self._freq_map
+        if freq_map is None:
+            raise RuntimeError('frequency map was not computed')
+        return freq_map
 
     def get_intensity(self) -> np.ndarray:
         """Computes the magnitude of the frequency component.

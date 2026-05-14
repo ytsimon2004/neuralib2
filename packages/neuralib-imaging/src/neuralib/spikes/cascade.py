@@ -1,13 +1,13 @@
 import re
 import zipfile
 from pathlib import Path
-from typing import Literal, get_args, TypedDict
+from typing import Literal, Required, get_args, TypedDict, cast
 from urllib.request import urlopen
 
 import numpy as np
 import requests
 import tensorflow as tf
-import tensorflow.keras
+import tensorflow.keras  # pyright: ignore[reportMissingModuleSource]
 from ruamel.yaml import YAML
 from scipy.ndimage import binary_dilation, gaussian_filter
 
@@ -167,31 +167,31 @@ class CascadeModelConfig(TypedDict, total=False):
     model_name: str
     """Name of the model"""
 
-    sampling_rate: int
+    sampling_rate: Required[int]
     """Sampling rate in Hz"""
 
-    training_datasets: list[str]
+    training_datasets: Required[list[str]]
     """Dataset of ground truth data (in folder 'Ground_truth')"""
 
     placeholder_1: int
     """protect formatting"""
 
-    noise_levels: list[int]
+    noise_levels: Required[list[int]]
     """Noise levels for training (integers, normally 1-9)"""
 
     placeholder_2: int
     """protect formatting"""
 
-    smoothing: float
+    smoothing: Required[float]
     """Standard deviation of Gaussian smoothing in time (sec)"""
 
-    causal_kernel: int
+    causal_kernel: Required[int]
     """Smoothing kernel is symmetric in time (0) or is causal (1)"""
 
-    windowsize: int
+    windowsize: Required[int]
     """Windowsize in timepoints"""
 
-    before_frac: float
+    before_frac: Required[float]
     """Fraction of timepoints before prediction point (0-1)"""
 
     filter_sizes: list[int]
@@ -212,16 +212,16 @@ class CascadeModelConfig(TypedDict, total=False):
     nr_of_epochs: int
     """Number of training epochs per model"""
 
-    ensemble_size: int
+    ensemble_size: Required[int]
     """Number of models trained for one noise level"""
 
-    batch_size: int
+    batch_size: Required[int]
     """Batch size"""
 
     training_finished: Literal['Yes', 'No', 'Running']
     """Yes / No / Running"""
 
-    verbose: int
+    verbose: Required[int]
     """level of status messages (0: minimal, 1: standard, 2: most, 3: all)"""
 
 
@@ -383,7 +383,7 @@ class CascadeSpikePrediction:
             dff = np.expand_dims(dff, 0)
 
         cfg = self.get_config()
-        verbose = cfg["verbose"]
+        cfg_verbose = cfg["verbose"]
         training_data = cfg["training_datasets"]
         ensemble_size = cfg["ensemble_size"]
         batch_size = cfg["batch_size"]
@@ -400,7 +400,7 @@ class CascadeSpikePrediction:
         # Get model paths as dictionary (key: noise_level) with lists of model path
         model_dict = get_model_paths(self.model_dir)
 
-        if verbose:
+        if cfg_verbose:
             msg = (f'The selected model was trained on {len(training_data)} datasets, '
                    f'with {ensemble_size} ensembles for each noise level, at a sampling rate of {sampling_rate} Hz')
 
@@ -439,10 +439,10 @@ class CascadeSpikePrediction:
 
             # select neurons which have this noise level:
             neuron_idx = np.where(best_model_for_each_neuron == i)[0]
-            if verbose:
+            if cfg_verbose:
                 print(f'\nPredictions for noise level {noise_level}')
             if len(neuron_idx) == 0:  # no neurons were selected
-                if verbose:
+                if cfg_verbose:
                     print(f"\tNo neurons for this noise level: {noise_level}")
                 continue  # jump to next noise level
 
@@ -458,10 +458,10 @@ class CascadeSpikePrediction:
             XX_sel = np.expand_dims(XX_sel, axis=2)  # add empty third dimension to match training shape
 
             for j, model in enumerate(models):
-                if verbose:
+                if cfg_verbose:
                     print("\t... ensemble", j)
 
-                prediction_flat = model.predict(XX_sel, batch_size, verbose=verbose)
+                prediction_flat = model.predict(XX_sel, batch_size, verbose=cfg_verbose)
                 prediction = np.reshape(prediction_flat, (len(neuron_idx), XX.shape[1]))
                 Y_predict[neuron_idx, :] += prediction / len(models)  # average predictions
 
@@ -487,7 +487,7 @@ class CascadeSpikePrediction:
                 with np.errstate(invalid="ignore"):
                     activity_mask = Y_predict[neuron, :] > threshold_value
 
-                activity_mask = binary_dilation(activity_mask, iterations=int(smoothing * sampling_rate))
+                activity_mask = cast(np.ndarray, binary_dilation(activity_mask, iterations=int(smoothing * sampling_rate))).astype(bool)
                 Y_predict[neuron, ~activity_mask] = 0
                 Y_predict[Y_predict < 0] = 0  # set possible negative values in dilated mask to 0
 
@@ -543,7 +543,7 @@ def get_model_paths(model_path: Path) -> dict[int, list[Path]]:
     # dictionary with key for noise level, entries are lists of models
     model_dict = {}
     for model_path in all_models:
-        noise_level = int(re.findall("_NoiseLevel_(\d+)", str(model_path))[0])
+        noise_level = int(re.findall(r"_NoiseLevel_(\d+)", str(model_path))[0])
         if noise_level not in model_dict:
             model_dict[noise_level] = list()
 

@@ -1,7 +1,7 @@
 import json
 import urllib.request
 from pathlib import Path
-from typing import Self, NamedTuple, Literal, get_args, Sequence
+from typing import Self, NamedTuple, Literal, get_args, Sequence, cast
 
 import numpy as np
 from neuralib.typing import PathLike
@@ -67,6 +67,7 @@ class RegionLabel(NamedTuple):
     # noinspection PyTypeChecker
     @classmethod
     def from_json(cls, file: PathLike, acronym: DorsalRegion) -> Self:
+        file = Path(file)
         data = json.loads(file.read_text())
         for r in data:
             if r['acronym'] == acronym:
@@ -110,6 +111,8 @@ class DorsalCCF:
 
         if file is None:
             file = get_dorsal_ccf_file()
+        else:
+            file = Path(file)
 
         labels = []
         data = json.loads(file.read_text())
@@ -132,7 +135,7 @@ class DorsalCCF:
         labels = [RegionLabel.from_json(get_dorsal_ccf_file(), reverse_map[val]) for val in present_labels]
 
         instance = cls(labels, (h, w), hemisphere=hemisphere)
-        instance._mask_array = array
+        instance.__array = array
 
         return instance
 
@@ -146,7 +149,7 @@ class DorsalCCF:
 
     @property
     def hemisphere(self) -> HEMISPHERE_TYPE:
-        return self._hemisphere
+        return cast(HEMISPHERE_TYPE, self._hemisphere)
 
     @property
     def region_list(self) -> list[DorsalRegion]:
@@ -177,10 +180,10 @@ class DorsalCCF:
             raise ValueError(f'Unknown region(s): {unknown}. Available: {self.region_list}')
 
         selected = [r for r in self.region_labels if r.acronym in acronym_list]
-        return DorsalCCF(selected, self.image_shape, self._hemisphere)
+        return type(self)(selected, self.image_shape, self.hemisphere)
 
     def select_hemisphere(self, hemisphere: HEMISPHERE_TYPE) -> Self:
-        return DorsalCCF(
+        return type(self)(
             self.region_labels,
             self.image_shape,
             hemisphere=hemisphere
