@@ -45,3 +45,8 @@ requires = ["setuptools>=61.0"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+"neuralib.decoding" = ["py.typed"]
+"neuralib.locomotion" = ["py.typed"]
+"neuralib.rastermap" = ["py.typed"]

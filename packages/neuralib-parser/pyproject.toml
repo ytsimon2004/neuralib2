@@ -64,3 +64,13 @@ requires = ["setuptools>=61.0"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+"neuralib.cellpose" = ["py.typed"]
+"neuralib.deeplabcut" = ["py.typed"]
+"neuralib.facemap" = ["py.typed"]
+"neuralib.morpho" = ["py.typed"]
+"neuralib.scan" = ["py.typed"]
+"neuralib.scanbox" = ["py.typed"]
+"neuralib.stardist" = ["py.typed"]
+"neuralib.suite2p" = ["py.typed"]

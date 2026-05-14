@@ -61,6 +61,11 @@ requires = ["setuptools>=61.0"]
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.setuptools.package-data]
+"neuralib.registration" = ["py.typed"]
+"neuralib.spikes" = ["py.typed"]
+"neuralib.widefield" = ["py.typed"]
+
 
 [project.scripts]
 nl_wfield = "neuralib.widefield.main_app:main"
