@@ -2,6 +2,7 @@ import json
 from datetime import datetime
 from multiprocessing import cpu_count
 from pathlib import Path
+from typing import Any, cast
 
 import cv2
 import h5py
@@ -13,7 +14,8 @@ from neuralib.util.utils import ensure_dir
 from rich.console import Console
 from tqdm import tqdm
 
-from .meta import PreprocessMeta
+from neuralib.util.verbose import print_save
+from .meta import BaselineInfo, MotionCorrInfo, PreprocessMeta
 
 # numba acceleration
 try:
@@ -32,8 +34,9 @@ except ImportError:
     _HAS_NUMBA = False
 
 # cupy acceleration
+cp: Any
 try:
-    import cupy as cp
+    import cupy as cp  # pyright: ignore[reportMissingImports]
 
     _HAS_CUPY = True
 except ImportError:
@@ -240,7 +243,14 @@ class PreprocessOptions(AbstractParser):
                 self._output_dir = self.file.parent / 'preprocessed'
             if self.directory is not None:
                 self._output_dir = self.directory / 'preprocessed'
+        if self._output_dir is None:
+            raise ValueError("Must specify --file, --directory, or --output_dir")
         return ensure_dir(self._output_dir)
+
+    def _require_frame_shape(self) -> tuple[int, int]:
+        if self._frame_shape is None:
+            raise RuntimeError("Frame shape must be loaded before preprocessing")
+        return self._frame_shape
 
     def load(self):
         """load TIF files and validate dataset consistency"""
@@ -260,17 +270,23 @@ class PreprocessOptions(AbstractParser):
         # validate
         with tifffile.TiffFile(self._tif_files[0]) as tif:
             first_page = tif.pages[0]
-            self._frame_shape = first_page.shape  # (H, W)
+            frame_shape = tuple(first_page.shape)
+            if len(frame_shape) != 2:
+                raise ValueError(f"Expected 2D frames, got shape {frame_shape}")
+            self._frame_shape = cast(tuple[int, int], frame_shape)  # (H, W)
 
         self._total_frames = 0
-        frame_shapes = set()
+        frame_shapes: set[tuple[int, int]] = set()
 
         for tif_path in tqdm(self._tif_files, desc="  Scanning TIF files"):
             with tifffile.TiffFile(tif_path) as tif:
                 n_frames = len(tif.pages)
                 self._total_frames += n_frames
 
-                frame_shape = tif.pages[0].shape
+                frame_shape = tuple(tif.pages[0].shape)
+                if len(frame_shape) != 2:
+                    raise ValueError(f"Expected 2D frames in {tif_path}, got shape {frame_shape}")
+                frame_shape = cast(tuple[int, int], frame_shape)
                 frame_shapes.add(frame_shape)
 
         if len(frame_shapes) > 1:
@@ -296,6 +312,9 @@ class PreprocessOptions(AbstractParser):
         frame_idx = 0
         current_chunk = []
         chunk_start_idx = 0
+
+        if self._tif_files is None:
+            raise RuntimeError("TIF files must be loaded before iterating chunks")
 
         for tif_path in self._tif_files:
             with tifffile.TiffFile(tif_path) as tif:
@@ -324,6 +343,9 @@ class PreprocessOptions(AbstractParser):
         :return: Mean reference frame
         """
         samples = []
+        if self._tif_files is None:
+            raise RuntimeError("TIF files must be loaded before computing the reference frame")
+
         for tif_path in tqdm(self._tif_files, desc="  Sampling frames"):
             with tifffile.TiffFile(tif_path) as tif:
                 n_sample = min(sample_size, len(tif.pages))
@@ -349,10 +371,10 @@ class PreprocessOptions(AbstractParser):
         """
         n_frames = chunk.shape[0]
         transforms = np.zeros((n_frames, 2, 3), dtype=np.float32)
-        ref_uint8 = cv2.normalize(reference, None, 0, 255, cv2.NORM_MINMAX).astype(np.uint8)
+        ref_uint8 = cv2.normalize(reference, np.empty_like(reference), 0, 255, cv2.NORM_MINMAX).astype(np.uint8)
 
         for i in range(n_frames):
-            frame_uint8 = cv2.normalize(chunk[i], None, 0, 255, cv2.NORM_MINMAX).astype(np.uint8)
+            frame_uint8 = cv2.normalize(chunk[i], np.empty_like(chunk[i]), 0, 255, cv2.NORM_MINMAX).astype(np.uint8)
             warp_matrix = np.eye(2, 3, dtype=np.float32)
 
             try:
@@ -424,12 +446,13 @@ class PreprocessOptions(AbstractParser):
         """
         n_frames = frames.shape[0]
         corrected = np.zeros_like(frames)
+        frame_shape = self._require_frame_shape()
 
         for i in range(n_frames):
             corrected[i] = cv2.warpAffine(
                 frames[i],
                 transforms[i],
-                (self._frame_shape[1], self._frame_shape[0]),
+                (frame_shape[1], frame_shape[0]),
                 flags=cv2.INTER_LINEAR + cv2.WARP_INVERSE_MAP
             )
 
@@ -451,8 +474,10 @@ class PreprocessOptions(AbstractParser):
             transform_cache = h5py.File(self._transform_cache_path, 'r')
             console.log(f"  Loaded transform cache")
 
+        frame_shape = self._require_frame_shape()
+
         # Calculate memory requirements
-        frames_memory_gb = (self._total_frames * self._frame_shape[0] * self._frame_shape[1] * 4) / (1024 ** 3)
+        frames_memory_gb = (self._total_frames * frame_shape[0] * frame_shape[1] * 4) / (1024 ** 3)
         console.log(f"  Full dataset size: [yellow]{frames_memory_gb:.1f} GB")
 
         # Load all frames into memory-mapped file
@@ -461,14 +486,15 @@ class PreprocessOptions(AbstractParser):
             temp_frames_path,
             mode='w+',
             dtype=np.float32,
-            shape=(self._total_frames, *self._frame_shape)
+            shape=(self._total_frames, *frame_shape)
         )
 
         pbar = tqdm(total=self._total_frames, desc="  Loading frames")
         for chunk_data, chunk_start, chunk_end in self._iterate_chunks():
             # Apply motion correction if enabled
             if transform_cache is not None:
-                chunk_transforms = transform_cache['transforms'][chunk_start:chunk_end]
+                transforms_dataset = cast(h5py.Dataset, transform_cache['transforms'])
+                chunk_transforms = transforms_dataset[chunk_start:chunk_end]
                 chunk_data = self._apply_transforms(chunk_data, chunk_transforms)
 
             # CRITICAL: Ensure C-contiguous before writing to memmap to prevent grid artifacts
@@ -502,7 +528,8 @@ class PreprocessOptions(AbstractParser):
 
         """
         n_keyframes = len(keyframe_indices)
-        n_pixels = self._frame_shape[0] * self._frame_shape[1]
+        frame_shape = self._require_frame_shape()
+        n_pixels = frame_shape[0] * frame_shape[1]
 
         console.log(
             f"  Computing F0 at [yellow]{n_keyframes}[/] keyframes (out of [yellow]{self._total_frames}[/] total)..."
@@ -681,7 +708,8 @@ class PreprocessOptions(AbstractParser):
         console.log(f"  Computing ΔF/F with interpolated baseline...")
 
         n_keyframes = len(keyframe_indices)
-        n_pixels = self._frame_shape[0] * self._frame_shape[1]
+        frame_shape = self._require_frame_shape()
+        n_pixels = frame_shape[0] * frame_shape[1]
 
         use_gpu = self.use_gpu and _HAS_CUPY
         if use_gpu:
@@ -693,7 +721,7 @@ class PreprocessOptions(AbstractParser):
             dff_path,
             mode='w+',
             dtype=np.float32,
-            shape=(self._total_frames, *self._frame_shape)
+            shape=(self._total_frames, *frame_shape)
         )
 
         # optional save as compression
@@ -701,9 +729,9 @@ class PreprocessOptions(AbstractParser):
             f0_file = h5py.File(f0_path, 'w')
             f0_dataset = f0_file.create_dataset(
                 'f0',
-                shape=(self._total_frames, *self._frame_shape),
+                shape=(self._total_frames, *frame_shape),
                 dtype=np.float32,
-                chunks=(min(1000, self._total_frames), *self._frame_shape),
+                chunks=(min(1000, self._total_frames), *frame_shape),
                 compression='gzip',
                 compression_opts=4
             )
@@ -734,13 +762,13 @@ class PreprocessOptions(AbstractParser):
 
             # reshape F0 with explicit C-order to prevent grid artifacts
             f0_chunk_2d = np.ascontiguousarray(f0_chunk_2d)
-            f0_chunk = f0_chunk_2d.reshape(chunk_len, *self._frame_shape, order='C')
+            f0_chunk = f0_chunk_2d.reshape(chunk_len, *frame_shape, order='C')
             epsilon = 1e-10
             dff_chunk = (chunk_data - f0_chunk) / (f0_chunk + epsilon)
 
             # write
             dff_output[chunk_start:chunk_end] = dff_chunk
-            if self.save_f0:
+            if f0_dataset is not None:
                 f0_dataset[chunk_start:chunk_end] = f0_chunk
 
             pbar.update(chunk_len)
@@ -810,7 +838,6 @@ class PreprocessOptions(AbstractParser):
 
         # Post-processing: apply rotation
         if self.rotate is not None:
-            from wfanalysis.preprocess.util import rotate_sequence
             console.log(f"  [bold cyan]Applying rotation ({self.rotate}°) to dF/F output...")
             rotate_sequence(dff_path, rotate=self.rotate, overwrite=True)
             console.log(f"  [green]✓[/] Rotation applied to dF/F")
@@ -829,6 +856,7 @@ class PreprocessOptions(AbstractParser):
                 console.log(f"  [green]✓[/] Reference frame rotated")
 
     def save_metadata(self):
+        frame_shape = self._frame_shape
         metadata: PreprocessMeta = {
             'timestamp': datetime.now().isoformat(),
             'input_arguments': {
@@ -850,9 +878,9 @@ class PreprocessOptions(AbstractParser):
                 'n_tif_files': len(self._tif_files) if self._tif_files else 0,
                 'tif_files': [str(f) for f in self._tif_files] if self._tif_files else [],
                 'total_frames': self._total_frames,
-                'frame_shape': list(self._frame_shape) if self._frame_shape else None,
-                'image_height': self._frame_shape[0] if self._frame_shape else None,
-                'image_width': self._frame_shape[1] if self._frame_shape else None,
+                'frame_shape': list(frame_shape) if frame_shape else None,
+                'image_height': frame_shape[0] if frame_shape else None,
+                'image_width': frame_shape[1] if frame_shape else None,
             },
             'processing': {
                 'rotation_applied': self.rotate is not None,
@@ -865,10 +893,10 @@ class PreprocessOptions(AbstractParser):
 
         # f0
         if self._f0_stride is not None:
-            f0_metadata = {
+            f0_metadata: BaselineInfo = {
                 'percentile': self.percentile,
                 'stride': self._f0_stride,
-                'n_keyframes': self._f0_n_keyframes,
+                'n_keyframes': self._f0_n_keyframes or 0,
             }
             metadata['f0_baseline'] = f0_metadata
         else:
@@ -876,7 +904,7 @@ class PreprocessOptions(AbstractParser):
 
         # motion correction metadata
         if self.motion_correction and self._transform_cache_path and self._transform_cache_path.exists():
-            motion_metadata = {}
+            motion_metadata: MotionCorrInfo = {}
             metadata['motion_correction'] = motion_metadata
         else:
             metadata['motion_correction'] = None
@@ -948,6 +976,66 @@ def _compute_keyframe_f0(args) -> tuple[int, np.ndarray]:
         f0_values = np.percentile(window_data, percentile, axis=0).astype(np.float32)
 
     return ki, f0_values
+
+
+def rotate_sequence(sequence: str | Path | np.ndarray, rotate: float, overwrite: bool = True):
+    """
+    Rotate image sequences
+
+    :param sequence: image sequence (Array[float, [F, H, W]]) or numpy filepath
+    :param rotate: rotate degree
+    :param overwrite: overwrite if file provide
+    :return: rotated sequence as numpy array
+    """
+    if isinstance(sequence, (str, Path)):
+        from neuralib.widefield.data import lazy_load_widefield
+        sequence = Path(sequence)
+
+        with lazy_load_widefield(sequence) as wf:
+            n_frames = wf.num_frames
+            height = wf.image_height
+            width = wf.image_width
+            rotated = np.zeros((n_frames, height, width), dtype=np.float32)
+
+            center = (width // 2, height // 2)
+            rotation_matrix = cv2.getRotationMatrix2D(center, rotate, scale=1.0)
+
+            for i in tqdm(range(n_frames), desc='Rotating frames'):
+                rotated[i] = cv2.warpAffine(
+                    wf.get_frame(i),
+                    rotation_matrix,
+                    (width, height),
+                    flags=cv2.INTER_LINEAR
+                )
+
+        if overwrite:
+            temp_file = sequence.with_suffix('.tmp.npy')
+            np.save(temp_file, rotated)
+
+            if sequence.exists():
+                sequence.unlink()
+
+            temp_file.rename(sequence)
+            print_save(sequence)
+
+    elif isinstance(sequence, np.ndarray):
+        n_frames, height, width = sequence.shape
+        rotated = np.zeros_like(sequence)
+
+        center = (width // 2, height // 2)
+        rotation_matrix = cv2.getRotationMatrix2D(center, rotate, scale=1.0)
+
+        for i in tqdm(range(n_frames), desc='Rotating frames'):
+            rotated[i] = cv2.warpAffine(
+                sequence[i],
+                rotation_matrix,
+                (width, height),
+                flags=cv2.INTER_LINEAR
+            )
+    else:
+        raise TypeError(f'Unsupported type {type(sequence)}')
+
+    return rotated
 
 
 if __name__ == '__main__':

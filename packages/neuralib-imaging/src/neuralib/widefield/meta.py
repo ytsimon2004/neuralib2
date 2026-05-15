@@ -1,5 +1,7 @@
 from typing import TypedDict, cast
+
 from neuralib.io.json import load_json
+from neuralib.typing import PathLike
 
 __all__ = [
     'load_preprocess_meta',
@@ -11,16 +13,14 @@ __all__ = [
     'MotionCorrInfo'
 ]
 
-from neuralib.typing import PathLike
 
-
-class PreprocessMeta(TypedDict):
+class PreprocessMeta(TypedDict, total=False):
     timestamp: str
     input_arguments: 'InputArguments'
     data_info: 'DataInfo'
     processing: 'ProcessedInfo'
-    f0_baseline: 'BaselineInfo'
-    motion_correction: 'MotionCorrInfo'
+    f0_baseline: 'BaselineInfo | None'
+    motion_correction: 'MotionCorrInfo | None'
 
 
 class InputArguments(TypedDict):
@@ -28,7 +28,7 @@ class InputArguments(TypedDict):
     suffix_pattern: str
     output_dir: str
     motion_correction: bool
-    rotate: float
+    rotate: float | None
     chunk_size: int
     window_size: int
     percentile: int
@@ -43,14 +43,14 @@ class DataInfo(TypedDict):
     n_tif_files: int
     tif_files: list[str]
     total_frames: int
-    frame_shape: tuple[int, int]
-    image_height: int
-    image_width: int
+    frame_shape: list[int] | None
+    image_height: int | None
+    image_width: int | None
 
 
 class ProcessedInfo(TypedDict):
-    rotation_applied: int
-    rotation_degrees: int
+    rotation_applied: bool
+    rotation_degrees: float | None
     has_numba: bool
     has_cupy: bool
     gpu_used: bool

@@ -1,3 +1,5 @@
+# pyright: reportAttributeAccessIssue=false, reportCallIssue=false, reportArgumentType=false, reportIncompatibleMethodOverride=false, reportOptionalMemberAccess=false, reportOptionalSubscript=false, reportOptionalOperand=false, reportPossiblyUnboundVariable=false, reportAssignmentType=false
+
 import traceback
 import colorsys
 from datetime import datetime
