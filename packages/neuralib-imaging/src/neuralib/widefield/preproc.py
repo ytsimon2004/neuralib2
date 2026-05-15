@@ -2,7 +2,7 @@ import json
 from datetime import datetime
 from multiprocessing import cpu_count
 from pathlib import Path
-from typing import Any, cast
+from typing import Any, TypedDict, cast
 
 import cv2
 import h5py
@@ -10,28 +10,107 @@ import numpy as np
 import tifffile
 from argclz import AbstractParser, argument
 from joblib import Parallel, delayed
+from neuralib.io.json import load_json
+from neuralib.typing import PathLike
 from neuralib.util.utils import ensure_dir
+from neuralib.util.verbose import print_save
+from numba import jit
 from rich.console import Console
 from tqdm import tqdm
 
-from neuralib.util.verbose import print_save
-from .meta import BaselineInfo, MotionCorrInfo, PreprocessMeta
-
-# numba acceleration
-try:
-    from numba import jit
-
-    _HAS_NUMBA = True
-except ImportError:
-
-    def jit(*args, **kwargs):
-        def decorator(func):
-            return func
-
-        return decorator
+__all__ = [
+    'PreprocessOptions',
+    'rotate_sequence',
+    'load_preprocess_meta',
+    'PreprocessMeta',
+    'InputArguments',
+    'DataInfo',
+    'ProcessedInfo',
+    'BaselineInfo',
+    'MotionCorrInfo'
+]
 
 
-    _HAS_NUMBA = False
+class PreprocessMeta(TypedDict, total=False):
+    """Metadata schema written to ``metadata.json`` by :class:`PreprocessOptions`.
+
+    Required fields are not enforced because older metadata files can be partial
+    when preprocessing was interrupted or produced by an earlier version.
+    """
+
+    timestamp: str
+    input_arguments: 'InputArguments'
+    data_info: 'DataInfo'
+    processing: 'ProcessedInfo'
+    f0_baseline: 'BaselineInfo | None'
+    motion_correction: 'MotionCorrInfo | None'
+
+
+class InputArguments(TypedDict):
+    """CLI/configuration values used for a preprocessing run."""
+
+    input_source: str
+    suffix_pattern: str
+    output_dir: str
+    motion_correction: bool
+    rotate: float | None
+    chunk_size: int
+    window_size: int
+    percentile: int
+    n_jobs: int
+    max_shift: int
+    force_compute: bool
+    save_f0: bool
+    use_gpu: bool
+
+
+class DataInfo(TypedDict):
+    """Input data summary captured after TIF discovery and validation."""
+
+    n_tif_files: int
+    tif_files: list[str]
+    total_frames: int
+    frame_shape: list[int] | None
+    image_height: int | None
+    image_width: int | None
+
+
+class ProcessedInfo(TypedDict):
+    """Processing backend and post-processing information."""
+
+    rotation_applied: bool
+    rotation_degrees: float | None
+    has_numba: bool
+    has_cupy: bool
+    gpu_used: bool
+
+
+class BaselineInfo(TypedDict):
+    """F0 baseline interpolation parameters."""
+
+    percentile: int
+    stride: int
+    n_keyframes: int
+
+
+class MotionCorrInfo(TypedDict):
+    """Motion-correction metadata.
+
+    This is intentionally empty for now because transform details are stored in
+    ``motion_transforms.h5``. Keeping a typed section leaves room for future
+    summary fields without changing the top-level metadata contract.
+    """
+
+
+def load_preprocess_meta(filepath: PathLike) -> PreprocessMeta:
+    """Load a preprocessing ``metadata.json`` file.
+
+    :param filepath: Path to the metadata JSON file written by
+        :meth:`PreprocessOptions.save_metadata`.
+    :return: Parsed metadata typed as :class:`PreprocessMeta`.
+    """
+    return cast(PreprocessMeta, load_json(filepath, verbose=False))
+
 
 # cupy acceleration
 cp: Any
@@ -551,10 +630,8 @@ class PreprocessOptions(AbstractParser):
                 )
             except Exception as e:
                 console.log(f'  [bold yellow]⚠ WARNING:[/] GPU memory check failed: {e}')
-        elif _HAS_NUMBA:
-            console.log(f'  [green]✓[/] Using Numba JIT acceleration for fast percentile computation')
         else:
-            console.log(f'  [bold yellow]⚠ WARNING:[/] Numba not available. Install with: pip install numba')
+            console.log(f'  [green]✓[/] Using Numba JIT acceleration for fast percentile computation')
 
         #
         if use_gpu:
@@ -885,7 +962,7 @@ class PreprocessOptions(AbstractParser):
             'processing': {
                 'rotation_applied': self.rotate is not None,
                 'rotation_degrees': self.rotate,
-                'has_numba': _HAS_NUMBA,
+                'has_numba': True,
                 'has_cupy': _HAS_CUPY,
                 'gpu_used': self.use_gpu and _HAS_CUPY,
             }
@@ -966,14 +1043,9 @@ def _compute_keyframe_f0(args) -> tuple[int, np.ndarray]:
             cp.get_default_memory_pool().free_all_blocks()
 
         except cp.cuda.memory.OutOfMemoryError:
-            if _HAS_NUMBA:
-                f0_values = _fast_percentile_2d(window_data.astype(np.float32), percentile)
-            else:
-                f0_values = np.percentile(window_data, percentile, axis=0).astype(np.float32)
-    elif _HAS_NUMBA:
-        f0_values = _fast_percentile_2d(window_data.astype(np.float32), percentile)
+            f0_values = _fast_percentile_2d(window_data.astype(np.float32), percentile)
     else:
-        f0_values = np.percentile(window_data, percentile, axis=0).astype(np.float32)
+        f0_values = _fast_percentile_2d(window_data.astype(np.float32), percentile)
 
     return ki, f0_values
 

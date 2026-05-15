@@ -11,8 +11,8 @@ from tifffile import tifffile
 
 from argclz import AbstractParser, argument
 from neuralib.dashboard import ViewComponent, Figure, View, BokehServer
-from neuralib.widefield import SequenceFFT
 from neuralib.typing import PathLike
+from neuralib.widefield.fft import SequenceFFT
 
 __all__ = ['WideFieldFFTViewOption']
 

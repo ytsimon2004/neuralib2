@@ -22,7 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Parallel processing with joblib
   - GPU acceleration via CuPy (optional)
   - Numba JIT compilation for performance (optional)
-- New metadata module for preprocessing results (`neuralib.widefield.meta`)
+- New preprocessing metadata schema (`neuralib.widefield.preproc`)
   - `PreprocessMeta` TypedDict for structured metadata
   - `load_preprocess_meta()` for loading JSON metadata files
 - Added README documentation for package usage

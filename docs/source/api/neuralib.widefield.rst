@@ -11,5 +11,5 @@ neuralib.widefield
     neuralib.widefield.align
     neuralib.widefield.fft
     neuralib.widefield.fft_view
-    neuralib.widefield.plot
+    neuralib.widefield.preproc
     neuralib.widefield.svd

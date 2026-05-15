@@ -8,3 +8,4 @@ neuralib.widefield.fft
    :nosignatures:
 
    SequenceFFT
+   plot_retinotopic_maps
