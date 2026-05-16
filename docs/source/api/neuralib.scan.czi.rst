@@ -1,13 +1,13 @@
-neuralib.scan.lsm
+neuralib.scan.czi
 =================
 
-.. currentmodule:: neuralib.scan.lsm
+.. currentmodule:: neuralib.scan.czi
 
 .. autosummary::
    :toctree: _autosummary
    :nosignatures:
 
-   lsm_file
-   TiffScanner
+   czi_file
+   CziScanner
 
 

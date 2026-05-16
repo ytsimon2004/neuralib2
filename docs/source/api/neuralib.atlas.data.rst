@@ -7,7 +7,6 @@ neuralib.atlas.data
    :toctree: _autosummary
    :nosignatures:
 
-   ATLAS_NAME
    load_bg_structure_tree
    load_bg_volumes
    get_children
@@ -15,3 +14,8 @@ neuralib.atlas.data
    get_leaf_in_annotation
    build_annotation_leaf_map
    get_dorsal_cortex
+
+.. rubric:: Data
+
+.. py:data:: ATLAS_NAME
+

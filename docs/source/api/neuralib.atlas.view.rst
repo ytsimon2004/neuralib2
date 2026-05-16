@@ -7,7 +7,11 @@ neuralib.atlas.view
    :toctree: _autosummary
    :nosignatures:
 
-   VIEW_TYPE
    get_slice_view
    AbstractSliceView
    SlicePlane
+
+.. rubric:: Data
+
+.. py:data:: VIEW_TYPE
+

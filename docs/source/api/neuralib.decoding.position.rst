@@ -8,3 +8,5 @@ neuralib.decoding.position
    :nosignatures:
 
    place_bayes
+
+

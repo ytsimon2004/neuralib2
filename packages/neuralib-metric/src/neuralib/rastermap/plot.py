@@ -232,7 +232,7 @@ class RasterMapPlot:
         Plot event segments as vertical spans on the axis
 
         :param ax: matplotlib Axes object
-        :param event_colors
+        :param event_colors: optional mapping from event names to colors
         """
         legend_patches = []
         event_colors = event_colors or {}

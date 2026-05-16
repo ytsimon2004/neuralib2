@@ -3,13 +3,20 @@ neuralib.typing.alias
 
 .. currentmodule:: neuralib.typing.alias
 
-.. autosummary::
-   :toctree: _autosummary
-   :nosignatures:
 
-   ArrayLike
-   ArrayLikeStr
-   AxesArray
-   PathLike
-   Series
-   DataFrame
+.. rubric:: Data
+
+.. py:data:: ArrayLike
+
+.. py:data:: ArrayLikeStr
+
+.. py:data:: AxesArray
+
+.. py:data:: PathLike
+
+.. py:data:: PathLikeType
+
+.. py:data:: Series
+
+.. py:data:: DataFrame
+

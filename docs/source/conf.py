@@ -9,6 +9,7 @@
 project = 'NeuraLib2'
 copyright = '2024, Yu-Ting Wei'
 author = 'Yu-Ting Wei'
+master_doc = 'index'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -21,7 +22,13 @@ extensions = ['sphinx.ext.autodoc',
               'nbsphinx']
 
 templates_path = ['_templates']
-exclude_patterns = ['**/site-packages/**']
+exclude_patterns = [
+    '**/site-packages/**',
+    '_build',
+    'build',
+    'Thumbs.db',
+    '.DS_Store',
+]
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
@@ -29,6 +36,9 @@ exclude_patterns = ['**/site-packages/**']
 html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
 html_css_files = ['custom.css']
+html_title = project
+html_show_sourcelink = True
+html_last_updated_fmt = '%Y-%m-%d'
 
 html_theme_options = {
     'collapse_navigation': False,  # Keep navigation expanded
@@ -37,6 +47,7 @@ html_theme_options = {
     'includehidden': True,  # Include hidden toctrees
     'titles_only': False,  # Show all toctree items
     'prev_next_buttons_location': 'bottom',
+    'style_external_links': True,
 }
 
 html_context = {
@@ -61,6 +72,7 @@ autodoc_default_options = {
 
 # -- Options for autosummary ------------------------------------------------
 autosummary_generate = True
+autosummary_generate_overwrite = True
 
 # -- Options for nbsphinx -------------------------------------
 nbsphinx_execute = 'never'

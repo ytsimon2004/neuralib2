@@ -1,4 +1,5 @@
 import importlib
+import inspect
 import sys
 import textwrap
 from pathlib import Path
@@ -19,11 +20,22 @@ CONTENT_FILE = """\
 
 .. currentmodule:: {module}
 
+{autosummary_section}
+{data_section}
+"""
+
+AUTOSUMMARY_SECTION = """\
 .. autosummary::
    :toctree: _autosummary
    :nosignatures:
 
 {autosummary_list}
+"""
+
+DATA_SECTION = """\
+.. rubric:: Data
+
+{data_list}
 """
 
 CONTENT_DIR = """\
@@ -43,6 +55,7 @@ CONTENT_DIR = """\
 # Track generated .rst files and autosummary targets
 generated_rst_files = ['neuralib.rst']
 autosummary_targets = []
+module_all_cache = {}
 
 
 def discover_packages():
@@ -61,31 +74,77 @@ def discover_packages():
 
 def get_module_all(module_path: Path, src_root: Path) -> list:
     """Dynamically import a module and extract __all__, if available."""
+    cache_key = (module_path, src_root)
+    if cache_key in module_all_cache:
+        return module_all_cache[cache_key]
+
     try:
         rel_path = module_path.relative_to(src_root)
         modname = '.'.join(rel_path.with_suffix('').parts)
         mod = importlib.import_module(modname)
-        return getattr(mod, '__all__', [])
+        ret = [
+            name
+            for name in getattr(mod, '__all__', [])
+            if is_local_api_object(mod, modname, name)
+        ]
     except Exception as e:
         print(f"[Warning] Could not extract __all__ from {module_path.name}: {e}")
-        return []
+        ret = []
+
+    module_all_cache[cache_key] = ret
+    return ret
+
+
+def is_local_api_object(module, modname: str, name: str) -> bool:
+    """Return whether an exported name should get a page in this module."""
+    obj = getattr(module, name, None)
+    obj_module = getattr(obj, '__module__', None)
+    if obj_module is None:
+        return True
+
+    if not (inspect.isclass(obj) or inspect.isfunction(obj)):
+        return True
+
+    return obj_module == modname or obj_module.startswith(f'{modname}.')
 
 
 def write_module_file(module: str, output_path: Path, all_list: list):
     """Write an .rst file for a module using only autosummary."""
     if not all_list:
         print(f"[Skipped] {module} has no __all__")
-        return
+        return False
 
-    autosummary_list = textwrap.indent('\n'.join(all_list), '   ')
+    mod = importlib.import_module(module)
+    autosummary_names = [name for name in all_list if is_autosummary_object(mod, name)]
+    data_names = [name for name in all_list if name not in autosummary_names]
+
+    if autosummary_names:
+        autosummary_list = textwrap.indent('\n'.join(autosummary_names), '   ')
+        autosummary_section = AUTOSUMMARY_SECTION.format(autosummary_list=autosummary_list)
+    else:
+        autosummary_section = ''
+
+    if data_names:
+        data_list = textwrap.indent('\n\n'.join(f'.. py:data:: {name}' for name in data_names), '')
+        data_section = DATA_SECTION.format(data_list=data_list)
+    else:
+        data_section = ''
+
     content = CONTENT_FILE.format(
         module=module,
         underline='=' * len(module),
-        autosummary_list=autosummary_list
+        autosummary_section=autosummary_section,
+        data_section=data_section
     )
-    autosummary_targets.extend([f"{module}.{name}" for name in all_list])
+    autosummary_targets.extend([f"{module}.{name}" for name in autosummary_names])
     output_path.write_text(content)
     print(f"[Created] {output_path}")
+    return True
+
+
+def is_autosummary_object(module, name: str) -> bool:
+    obj = getattr(module, name, None)
+    return inspect.isclass(obj) or inspect.isfunction(obj)
 
 
 def write_directory_index(module: str, output_path: Path, module_list: list):
@@ -113,23 +172,25 @@ def process_source_tree(src_root: Path):
         module_path = DST / (str(rel.with_suffix('.rst')).replace('/', '.'))
 
         if path.is_file() and path.suffix == '.py' and not path.name.startswith('_'):
-            generated_rst_files.append(module_path.name)
-            if not module_path.exists():
-                modname = '.'.join(rel.with_suffix('').parts)
-                all_list = get_module_all(path, src_root)
-                write_module_file(modname, module_path, all_list)
+            modname = '.'.join(rel.with_suffix('').parts)
+            all_list = get_module_all(path, src_root)
+            if write_module_file(modname, module_path, all_list):
+                generated_rst_files.append(module_path.name)
 
         elif path.is_dir() and (path / '__init__.py').exists() and '__pycache__' not in path.parts:
             generated_rst_files.append(module_path.name)
-            if not module_path.exists():
-                modname = '.'.join(rel.parts)
-                submodules = []
-                for child in path.iterdir():
-                    if child.suffix == '.py' and not child.name.startswith('_'):
-                        submodules.append(f"{modname}.{child.stem}")
-                    elif child.is_dir() and (child / '__init__.py').exists():
-                        submodules.append(f"{modname}.{child.name}")
-                write_directory_index(modname, module_path, submodules)
+            modname = '.'.join(rel.parts)
+            submodules = []
+            for child in path.iterdir():
+                if (
+                    child.suffix == '.py'
+                    and not child.name.startswith('_')
+                    and get_module_all(child, src_root)
+                ):
+                    submodules.append(f"{modname}.{child.stem}")
+                elif child.is_dir() and (child / '__init__.py').exists():
+                    submodules.append(f"{modname}.{child.name}")
+            write_directory_index(modname, module_path, submodules)
 
 
 def write_main_index():

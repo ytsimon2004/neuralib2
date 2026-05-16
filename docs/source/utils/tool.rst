@@ -47,9 +47,9 @@ Configure a Slack App
 Configure an env file
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-    2.1. Put it in the repo as a (*.env file), **DO NOT** control it with GIT (add to .gitignore)
+    2.1. Put it in the repo as a ``*.env`` file. **DO NOT** control it with GIT (add to .gitignore)
 
-    2.2. The env file should contain two keys: ``SLACK_TOKEN`` (xoxb-*) and ``CHANNEL_ID`` to send the message
+    2.2. The env file should contain two keys: ``SLACK_TOKEN`` (``xoxb-*``) and ``CHANNEL_ID`` to send the message
 
 Call the function
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^

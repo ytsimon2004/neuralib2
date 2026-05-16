@@ -7,9 +7,10 @@ neuralib.deeplabcut.core
    :toctree: _autosummary
    :nosignatures:
 
-   Joint
    read_dlc
    DeepLabCutDataFrame
    JointDataFrame
    DeepLabCutMeta
    DeepLabCutModelConfig
+
+

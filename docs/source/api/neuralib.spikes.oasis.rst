@@ -8,4 +8,8 @@ neuralib.spikes.oasis
    :nosignatures:
 
    oasis_dcnv
-   oasis_matrix
+
+.. rubric:: Data
+
+.. py:data:: oasis_matrix
+

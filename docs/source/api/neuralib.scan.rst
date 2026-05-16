@@ -9,4 +9,5 @@ neuralib.scan
     :caption: Modules:
 
     neuralib.scan.core
+    neuralib.scan.czi
     neuralib.scan.lsm

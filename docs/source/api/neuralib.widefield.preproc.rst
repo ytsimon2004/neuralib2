@@ -3,19 +3,18 @@ neuralib.widefield.preproc
 
 .. currentmodule:: neuralib.widefield.preproc
 
-Preprocessing metadata is defined in this module because
-``PreprocessOptions.save_metadata`` writes the corresponding ``metadata.json``.
-
 .. autosummary::
    :toctree: _autosummary
    :nosignatures:
 
    PreprocessOptions
+   rotate_sequence
+   load_preprocess_meta
    PreprocessMeta
    InputArguments
    DataInfo
    ProcessedInfo
    BaselineInfo
    MotionCorrInfo
-   load_preprocess_meta
-   rotate_sequence
+
+

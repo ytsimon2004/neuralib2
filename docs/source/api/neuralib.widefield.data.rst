@@ -1,12 +1,12 @@
-neuralib.dashboard.tool
+neuralib.widefield.data
 =======================
 
-.. currentmodule:: neuralib.dashboard.tool
+.. currentmodule:: neuralib.widefield.data
 
 .. autosummary::
    :toctree: _autosummary
    :nosignatures:
 
-   TimeoutUpdateValue
+   lazy_load_widefield
 
 

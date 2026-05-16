@@ -7,5 +7,9 @@ neuralib.rastermap.run
    :toctree: _autosummary
    :nosignatures:
 
-   DATA_TYPE
    run_rastermap
+
+.. rubric:: Data
+
+.. py:data:: DATA_TYPE
+

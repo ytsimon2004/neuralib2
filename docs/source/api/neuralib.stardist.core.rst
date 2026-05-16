@@ -7,7 +7,11 @@ neuralib.stardist.core
    :toctree: _autosummary
    :nosignatures:
 
-   STARDIST_MODEL
    read_stardist
    stardist_point_roi_helper
    StarDistSegmentation
+
+.. rubric:: Data
+
+.. py:data:: STARDIST_MODEL
+

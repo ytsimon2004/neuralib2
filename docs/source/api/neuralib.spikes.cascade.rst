@@ -7,7 +7,11 @@ neuralib.spikes.cascade
    :toctree: _autosummary
    :nosignatures:
 
-   CASCADE_MODEL_TYPE
    CascadeModelConfig
    cascade_predict
    CascadeSpikePrediction
+
+.. rubric:: Data
+
+.. py:data:: CASCADE_MODEL_TYPE
+

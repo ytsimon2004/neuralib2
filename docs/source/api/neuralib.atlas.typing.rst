@@ -3,13 +3,10 @@ neuralib.atlas.typing
 
 .. currentmodule:: neuralib.atlas.typing
 
-.. autosummary::
-   :toctree: _autosummary
-   :nosignatures:
 
-   Area
-   Source
-   Channel
-   TreeLevel
-   HEMISPHERE_TYPE
-   PLANE_TYPE
+.. rubric:: Data
+
+.. py:data:: HEMISPHERE_TYPE
+
+.. py:data:: PLANE_TYPE
+

@@ -9,7 +9,10 @@ neuralib.widefield
     :caption: Modules:
 
     neuralib.widefield.align
+    neuralib.widefield.ccf
+    neuralib.widefield.data
     neuralib.widefield.fft
     neuralib.widefield.fft_view
     neuralib.widefield.preproc
     neuralib.widefield.svd
+    neuralib.widefield.transform

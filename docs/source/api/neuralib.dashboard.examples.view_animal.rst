@@ -8,3 +8,5 @@ neuralib.dashboard.examples.view_animal
    :nosignatures:
 
    AnimalView
+
+

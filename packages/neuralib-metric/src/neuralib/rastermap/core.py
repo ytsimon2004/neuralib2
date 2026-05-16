@@ -18,7 +18,7 @@ __all__ = ['read_rastermap',
 
 def read_rastermap(file: PathLike) -> RasterMapResult:
     """load rastermap result
-    :param file: output from rastermap. *_embedding.npy
+    :param file: output from rastermap. ``*_embedding.npy``
     :return:
     """
     return RasterMapResult.load(file)
@@ -28,7 +28,7 @@ def save_rastermap(result: RasterMapResult, path: PathLike):
     """save result for GUI relaunch
 
     :param result: :class:`~RasterMapResult`
-    :param path: output from rastermap. *_embedding.npy
+    :param path: output from rastermap. ``*_embedding.npy``
     """
     result.save(path)
 
@@ -50,7 +50,7 @@ class RasterMapResult:
 
     filename: str | None
     """Filename of the neural activity data
-    (i.e., *.tif or *.avi for wfield activity; .npy `Array[float, [N, T]]` file for cellular)"""
+    (i.e., ``*.tif`` or ``*.avi`` for wfield activity; ``.npy`` ``Array[float, [N, T]]`` file for cellular)"""
 
     save_path: str | None
     """filename for the rastermap result save"""

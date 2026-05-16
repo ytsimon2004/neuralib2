@@ -11,3 +11,5 @@ neuralib.dashboard.view_brain
    BrainView
    TiffBrainView
    AtlasBrainView
+
+

@@ -7,10 +7,15 @@ neuralib.suite2p.core
    :toctree: _autosummary
    :nosignatures:
 
-   SIGNAL_TYPE
-   CALCIUM_TYPE
    read_suite2p
    Suite2pGUIOptions
    Suite2pRoiStat
    Suite2PResult
    get_s2p_coords
+
+.. rubric:: Data
+
+.. py:data:: SIGNAL_TYPE
+
+.. py:data:: CALCIUM_TYPE
+

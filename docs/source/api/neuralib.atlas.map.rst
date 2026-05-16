@@ -7,7 +7,13 @@ neuralib.atlas.map
    :toctree: _autosummary
    :nosignatures:
 
-   NUM_MERGE_LAYER
-   DEFAULT_FAMILY_DICT
-   ALLEN_FAMILY_TYPE
    merge_until_level
+
+.. rubric:: Data
+
+.. py:data:: NUM_MERGE_LAYER
+
+.. py:data:: DEFAULT_FAMILY_DICT
+
+.. py:data:: ALLEN_FAMILY_TYPE
+

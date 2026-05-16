@@ -7,7 +7,11 @@ neuralib.atlas.ccf.dataframe
    :toctree: _autosummary
    :nosignatures:
 
-   ROIS_NORM_TYPE
    RoiClassifierDataFrame
    RoiNormalizedDataFrame
    RoiSubregionDataFrame
+
+.. rubric:: Data
+
+.. py:data:: ROIS_NORM_TYPE
+

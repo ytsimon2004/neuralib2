@@ -29,8 +29,8 @@ def load_sequence(path: PathLike, suffix: str = '*.tif') -> np.ndarray:
     - Ignores hidden files (starting with '.') or AppleDouble files (._).
 
     :param path: Path to a .tif file or a directory of .tif files.
-    :param suffix: Glob pattern for selecting TIFF files (default: '*.tif').
-    :return: Stacked array of TIFF frames. `Array[Any, [H, W]]`
+    :param suffix: Glob pattern for selecting TIFF files (default: ``*.tif``).
+    :return: Stacked array of TIFF frames. ``Array[Any, [H, W]]``
     :raise RuntimeError: If the path is not found or no valid TIFFs were found.
     """
     path = Path(path)
@@ -69,7 +69,7 @@ def read_avi(avi_file: PathLike, grey_scale: bool = True) -> np.ndarray:
 
     :param avi_file: Path to the AVI file.
     :param grey_scale: Whether to convert frames to grayscale.
-    :return: Sequences array. `Array[uint8, [F, W, H]|[F, W, H, 3]]`
+    :return: Sequences array. ``Array[uint8, [F, W, H] | [F, W, H, 3]]``
     """
     cap = cv2.VideoCapture(str(avi_file))
     if not cap.isOpened():

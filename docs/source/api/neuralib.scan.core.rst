@@ -7,6 +7,6 @@ neuralib.scan.core
    :toctree: _autosummary
    :nosignatures:
 
-   SceneIdx
-   DimCode
    AbstractScanner
+
+

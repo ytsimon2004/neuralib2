@@ -8,10 +8,11 @@ neuralib.facemap.core
    :nosignatures:
 
    read_facemap
-   KeyPoint
    FaceMapResult
    KeyPointDataFrame
    SVDVariables
    KeyPointsMeta
    PupilDict
    RoiDict
+
+

@@ -7,7 +7,6 @@ neuralib.util.segments
    :toctree: _autosummary
    :nosignatures:
 
-   SegmentLike
    segment_bool_mask
    is_sorted
    segment_mask
@@ -41,3 +40,8 @@ neuralib.util.segments
    shift_time
    foreach_map
    grouped_iter
+
+.. rubric:: Data
+
+.. py:data:: SegmentLike
+

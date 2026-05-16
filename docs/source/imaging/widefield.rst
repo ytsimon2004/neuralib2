@@ -1,7 +1,11 @@
 WideField
 =========
 
-This module provides tools for processing widefield video sequence data
+This module provides tools for processing widefield video sequence data.
+
+.. contents::
+   :local:
+   :depth: 2
 
 Sequence Preprocessing
 -------------------------
@@ -20,8 +24,8 @@ A preprocessing pipeline for widefield calcium imaging data. Computes ΔF/F with
 
 .. code-block:: bash
 
-    $ nl_widefield preproc --file <TIF_FILE> [OPTIONS]
-    $ nl_widefield preproc --directory <TIF_DIR> [OPTIONS]
+    $ nl_wfield preproc --file <TIF_FILE> [OPTIONS]
+    $ nl_wfield preproc --directory <TIF_DIR> [OPTIONS]
 
 **Options:**
 
@@ -52,13 +56,13 @@ A preprocessing pipeline for widefield calcium imaging data. Computes ΔF/F with
 .. code-block:: bash
 
     # Basic preprocessing
-    $ nl_widefield preproc --file recording.tif
+    $ nl_wfield preproc --file recording.tif
 
     # With motion correction and GPU acceleration
-    $ nl_widefield preproc --directory ./tifs --motion_corr --use_gpu
+    $ nl_wfield preproc --directory ./tifs --motion_corr --use_gpu
 
     # Custom parameters
-    $ nl_widefield preproc --file data.tif --window_size 200 --percentile 5 --rotate 90
+    $ nl_wfield preproc --file data.tif --window_size 200 --percentile 5 --rotate 90
 
 **Output Files:**
 
@@ -67,6 +71,33 @@ A preprocessing pipeline for widefield calcium imaging data. Computes ΔF/F with
 - ``reference_frame.tif``: Mean reference frame
 - ``motion_transforms.h5``: Motion correction transforms (if ``--motion_corr`` enabled)
 - ``metadata.json``: Processing parameters and data info
+
+API reference:
+
+- :doc:`../api/neuralib.widefield.preproc`
+- :doc:`PreprocessOptions <../api/_autosummary/neuralib.widefield.preproc.PreprocessOptions>`
+- :doc:`rotate_sequence <../api/_autosummary/neuralib.widefield.preproc.rotate_sequence>`
+- :doc:`load_preprocess_meta <../api/_autosummary/neuralib.widefield.preproc.load_preprocess_meta>`
+
+
+Widefield Transform
+-------------------
+
+The transform GUI registers widefield images to a dorsal cortex map. It supports
+interactive point-pair selection, projective or similarity transforms, RANSAC
+outlier handling, transform export, and live transformed-frame overlays.
+
+**CLI Usage:**
+
+.. code-block:: bash
+
+    $ nl_wfield trans
+
+API reference:
+
+- :doc:`../api/neuralib.widefield.transform`
+- :doc:`RegistrationOptions <../api/_autosummary/neuralib.widefield.transform.RegistrationOptions>`
+- :doc:`RegistrationApp <../api/_autosummary/neuralib.widefield.transform.RegistrationApp>`
 
 
 
@@ -79,7 +110,7 @@ Usage:
 
 .. code-block:: python
 
-    nl_widefield fft <FILE>
+    nl_wfield fft <FILE>
 
 |fft_view|
 
@@ -94,7 +125,7 @@ Usage:
 
 .. code-block:: python
 
-    nl_widefield align <FILE> [-R REFERENCE_FILE] [-M MAP_FILE]
+    nl_wfield align <FILE> [-R REFERENCE_FILE] [-M MAP_FILE]
 
 |align_view|
 

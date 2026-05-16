@@ -7,6 +7,10 @@ neuralib.util.logging
    :toctree: _autosummary
    :nosignatures:
 
-   LOGGING_IO_LEVEL
    setup_logger
    setup_clogger
+
+.. rubric:: Data
+
+.. py:data:: LOGGING_IO_LEVEL
+
