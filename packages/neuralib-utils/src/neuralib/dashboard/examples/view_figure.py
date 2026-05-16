@@ -1,9 +1,9 @@
-from typing import Union, Optional
+from typing import Optional, Union
 
 from bokeh.model import Model
 from bokeh.models.widgets.markups import Div
-
 from neuralib.dashboard import View
+
 from .model import list_date
 
 __all__ = ['AnimalFigureView']
@@ -15,8 +15,8 @@ class AnimalFigureView(View):
     content_date: Div
 
     def __init__(self, animal: str | None = None, figure: str | None = None):
-        self._animal: Union[None, str, BaseException] = animal
-        self._figure: Optional[str] = figure
+        self._animal: None | str | BaseException = animal
+        self._figure: str | None = figure
 
     @property
     def title(self) -> str:
@@ -24,11 +24,11 @@ class AnimalFigureView(View):
         return f'Animal {animal}'
 
     @property
-    def current_animal(self) -> Optional[str]:
+    def current_animal(self) -> str | None:
         if self._animal is None:
             try:
                 self._animal = self.get_arg('animal')[0]
-            except (KeyError, IOError) as e:
+            except (OSError, KeyError) as e:
                 self._animal = e
 
         if isinstance(self._animal, str):
@@ -41,7 +41,7 @@ class AnimalFigureView(View):
         if self._figure is None:
             try:
                 self._figure = self.get_arg('figure')[0]
-            except (KeyError, IOError):
+            except (OSError, KeyError):
                 self._figure = 'default'
         return self._figure
 

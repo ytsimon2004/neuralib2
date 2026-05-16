@@ -1,15 +1,9 @@
-from pathlib import Path
-
 import abc
-from typing import Generic, TypeVar, get_origin, get_args
+from pathlib import Path
+from typing import Generic, TypeVar, get_args, get_origin
 
 from argclz import argument, copy_argument
-from neuralib.persistence import (
-    persistence,
-    PickleHandler,
-    PersistenceHandler,
-    AutoIncFieldNotResolvedError
-)
+from neuralib.persistence import AutoIncFieldNotResolvedError, PersistenceHandler, PickleHandler, persistence
 from neuralib.util.verbose import fprint, print_load, print_save
 
 __all__ = ['PersistenceOptions',

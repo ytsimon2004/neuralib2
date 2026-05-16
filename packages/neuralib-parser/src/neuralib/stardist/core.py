@@ -1,12 +1,11 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Literal, Self, cast
 
 import numpy as np
-from numpy.lib.npyio import NpzFile
-from typing import Self, Literal, cast
-
 from neuralib.typing import PathLike
+from numpy.lib.npyio import NpzFile
 
 __all__ = [
     'STARDIST_MODEL',
@@ -200,7 +199,7 @@ class StarDistSegmentation:
         """Covert segmented roi to point roi, and save it as ``.roi`` for imageJ.
 
         :param output_file: ``*.roi`` output file path"""
-        from roifile import ImagejRoi, ROI_TYPE, ROI_OPTIONS
+        from roifile import ROI_OPTIONS, ROI_TYPE, ImagejRoi
 
         points = np.fliplr(self.points)  # XY rotate in .roi format
         roi = ImagejRoi(

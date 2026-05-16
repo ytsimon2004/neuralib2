@@ -1,12 +1,11 @@
 from pathlib import Path
+from typing import Any, Literal, Union, get_args
 
 import gspread
 import numpy as np
 import pandas as pd
 import polars as pl
-from typing import Union, Any, get_args, Literal
-
-from neuralib.typing import PathLike, DataFrame
+from neuralib.typing import DataFrame, PathLike
 from neuralib.util.verbose import fprint
 
 __all__ = [
@@ -108,7 +107,7 @@ class GoogleWorkSheet:
 
             return [
                 '_'.join([str(it) for it in j])
-                for j in (list(zip(*ks)))
+                for j in (list(zip(*ks, strict=True)))
             ]
         else:
             raise TypeError(f'{self.primary_key}')
@@ -246,7 +245,7 @@ class GoogleWorkSheet:
                 old_values = [old_values]
 
             batch_updates = []
-            for idx, (it, v) in enumerate(zip(row, value)):
+            for idx, (it, v) in enumerate(zip(row, value, strict=False)):
                 old_val = old_values[idx] if idx < len(old_values) else None
                 batch_updates.append({'range': rowcol_to_a1(it, col), 'values': [[v]]})
                 fprint(f'UPDATES: {rowcol_to_a1(it, col)} from {old_val}-> {v}', vtype='io')

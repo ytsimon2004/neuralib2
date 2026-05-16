@@ -127,7 +127,7 @@ def change_html_format(input_file: Path, *style: dict[str, str]):
     """change style im embedded html in bokeh with `existing` <style> header"""
 
     tmp = input_file.with_name('tmp.txt')
-    with open(input_file, 'r') as f:
+    with open(input_file) as f:
         with tmp.open('w') as out:
             for i, line in enumerate(f):
                 for s in style:
@@ -145,14 +145,14 @@ def change_html_format(input_file: Path, *style: dict[str, str]):
 def add_html_format(input_file: Path, style: dict[str, str]):
     """change style im embedded html in bokeh with `new` <style> header"""
     tmp = input_file.with_name('tmp.txt')
-    with open(input_file, 'r') as f:
+    with open(input_file) as f:
         with tmp.open('w') as out:
             for i, line in enumerate(f):
                 if line.strip().startswith('<style>'):
                     key = list(style.keys())[0]
                     value = list(style.values())[0]
                     out.write(line)
-                    out.write('\t\t{0} {{\n\t\t\t{1}\n\t\t;}}\n\n'.format(key, value))
+                    out.write(f'\t\t{key} {{\n\t\t\t{value}\n\t\t;}}\n\n')
                 else:
                     out.write(line)
 

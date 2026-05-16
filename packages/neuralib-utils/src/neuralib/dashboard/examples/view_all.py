@@ -4,8 +4,8 @@ from typing import Optional
 from bokeh.model import Model
 from bokeh.models.widgets.inputs import Select
 from bokeh.models.widgets.markups import Div
-
 from neuralib.dashboard import BokehServer, View
+
 from .model import *
 
 __all__ = ['AllView']
@@ -48,7 +48,7 @@ class AllView(View):
 
         self.content = Div(text='')
 
-        from bokeh.layouts import row, column
+        from bokeh.layouts import column, row
         return column(
             row(
                 self.select_animal,
@@ -73,7 +73,7 @@ class AllView(View):
             animal = self.select_animal.value
             self.content.text = f'show animal {animal} on date {value}'
 
-    def build_goto_link(self, animal: Optional[str]):
+    def build_goto_link(self, animal: str | None):
         if animal is None or self.single:
             self.goto_btn.text = """
 <a type=button 

@@ -1,17 +1,16 @@
 from __future__ import annotations
 
-from pathlib import Path
-
 import dataclasses
 import json
-import numpy as np
 from dataclasses import dataclass, field
+from pathlib import Path
 from pprint import pprint
-from scipy.io import loadmat
-from typing import Any, TypeVar, TypedDict, cast
+from typing import Any, TypedDict, TypeVar, cast
 
+import numpy as np
 from neuralib.io import JsonEncodeHandler
 from neuralib.typing import PathLike
+from scipy.io import loadmat
 
 __all__ = [
     'read_scanbox',

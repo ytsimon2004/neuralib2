@@ -1,11 +1,9 @@
 from __future__ import annotations
 
+from typing import Any, Required, Self, TypedDict, cast
+
 import attrs
 import numpy as np
-from typing import Self
-from typing import Required, TypedDict, Any
-from typing import cast
-
 from neuralib.typing import PathLike
 from neuralib.util.verbose import print_load, print_save
 

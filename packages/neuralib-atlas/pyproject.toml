@@ -37,6 +37,8 @@ brainrender = [
     "argclz"
 ]
 
+test = ["neuralib-atlas[brainrender]"]
+
 all = ["neuralib-atlas[brainrender]"]
 
 [project.urls]

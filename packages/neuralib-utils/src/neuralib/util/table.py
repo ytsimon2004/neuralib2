@@ -1,14 +1,15 @@
 import contextlib
 import functools
+import textwrap
+from collections.abc import Iterator
+from typing import Any
+
 import pandas as pd
 import polars as pl
 import rich
-import textwrap
-from collections.abc import Iterator
 from rich import box
-from rich.console import Console, Capture
-from rich.table import Table, Column
-from typing import Any
+from rich.console import Capture, Console
+from rich.table import Column, Table
 
 __all__ = [
     'Column',

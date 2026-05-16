@@ -1,11 +1,11 @@
 import random
+
 from bokeh.model import Model
 from bokeh.models.ranges import Range1d
 from bokeh.models.renderers.glyph_renderer import GlyphRenderer
 from bokeh.models.sources import ColumnDataSource
 from bokeh.plotting import figure
-
-from neuralib.dashboard import ViewComponent, View, BokehServer
+from neuralib.dashboard import BokehServer, View, ViewComponent
 
 
 class Graph(ViewComponent):

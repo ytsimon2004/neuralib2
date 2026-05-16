@@ -3,11 +3,10 @@ from typing import Any, cast
 
 import numpy as np
 import sbxreader
-from rich.pretty import pprint
-
-from argclz import AbstractParser, argument, pos_argument, validator, int_tuple_type
+from argclz import AbstractParser, argument, int_tuple_type, pos_argument, validator
 from neuralib.scanbox import SBXInfo
 from neuralib.typing import PathLike
+from rich.pretty import pprint
 
 __all__ = ['ScanBoxView',
            'ScanBoxViewOptions']

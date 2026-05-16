@@ -1,10 +1,9 @@
 from __future__ import annotations
 
 from pathlib import Path
-
-import numpy as np
 from typing import Self
 
+import numpy as np
 from neuralib.typing import PathLike
 
 __all__ = [
@@ -159,7 +158,7 @@ class CellposeSegmentation:
 
         :param output_file: ``*.roi`` output file path
         """
-        from roifile import ImagejRoi, ROI_TYPE, ROI_OPTIONS
+        from roifile import ROI_OPTIONS, ROI_TYPE, ImagejRoi
 
         if Path(output_file).suffix != '.roi':
             raise ValueError('output file must have .roi extension')

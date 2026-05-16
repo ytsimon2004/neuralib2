@@ -59,14 +59,14 @@ opt = [
     "joblib"
 ]
 
-all = [
-    "neuralib-utils[plot]",
-    "neuralib-utils[opt]"
-]
-
 test = [
     "neuralib-utils[dashboard]",
     "neuralib-utils[all]"
+]
+
+all = [
+    "neuralib-utils[plot]",
+    "neuralib-utils[opt]"
 ]
 
 

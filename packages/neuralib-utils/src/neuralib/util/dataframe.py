@@ -1,17 +1,19 @@
 from __future__ import annotations
 
 import abc
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any, Generic, Literal, TypeVar, overload
+
 import numpy as np
 import polars as pl
+from neuralib.util.verbose import printdf
 from polars.dataframe.group_by import GroupBy
 from polars.testing import assert_frame_equal
-from typing import Callable, Literal, overload, TypeVar, Generic, Any, TYPE_CHECKING
-
-from neuralib.util.verbose import printdf
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence, Iterable, Collection
-    from typing import Self, ParamSpec, Concatenate
+    from collections.abc import Collection, Iterable, Sequence
+    from typing import Concatenate, ParamSpec, Self
+
     from polars import _typing as pty
 
     P = ParamSpec('P')

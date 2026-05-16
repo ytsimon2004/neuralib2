@@ -1,17 +1,18 @@
 from __future__ import annotations
 
+from collections.abc import Generator
+from contextlib import contextmanager
 from pathlib import Path
+from typing import Any, Literal, final
+from xml.etree.ElementTree import tostring
 
 import aicspylibczi
 import numpy as np
 import xmltodict
-from contextlib import contextmanager
-from typing import Any, Generator, final, Literal
-from xml.etree.ElementTree import tostring
-
 from neuralib.typing import PathLike
 from neuralib.util.unstable import unstable
-from .core import AbstractScanner, SceneIdx, DimCode
+
+from .core import AbstractScanner, DimCode, SceneIdx
 
 __all__ = ['czi_file', 'CziScanner']
 

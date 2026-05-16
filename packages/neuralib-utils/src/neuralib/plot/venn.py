@@ -1,4 +1,4 @@
-from typing import Optional, NamedTuple, ClassVar
+from typing import ClassVar, NamedTuple, Optional
 
 from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
@@ -16,7 +16,7 @@ class VennHandler(NamedTuple):
     subset_overlap: int
     """whole number with condition a & b"""
 
-    total_set: Optional[int] = None
+    total_set: int | None = None
 
     @property
     def chance_level(self) -> float:

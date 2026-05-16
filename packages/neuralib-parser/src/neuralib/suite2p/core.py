@@ -1,14 +1,12 @@
 from __future__ import annotations
 
+import datetime
 from pathlib import Path
+from typing import Literal, Required, Self, TypedDict, cast, final
 
 import attrs
-import datetime
 import numpy as np
 import polars as pl
-from typing import Literal, Required, TypedDict, cast, final
-from typing import Self
-
 from neuralib.typing import PathLike
 from neuralib.util.verbose import fprint
 

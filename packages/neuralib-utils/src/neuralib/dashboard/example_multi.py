@@ -1,7 +1,6 @@
 from bokeh.model import Model
 from bokeh.models.widgets.markups import Div
-
-from neuralib.dashboard import View, BokehServer
+from neuralib.dashboard import BokehServer, View
 
 
 class Top(View):

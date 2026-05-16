@@ -1,12 +1,12 @@
+from collections.abc import Callable
 from datetime import datetime
 from pathlib import Path
-from typing import Literal, Callable, cast
+from typing import Literal, cast
 
 import h5py
 import pandas as pd
 import polars as pl
 from colorama import Fore, Style
-
 from neuralib.typing import DataFrame, PathLike, PathLikeType
 
 __all__ = ['fprint',
@@ -233,10 +233,10 @@ def publish_annotation(level: Literal['main', 'sup', 'appendix', 'test'],
                 if hasattr(target, attr):
                     raise AttributeError(f"Class {target.__name__} already has an attribute named '{attr}'.")
 
-            setattr(target, '__publish_level__', level)
-            setattr(target, '__publish_project__', project)
-            setattr(target, '__publish_figure__', figure)
-            setattr(target, '__publish_caption__', caption)
+            target.__publish_level__ = level
+            target.__publish_project__ = project
+            target.__publish_figure__ = figure
+            target.__publish_caption__ = caption
 
         return target
 

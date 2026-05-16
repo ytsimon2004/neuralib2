@@ -5,7 +5,6 @@ from pathlib import Path
 from typing import Self
 
 import numpy as np
-
 from neuralib.typing import PathLike
 
 __all__ = ['lazy_load_widefield']

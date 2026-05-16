@@ -1,7 +1,7 @@
-import numpy as np
-from matplotlib.axes import Axes
 from typing import cast
 
+import numpy as np
+from matplotlib.axes import Axes
 from neuralib.suite2p import Suite2PResult, Suite2pRoiStat
 
 __all__ = ['get_soma_pixel',
@@ -89,5 +89,5 @@ def plot_soma_center(ax: Axes,
     ax.scatter(coords[:, 0], coords[:, 1], **kwargs)
 
     if with_index:
-        for (x, y), idx in zip(coords, neuron_ids):
+        for (x, y), idx in zip(coords, neuron_ids, strict=False):
             ax.text(x, y, str(idx), fontsize=font_size)

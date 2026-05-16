@@ -1,17 +1,16 @@
 from pathlib import Path
+from typing import Self
 
 import numpy as np
 import polars as pl
+from argclz import argument
 from brainglobe_atlasapi import BrainGlobeAtlas
 from brainrender.actors import Points
-from scipy.interpolate import interp1d
-from typing import Self
-
-from argclz import argument
 from neuralib.atlas.brainrender.core import BrainRenderCLI
 from neuralib.atlas.typing import PLANE_TYPE
 from neuralib.atlas.util import allen_to_brainrender_coord
 from neuralib.typing import PathLike
+from scipy.interpolate import interp1d
 
 __all__ = ['ProbeRenderCLI',
            'ProbeShank']

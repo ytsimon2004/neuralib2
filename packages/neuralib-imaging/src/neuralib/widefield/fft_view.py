@@ -3,16 +3,15 @@ from typing import Any, cast
 
 import cv2
 import numpy as np
+from argclz import AbstractParser, argument
 from bokeh.layouts import column
 from bokeh.model import Model
 from bokeh.models import ColumnDataSource, GlyphRenderer, Slider  # pyright: ignore[reportPrivateImportUsage]
 from bokeh.plotting import figure
-from tifffile import tifffile
-
-from argclz import AbstractParser, argument
-from neuralib.dashboard import ViewComponent, Figure, View, BokehServer
+from neuralib.dashboard import BokehServer, Figure, View, ViewComponent
 from neuralib.typing import PathLike
 from neuralib.widefield.fft import SequenceFFT
+from tifffile import tifffile
 
 __all__ = ['WideFieldFFTViewOption']
 

@@ -1,11 +1,10 @@
+from typing import NamedTuple, Self
+
 import numpy as np
+from neuralib.util.segments import segment_contains, segment_duration, segment_epochs
+from neuralib.util.unstable import unstable
 from scipy import stats
 from scipy.interpolate import interp1d
-from typing import NamedTuple
-from typing import Self
-
-from neuralib.util.segments import segment_epochs, segment_duration, segment_contains
-from neuralib.util.unstable import unstable
 
 __all__ = [
     'CircularPosition',
@@ -150,7 +149,7 @@ def interp_pos1d(time: np.ndarray,
         lap_counter = 1
 
         # loop through rest of trials
-        for lap_start, lap_stop in zip(overflow_idx[:-1], overflow_idx[1:]):
+        for lap_start, lap_stop in zip(overflow_idx[:-1], overflow_idx[1:], strict=False):
             p[lap_start + 1:lap_stop + 1] = pos[lap_start + 1:lap_stop + 1] / pos[lap_stop]
             d[lap_start + 1:lap_stop + 1] = pos[lap_start + 1:lap_stop + 1] / pos[lap_stop] + lap_counter
             lap_counter += 1

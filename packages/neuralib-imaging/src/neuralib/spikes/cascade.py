@@ -1,20 +1,19 @@
 import re
 import zipfile
 from pathlib import Path
-from typing import Literal, Required, get_args, TypedDict, cast
+from typing import Literal, Required, TypedDict, cast, get_args
 from urllib.request import urlopen
 
 import numpy as np
 import requests
 import tensorflow as tf
 import tensorflow.keras  # pyright: ignore[reportMissingModuleSource]
-from ruamel.yaml import YAML
-from scipy.ndimage import binary_dilation, gaussian_filter
-
 from neuralib.io import CASCADE_MODEL_CACHE_DIRECTORY
 from neuralib.typing import PathLike
 from neuralib.util.utils import ensure_dir
 from neuralib.util.verbose import fprint
+from ruamel.yaml import YAML
+from scipy.ndimage import binary_dilation, gaussian_filter
 
 __all__ = [
     'CASCADE_MODEL_TYPE',
@@ -332,7 +331,7 @@ class CascadeSpikePrediction:
     @property
     def model_link(self) -> str:
         """Link of specified model"""
-        with open(self.available_model_yaml, 'r') as file:
+        with open(self.available_model_yaml) as file:
             config = YAML().load(file)
         return config[self.model_type]['Link']
 
@@ -348,7 +347,7 @@ class CascadeSpikePrediction:
 
     def get_config(self) -> CascadeModelConfig:
         """``ModelConfig`` of specified model"""
-        with open(self.config_file, 'r') as file:
+        with open(self.config_file) as file:
             return YAML().load(file)
 
     # ================ #

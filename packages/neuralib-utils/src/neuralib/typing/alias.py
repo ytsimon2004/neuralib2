@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+from collections.abc import Sequence
 from os import PathLike as OsPathLike
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Sequence, TypeAlias, Union
+from typing import TYPE_CHECKING, Any, TypeAlias, Union
 
 import numpy as np
 from numpy.typing import NDArray
@@ -33,14 +34,14 @@ ArrayLike: TypeAlias = Union[NDArray[Any], Sequence[Any], 'pd.Series', 'pl.Serie
 ArrayLikeStr: TypeAlias = Union[NDArray[np.str_], list[str], tuple[str, ...], 'pd.Series', 'pl.Series']
 """Alias for array-like objects of strings, including numpy arrays, lists, tuples, and series"""
 
-AxesArray: TypeAlias = Union[np.ndarray, list[Any]]
+AxesArray: TypeAlias = np.ndarray | list[Any]
 """Alias for matplotlib Axes numpy array"""
 
 # ==== #
 # Path #
 # ==== #
 
-PathLike: TypeAlias = Union[str, Path, OsPathLike[str]]
+PathLike: TypeAlias = str | Path | OsPathLike[str]
 """Alias for filesystem path-like objects."""
 
 PathLikeType = (str, Path, OsPathLike)

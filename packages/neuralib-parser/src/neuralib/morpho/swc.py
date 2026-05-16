@@ -1,15 +1,14 @@
 from __future__ import annotations
 
+from collections.abc import Iterator
 from pathlib import Path
+from typing import Any, NamedTuple, Self, cast, overload
 
 import matplotlib.pyplot as plt
 import numpy as np
+from argclz import AbstractParser, argument, pos_argument
 from matplotlib.axes import Axes
 from matplotlib.patches import Circle
-from typing import Any, NamedTuple, Iterator, cast
-from typing import Self, overload
-
-from argclz import AbstractParser, argument, pos_argument
 from neuralib.typing import PathLike
 
 __all__ = [

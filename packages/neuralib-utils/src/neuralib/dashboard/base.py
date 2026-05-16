@@ -1,12 +1,14 @@
 import abc
 import functools
+from collections.abc import Callable
+from typing import Any, ClassVar, Optional, Union
+
 from bokeh.application import Application
 from bokeh.document import Document
 from bokeh.models import Model
 from bokeh.models.renderers.glyph_renderer import GlyphRenderer
 from bokeh.plotting import figure
 from bokeh.server.server import Server
-from typing import Any, Callable, ClassVar, Union, Optional
 
 __all__ = ['Figure', 'View', 'ViewComponent', 'BokehServer']
 
@@ -82,7 +84,7 @@ class View(metaclass=abc.ABCMeta):
         if session_context is None:
             raise RuntimeError('Bokeh session context is not available')
 
-        request = getattr(session_context, 'request')
+        request = session_context.request
         return list(map(bytes.decode, request.arguments[key]))
 
     @abc.abstractmethod
@@ -229,8 +231,8 @@ class BokehServer:
         self.theme = theme
 
     def start(self,
-              viewer: Union[View, Application, dict[str, Union[View, Application]]],
-              open_url: Optional[str] = '/', **kwargs):
+              viewer: View | Application | dict[str, View | Application],
+              open_url: str | None = '/', **kwargs):
         """start serving.
 
         :param viewer: top view
@@ -254,7 +256,7 @@ class BokehServer:
 
         self.server.run_until_shutdown()
 
-    def page(self, viewer: Union[View, Application]):
+    def page(self, viewer: View | Application):
         """ """
         if isinstance(viewer, Application):
             return viewer

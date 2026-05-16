@@ -1,7 +1,8 @@
 import json
 import urllib.request
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Self, NamedTuple, Literal, get_args, Sequence, cast
+from typing import Literal, NamedTuple, Self, cast, get_args
 
 import numpy as np
 from neuralib.typing import PathLike

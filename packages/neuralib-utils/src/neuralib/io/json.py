@@ -1,11 +1,10 @@
-from pathlib import Path
-
 import json
-import numpy as np
+from pathlib import Path
 from typing import Any
 
+import numpy as np
 from neuralib.typing import PathLike
-from neuralib.util.verbose import print_save, print_load
+from neuralib.util.verbose import print_load, print_save
 
 __all__ = ['JsonEncodeHandler',
            'load_json',
@@ -43,7 +42,7 @@ def load_json(filepath: PathLike, verbose=True, **kwargs) -> dict[str, Any]:
     :param kwargs: additional arguments to ``json.load()``
     :return:
     """
-    with open(filepath, "r") as file:
+    with open(filepath) as file:
         if verbose:
             print_load(filepath)
         return json.load(file, **kwargs)

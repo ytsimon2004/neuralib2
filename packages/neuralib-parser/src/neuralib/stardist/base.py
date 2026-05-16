@@ -1,10 +1,10 @@
-from pathlib import Path
-
 import abc
+from collections.abc import Iterable
+from pathlib import Path
+from typing import Literal
+
 import cv2
 import numpy as np
-from typing import Iterable, Literal
-
 from argclz import AbstractParser, argument
 
 __all__ = ['AbstractSegmentationOptions']

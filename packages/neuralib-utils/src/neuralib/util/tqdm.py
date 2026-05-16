@@ -1,6 +1,6 @@
 import contextlib
-from io import BytesIO
 from collections.abc import Iterator
+from io import BytesIO
 
 import requests
 from tqdm import tqdm

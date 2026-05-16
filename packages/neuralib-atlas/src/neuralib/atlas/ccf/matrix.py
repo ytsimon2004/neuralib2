@@ -1,20 +1,19 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import NamedTuple, Any
+from typing import Any, NamedTuple
 
 import attrs
 import cv2
 import imageio.v3 as iio
 import numpy as np
 import polars as pl
-from scipy.io import loadmat
-from scipy.io.matlab import MatlabOpaque
-
 from neuralib.atlas.typing import PLANE_TYPE
 from neuralib.atlas.view import SlicePlane, get_slice_view
 from neuralib.imglib.transform import apply_transformation
 from neuralib.typing import PathLike, PathLikeType
+from scipy.io import loadmat
+from scipy.io.matlab import MatlabOpaque
 
 __all__ = [
     'SLICE_DIMENSION_10um',

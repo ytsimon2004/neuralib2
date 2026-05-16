@@ -129,12 +129,12 @@ you need to define a classmethod `from_dict` for creating that persistance class
 
 """
 
-from pathlib import Path
-
 import abc
 import inspect
 import sys
-from typing import Type, TypeVar, Union, Callable, Generic, Any, Iterator, get_type_hints
+from collections.abc import Callable, Iterator
+from pathlib import Path
+from typing import Any, Generic, Type, TypeVar, Union, get_type_hints
 
 from neuralib.util.func import PARA_TYPE, create_fn
 
@@ -163,9 +163,9 @@ missing = inspect.Parameter.empty
 VALIDATOR = Callable[[Any, Any], bool]
 
 
-def field(validator: Union[bool, VALIDATOR] = False,
+def field(validator: bool | VALIDATOR = False,
           filename_prefix: str = '',
-          filename: Union[bool, Callable[..., str]] = False) -> Any:
+          filename: bool | Callable[..., str] = False) -> Any:
     """Cache class's exported field. Used as keys to find correspond persistence.
 
     :param validator: validate this field. use __eq__ by default. Can be a callable as a customized validator.
@@ -193,9 +193,9 @@ class PersistentField(Generic[T]):
     __slots__ = ('field_name', 'field_type', 'validator', 'filename_prefix', 'filename', 'init', 'autoinc', 'optional')
 
     def __init__(self,
-                 validator: Union[bool, VALIDATOR] = False,
+                 validator: bool | VALIDATOR = False,
                  filename_prefix: str = '',
-                 filename: Union[bool, Callable[..., str]] = False,
+                 filename: bool | Callable[..., str] = False,
                  init=True,
                  autoinc=False,
                  optional=False):
@@ -221,7 +221,7 @@ class PersistentField(Generic[T]):
         self.optional = optional
         """Does this field has default value?"""
 
-    def __set_name__(self, owner: Type, name: str):
+    def __set_name__(self, owner: type, name: str):
         self.field_name = name
         if self.autoinc:
             if (field_type := get_type_hints(owner).get(name, Any)) is not int:
@@ -252,7 +252,7 @@ class AutoIncFieldNotResolvedError(RuntimeError):
 
     """
 
-    def __init__(self, instance, field: Union[str, PersistentField], message: str | None = None):
+    def __init__(self, instance, field: str | PersistentField, message: str | None = None):
         if isinstance(field, PersistentField):
             field = field.field_name
 
@@ -265,7 +265,7 @@ class AutoIncFieldNotResolvedError(RuntimeError):
         self.field = field
 
 
-def persistence_class(cls: Type | None = None, /, *,
+def persistence_class(cls: type | None = None, /, *,
                       name: str | None = None,
                       filename_field_splitter='-'):
     """A class decorator.
@@ -278,7 +278,7 @@ def persistence_class(cls: Type | None = None, /, *,
     :return:
     """
 
-    def decorator(cls: Type):
+    def decorator(cls: type):
         cls._ast_persistence_cls_info_ = pc = PersistentClass(cls, name, filename_field_splitter)
 
         prev_autoinc_field = None
@@ -328,7 +328,7 @@ class PersistentClass(Generic[T]):
     __slots__ = ('persistence_cls', 'cls_name', 'filename_field_splitter', 'fields')
 
     def __init__(self,
-                 persistence_cls: Type,
+                 persistence_cls: type,
                  persistence_name: str | None = None,
                  filename_field_splitter='-'):
         self.persistence_cls = persistence_cls
@@ -481,7 +481,7 @@ def auto_generated_content(**kwargs):
     raise RuntimeError('It is auto generated content')
 
 
-def ensure_persistence_class(data: T | Type[T]) -> PersistentClass[T]:
+def ensure_persistence_class(data: T | type[T]) -> PersistentClass[T]:
     """ensure **data** is a persistence class.
 
     :param data: instance or type
@@ -492,7 +492,7 @@ def ensure_persistence_class(data: T | Type[T]) -> PersistentClass[T]:
         data = type(data)
 
     try:
-        cls_info: PersistentClass = getattr(data, '_ast_persistence_cls_info_')
+        cls_info: PersistentClass = data._ast_persistence_cls_info_
     except AttributeError as e:
         raise RuntimeError(f'not a persistence_class : {data.__name__}') from e
 
@@ -577,7 +577,7 @@ def _from_dict_factory(data_cls: type[T], info: PersistentClass, d: dict[str, An
         else:
             kwargs[f.field_name] = v
 
-    ret = getattr(data_cls, 'from_dict')(kwargs)
+    ret = data_cls.from_dict(kwargs)
     if not isinstance(ret, data_cls):
         raise TypeError()
     return ret
@@ -617,7 +617,7 @@ def load_by(data_cls: type[T], path: P, **kwargs) -> T:
     return handler.load_persistence(handler.filepath(None, **kwargs))
 
 
-def filename(result: T | Type[T], **kwargs) -> str:
+def filename(result: T | type[T], **kwargs) -> str:
     """Get data persistence filename.
 
     :param result:
@@ -858,15 +858,15 @@ class GzipHandler(PersistenceHandler[T]):
         return super().filename(result, **kwargs) + self._ext
 
     def _save_persistence(self, result: T, path: Path):
-        import pickle
         import gzip
+        import pickle
 
         with gzip.open(path, 'wb', compresslevel=self._cmp) as file:
             pickle.dump(as_dict(result), file)
 
     def _load_persistence(self, path: Path) -> T:
-        import pickle
         import gzip
+        import pickle
 
         with gzip.open(path, 'rb') as file:
             ret = pickle.load(file)

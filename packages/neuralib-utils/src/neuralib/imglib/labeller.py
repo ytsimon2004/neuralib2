@@ -1,21 +1,20 @@
+import logging
+import re
+import sys
+from collections.abc import Callable
 from pathlib import Path
+from typing import Any, ClassVar, Literal, Self, TypedDict
 
 import attrs
 import cv2
-import logging
 import numpy as np
 import polars as pl
-import re
-import sys
-from polars.testing import assert_frame_equal
-from tifffile import tifffile
-from tqdm import tqdm
-from typing import ClassVar, Callable, Any, Literal, TypedDict
-from typing import Self
-
 from neuralib.io import csv_header
 from neuralib.typing import PathLike
 from neuralib.util.verbose import fprint
+from polars.testing import assert_frame_equal
+from tifffile import tifffile
+from tqdm import tqdm
 
 __all__ = ['SequenceLabeller']
 

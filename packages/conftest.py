@@ -3,7 +3,6 @@ import sys
 import tempfile
 from pathlib import Path
 
-
 _TEST_HOME = Path(tempfile.gettempdir()) / 'neuralib-pytest-home'
 _TEST_HOME.mkdir(parents=True, exist_ok=True)
 

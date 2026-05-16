@@ -1,11 +1,11 @@
-from typing import Any, Literal, Sequence
+from collections.abc import Sequence
+from typing import Any, Literal
 
 import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
 from matplotlib.offsetbox import AnchoredOffsetbox
 from matplotlib.transforms import Transform
-
 from neuralib.typing import ArrayLike, PathLike
 
 __all__ = [
@@ -56,13 +56,13 @@ class AnchoredScaleBar(AnchoredOffsetbox):
         :param kwargs: additional arguments passed to base class constructor
         """
 
-        from matplotlib.patches import Rectangle
         from matplotlib.offsetbox import (
             AuxTransformBox,
-            VPacker,
             HPacker,
             TextArea,
+            VPacker,
         )
+        from matplotlib.patches import Rectangle
 
         bars = AuxTransformBox(transform)
 

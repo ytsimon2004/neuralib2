@@ -1,12 +1,11 @@
 import abc
 from pathlib import Path
-from typing import Literal, Union, Optional
+from typing import Literal, Optional, Union
 
 import numpy as np
 from bokeh.models.renderers.glyph_renderer import GlyphRenderer
 from bokeh.models.sources import ColumnDataSource
 from bokeh.plotting import figure
-
 from neuralib.dashboard.base import ViewComponent
 
 __all__ = ['AbstractBrainView', 'BrainView', 'TiffBrainView', 'AtlasBrainView']
@@ -18,11 +17,11 @@ class AbstractBrainView(ViewComponent):
 
     def __init__(self):
         self.data_brain_slice = ColumnDataSource(data=dict(image=[], x=[], y=[], dw=[], dh=[]))
-        self._width: Optional[float] = None
-        self._height: Optional[float] = None
+        self._width: float | None = None
+        self._height: float | None = None
 
     @property
-    def width(self) -> Optional[float]:
+    def width(self) -> float | None:
         return self._width
 
     @width.setter
@@ -30,7 +29,7 @@ class AbstractBrainView(ViewComponent):
         self._width = value
 
     @property
-    def height(self) -> Optional[float]:
+    def height(self) -> float | None:
         return self._height
 
     @height.setter
@@ -133,7 +132,7 @@ class AtlasBrainView(AbstractBrainView):
         self._offset = 0
         self._offset_h = 0
         self._offset_w = 0
-        self._offset_m: Optional[np.ndarray] = None
+        self._offset_m: np.ndarray | None = None
 
     @property
     def n_ap(self) -> int:
@@ -252,7 +251,7 @@ class AtlasBrainView(AbstractBrainView):
 
         return x_frame[None, :] + y_frame[:, None]
 
-    def brain_slice(self, offset: Union[int, np.ndarray]) -> np.ndarray:
+    def brain_slice(self, offset: int | np.ndarray) -> np.ndarray:
         return self.reference[offset, self.grid_y, self.grid_x]
 
     @property

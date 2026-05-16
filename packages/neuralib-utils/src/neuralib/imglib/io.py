@@ -3,12 +3,11 @@ from pathlib import Path
 import cv2
 import numpy as np
 import numpy.typing as npt
+from neuralib.imglib.norm import normalize_sequences
+from neuralib.typing import PathLike
 from PIL import Image
 from tifffile import tifffile
 from tqdm import tqdm
-
-from neuralib.imglib.norm import normalize_sequences
-from neuralib.typing import PathLike
 
 __all__ = [
     'load_sequence',

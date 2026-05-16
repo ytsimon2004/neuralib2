@@ -1,11 +1,10 @@
 from __future__ import annotations
 
-from pathlib import Path
-
 import pickle
-import polars as pl
+from pathlib import Path
 from typing import Any, Self, TypedDict, cast, overload
 
+import polars as pl
 from neuralib.typing import PathLike
 from neuralib.util.dataframe import DataFrameWrapper
 

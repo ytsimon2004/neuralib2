@@ -155,7 +155,7 @@ def insert_cyclic_colorbar(ax: Axes,
 
     values = np.linspace(vmin, vmax, num_labels, endpoint=False)
 
-    for angle, value in zip(angles, values):
+    for angle, value in zip(angles, values, strict=True):
         polar_ax.text(angle, 3, f'{value:.1f}', horizontalalignment='center', verticalalignment='center')
 
     polar_ax.set_yticklabels([])

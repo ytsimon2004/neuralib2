@@ -2,7 +2,7 @@ import re
 from collections.abc import Collection
 from dataclasses import is_dataclass
 from pathlib import Path
-from typing import TypeVar, overload, Literal, Any
+from typing import Any, Literal, TypeVar, overload
 
 from neuralib.typing import PathLike
 from neuralib.typing.func import is_namedtuple

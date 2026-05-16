@@ -1,12 +1,12 @@
-from pathlib import Path
-
-import numpy as np
 import pickle
-from scipy.stats import zscore
+from pathlib import Path
 from typing import Literal, cast
 
+import numpy as np
 from neuralib.typing import PathLike
-from .core import RasterOptions, RasterMapResult
+from scipy.stats import zscore
+
+from .core import RasterMapResult, RasterOptions
 
 __all__ = ['DATA_TYPE', 'run_rastermap']
 
@@ -111,8 +111,8 @@ class RunRastermap:
     def run_cellular(self, **kwargs) -> RasterMapResult:
         """cellular input run. `Array[float, [N, T]]`"""
         try:
-            from rastermap import Rastermap
             import rastermap.utils
+            from rastermap import Rastermap
         except ImportError:
             raise RuntimeError('pip install rastermap first')
 
@@ -148,8 +148,8 @@ class RunRastermap:
         from neuralib.widefield import compute_singular_vector  # pyright: ignore[reportMissingImports]
 
         try:
-            from rastermap import Rastermap
             import rastermap.utils
+            from rastermap import Rastermap
         except ImportError:
             raise RuntimeError('pip install rastermap first')
 

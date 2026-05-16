@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+from collections.abc import Sequence
+from typing import Literal, Self, cast
+
 import attrs
 import numpy as np
 from matplotlib.patches import Polygon
-from typing import Sequence, Literal, Self, cast
-
 from neuralib.util.unstable import unstable
 
 __all__ = ['get_field_of_view',

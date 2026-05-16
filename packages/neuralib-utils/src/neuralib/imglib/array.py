@@ -1,10 +1,10 @@
 from __future__ import annotations
 
+from collections.abc import Sequence
+from typing import Literal, Self, cast
+
 import cv2
 import numpy as np
-from typing import Literal, Sequence, cast
-from typing import Self
-
 from neuralib.typing import PathLike, PathLikeType
 
 __all__ = ['image_array',
@@ -206,9 +206,9 @@ class ImageArrayWrapper(np.ndarray):
         :param kwargs: Additional keyword arguments for the cv2 denoising function.
         """
         if self.mode == 'gray':
-            fn = getattr(cv2, 'fastNlMeansDenoising')
+            fn = cv2.fastNlMeansDenoising
         else:
-            fn = getattr(cv2, 'fastNlMeansDenoisingColored')
+            fn = cv2.fastNlMeansDenoisingColored
         img = fn(self, h=h, templateWindowSize=temp_win_size, searchWindowSize=search_win_size, **kwargs)
         return ImageArrayWrapper(img)
 

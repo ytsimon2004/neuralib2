@@ -1,11 +1,10 @@
 import abc
 from pathlib import Path
-from typing import Literal, get_type_hints, ClassVar, Generic, TypeVar, Any
+from typing import Any, ClassVar, Generic, Literal, TypeVar, get_type_hints
 
 import h5py
 import numpy as np
 import polars as pl
-
 from neuralib.util.unstable import unstable
 from neuralib.util.verbose import fprint
 

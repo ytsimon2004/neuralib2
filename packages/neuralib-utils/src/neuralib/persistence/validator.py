@@ -4,9 +4,9 @@ from pathlib import Path
 from typing import Any, Generic, TypeVar
 
 import numpy as np
-
 from neuralib.typing import is_iterable
 from neuralib.util.verbose import fprint
+
 from .persistence import ensure_persistence_class
 
 __all__ = [

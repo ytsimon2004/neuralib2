@@ -1,17 +1,16 @@
+import pickle
+import shutil
+from collections.abc import Iterator
+from contextlib import contextmanager
 from pathlib import Path
+from typing import Any, TypeAlias
 
 import gdown
 import numpy as np
-import pickle
 import polars as pl
-import shutil
-from PIL import Image
-from contextlib import contextmanager
-from collections.abc import Iterator
-from typing import Any, TypeAlias
-
 from neuralib.io import NEUROLIB_DATASET_DIRECTORY
 from neuralib.typing import PathLike
+from PIL import Image
 
 DeepLabCutDataFrame: TypeAlias = Any
 Suite2PResult: TypeAlias = Any

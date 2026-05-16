@@ -1,18 +1,16 @@
 from __future__ import annotations
 
+from typing import Literal, NamedTuple, Self, cast
+
 import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
 from matplotlib.patches import Patch
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
-from scipy.interpolate import interp1d
-from typing import NamedTuple, Literal
-from typing import Self
-from typing import cast
-
-from neuralib.rastermap import RasterMapResult
 from neuralib.plot import plot_figure
+from neuralib.rastermap import RasterMapResult
 from neuralib.typing import PathLike
+from scipy.interpolate import interp1d
 
 __all__ = [
     'plot_rastermap',

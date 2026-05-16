@@ -1,8 +1,9 @@
-import numpy as np
-from scipy.ndimage import gaussian_filter, gaussian_filter1d, minimum_filter1d, maximum_filter1d
 from typing import Literal, NamedTuple
 
-from .core import Suite2PResult, SIGNAL_TYPE
+import numpy as np
+from scipy.ndimage import gaussian_filter, gaussian_filter1d, maximum_filter1d, minimum_filter1d
+
+from .core import SIGNAL_TYPE, Suite2PResult
 
 __all__ = [
     'get_neuron_signal',

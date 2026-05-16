@@ -2,13 +2,13 @@ target-version = "py311"
 extend-exclude = [
     "test",
     # annotation module
-    "src/neuralib/sqlp",
     "src/neuralib/persistence"
 ]
 
 line-length = 120
 
 [lint]
+select = ["E", "F", "I", "UP", "B", "C4"]
 ignore = ["F403", "F405"]
 exclude = ["*.ipynb"]
 

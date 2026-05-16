@@ -1,18 +1,17 @@
 from __future__ import annotations
 
 import abc
-import attrs
 import math
+import warnings
+from typing import ClassVar, Final, Literal, Self, get_args
+
+import attrs
 import matplotlib.pyplot as plt
 import numpy as np
-import warnings
 from brainglobe_atlasapi import BrainGlobeAtlas
 from matplotlib.axes import Axes
 from matplotlib.colors import ListedColormap
 from matplotlib.patches import Patch
-from typing import Final, ClassVar, Literal, get_args
-from typing import Self
-
 from neuralib.atlas.data import ATLAS_NAME
 from neuralib.atlas.typing import PLANE_TYPE
 from neuralib.atlas.util import ALLEN_CCF_10um_BREGMA
@@ -262,7 +261,7 @@ class AbstractSliceView(metaclass=abc.ABCMeta):
             ]
             ax.legend(handles=legend_elements, title="Regions", loc='upper right')
 
-    def plane_at(self, slice_index: int) -> 'SlicePlane':
+    def plane_at(self, slice_index: int) -> SlicePlane:
         return SlicePlane(
             slice_index=slice_index,
             ax=int(self.width // 2),

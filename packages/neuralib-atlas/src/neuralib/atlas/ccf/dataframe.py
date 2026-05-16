@@ -1,20 +1,20 @@
 from __future__ import annotations
 
+from collections.abc import Sequence
+from typing import Any, Literal, Self, cast
+
 import numpy as np
 import polars as pl
-from polars.exceptions import ColumnNotFoundError
-from typing import Any, Literal, Sequence, cast
-from typing import Self
-
 from neuralib.atlas.cellatlas import load_cellatlas
 from neuralib.atlas.data import load_bg_volumes
-from neuralib.atlas.map import merge_until_level, NUM_MERGE_LAYER, DEFAULT_FAMILY_DICT
-from neuralib.atlas.typing import Channel, HEMISPHERE_TYPE
+from neuralib.atlas.map import DEFAULT_FAMILY_DICT, NUM_MERGE_LAYER, merge_until_level
+from neuralib.atlas.typing import HEMISPHERE_TYPE, Channel
 from neuralib.atlas.util import get_margin_merge_level
 from neuralib.typing import PathLike
 from neuralib.util.dataframe import DataFrameWrapper
 from neuralib.util.utils import ensure_dir
-from neuralib.util.verbose import print_save, print_load
+from neuralib.util.verbose import print_load, print_save
+from polars.exceptions import ColumnNotFoundError
 
 __all__ = [
     'ROIS_NORM_TYPE',

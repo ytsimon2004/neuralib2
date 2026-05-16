@@ -1,17 +1,15 @@
 from pathlib import Path
+from typing import Literal, Self
 
 import brainrender
 import numpy as np
 import polars as pl
+from argclz import AbstractParser, argument, str_tuple_type, validator
 from brainglobe_atlasapi.bg_atlas import BrainGlobeAtlas
 from brainrender.actors import Points
-from typing import Literal
-from typing import Self
-
-from argclz import AbstractParser, argument, str_tuple_type, validator
 from neuralib.atlas.brainrender.util import get_color
-from neuralib.atlas.util import allen_to_brainrender_coord
 from neuralib.atlas.data import ATLAS_NAME
+from neuralib.atlas.util import allen_to_brainrender_coord
 from neuralib.util.logging import setup_clogger
 
 __all__ = ['BrainRenderCLI']

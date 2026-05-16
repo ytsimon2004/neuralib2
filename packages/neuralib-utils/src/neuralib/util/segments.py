@@ -1,7 +1,7 @@
-import numpy as np
 from collections.abc import Callable, Iterable
 from typing import Literal
 
+import numpy as np
 from neuralib.typing import ArrayLike
 
 __all__ = [
@@ -947,6 +947,6 @@ def grouped_iter(v: ArrayLike | Iterable, n: int) -> zip:
 
     :param v: input iterable to be grouped.
     :param n: number of elements per group
-    :return: An iterator over tuples of length n
+    :return: An iterator over tuples of length n. Trailing elements are dropped if len(v) is not a multiple of n.
     """
-    return zip(*[iter(v)] * n)
+    return zip(*[iter(v)] * n, strict=False)

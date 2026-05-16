@@ -1,17 +1,15 @@
+from collections.abc import Callable, Sequence
 from pathlib import Path
+from typing import Any, Literal
 
 import matplotlib.colors as mcolors
 import numpy as np
 import seaborn as sns
 from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
-from matplotlib.patches import Polygon
-from matplotlib.patches import Rectangle
-from typing import Any, Literal, Callable, Sequence
-
+from matplotlib.patches import Polygon, Rectangle
 from neuralib.plot._dotplot import DotPlot
-from neuralib.typing import ArrayLikeStr, ArrayLike
-from neuralib.typing import PathLike, DataFrame
+from neuralib.typing import ArrayLike, ArrayLikeStr, DataFrame, PathLike
 from neuralib.util.verbose import fprint
 
 __all__ = [

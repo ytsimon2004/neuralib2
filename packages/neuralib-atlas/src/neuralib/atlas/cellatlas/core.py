@@ -2,7 +2,6 @@ import io
 from pathlib import Path
 
 import polars as pl
-
 from neuralib.atlas.data import load_bg_structure_tree
 from neuralib.io.core import ATLAS_CACHE_DIRECTORY
 from neuralib.typing import PathLike

@@ -1,14 +1,15 @@
 from __future__ import annotations
 
+from collections.abc import Generator
+from contextlib import contextmanager
 from pathlib import Path
+from typing import Any, Literal, final
 
 import numpy as np
 import tifffile
-from contextlib import contextmanager
-from typing import Any, final, Generator, Literal
-
 from neuralib.typing import PathLike
 from neuralib.util.verbose import fprint
+
 from .core import AbstractScanner, DimCode
 
 __all__ = ['lsm_file', 'TiffScanner']

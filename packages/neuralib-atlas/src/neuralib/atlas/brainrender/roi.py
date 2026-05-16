@@ -5,12 +5,11 @@ from typing import Any
 
 import numpy as np
 import polars as pl
+from argclz import argument, list_type, str_tuple_type, validator
 from brainrender.actors import Points
-
-from argclz import argument, str_tuple_type, validator, list_type
 from neuralib.atlas.brainrender.core import BrainRenderCLI
 from neuralib.atlas.brainrender.util import get_color
-from neuralib.atlas.util import iter_source_coordinates, allen_to_brainrender_coord, as_coords_array
+from neuralib.atlas.util import allen_to_brainrender_coord, as_coords_array, iter_source_coordinates
 
 __all__ = ['RoiRenderCLI']
 

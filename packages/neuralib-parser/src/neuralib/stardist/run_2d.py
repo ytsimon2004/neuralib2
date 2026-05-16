@@ -1,13 +1,13 @@
 from pathlib import Path
+from typing import TYPE_CHECKING, Any, cast
 
 import napari
 import numpy as np
-from typing import TYPE_CHECKING, Any, cast
-
 from argclz import argument, as_argument
 from neuralib.util.verbose import fprint
+
 from .base import AbstractSegmentationOptions
-from .core import read_stardist, StarDistSegmentation, STARDIST_MODEL
+from .core import STARDIST_MODEL, StarDistSegmentation, read_stardist
 
 if TYPE_CHECKING:
     from stardist.models import StarDist2D  # pyright: ignore[reportMissingImports]

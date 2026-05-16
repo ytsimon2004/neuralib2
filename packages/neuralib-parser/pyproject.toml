@@ -36,6 +36,11 @@ czi = ["aicspylibczi", "xmltodict"]
 sbx = ["sbxreader"]
 opt = ["roifile", "tensorflow", "numpy<2.0; extra == 'stardist'", "napari", "csbdeep", "roifile", "tables", "vedo"]
 
+test = [
+    "neuralib-parser[all]",
+    #    "neuralib-parser[stardist]"  # separate due to numpy version
+]
+
 all = [
     "neuralib-parser[suite2p]",
     "neuralib-parser[sbx]",
@@ -46,10 +51,6 @@ all = [
     "ruamel.yaml" # dlc?
 ]
 
-test = [
-    "neuralib-parser[all]",
-    #    "neuralib-parser[stardist]"  # separate due to numpy version
-]
 
 
 [project.urls]

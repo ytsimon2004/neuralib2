@@ -1,6 +1,7 @@
 from typing import Literal
 
 from neuralib.typing import Series
+
 from .typing import Area, TreeLevel
 
 __all__ = [

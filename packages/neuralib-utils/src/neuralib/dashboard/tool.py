@@ -1,4 +1,5 @@
-from typing import Generic, TypeVar, Callable
+from collections.abc import Callable
+from typing import Generic, TypeVar
 
 from bokeh.document import Document
 

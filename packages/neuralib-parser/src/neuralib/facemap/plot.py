@@ -1,9 +1,9 @@
+from typing import cast
+
 import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
 from matplotlib.colors import Normalize
-from typing import cast
-
 from neuralib.facemap import FaceMapResult
 from neuralib.plot import plot_figure
 from neuralib.plot.colormap import get_customized_cmap

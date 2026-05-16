@@ -1,9 +1,8 @@
-from pathlib import Path
-
 import abc
-import numpy as np
+from pathlib import Path
 from typing import Any, Literal
 
+import numpy as np
 from neuralib.typing import PathLike
 
 __all__ = [

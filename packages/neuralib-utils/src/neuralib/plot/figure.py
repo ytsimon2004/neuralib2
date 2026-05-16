@@ -1,12 +1,13 @@
 
+import platform
+from collections.abc import Iterator
+from contextlib import contextmanager
+from typing import Literal
+
 import matplotlib
 import numpy as np
-import platform
-from contextlib import contextmanager
 from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
-from typing import Iterator, Literal
-
 from neuralib.typing import PathLike
 
 __all__ = ['plot_figure',

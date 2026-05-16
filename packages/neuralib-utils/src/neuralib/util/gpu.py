@@ -1,8 +1,8 @@
 import platform
-import polars as pl
 import subprocess
 from typing import Literal, TypedDict, cast
 
+import polars as pl
 from neuralib.util.table import rich_data_frame_table
 from neuralib.util.verbose import fprint
 

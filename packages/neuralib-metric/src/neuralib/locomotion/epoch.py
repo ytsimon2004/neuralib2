@@ -1,8 +1,7 @@
 import numpy as np
-from numba import jit
-
 from neuralib.util.segments import SegmentLike
 from neuralib.util.unstable import unstable
+from numba import jit
 
 __all__ = ['running_mask1d',
            'jump_mask2d']

@@ -1,7 +1,7 @@
 # pyright: reportAttributeAccessIssue=false, reportCallIssue=false, reportArgumentType=false, reportIncompatibleMethodOverride=false, reportOptionalMemberAccess=false, reportOptionalSubscript=false, reportOptionalOperand=false, reportPossiblyUnboundVariable=false, reportAssignmentType=false
 
-import traceback
 import colorsys
+import traceback
 from datetime import datetime
 from typing import Literal
 
@@ -9,16 +9,30 @@ import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 from argclz import AbstractParser
-from PyQt6.QtCore import Qt, QTimer, QPointF
-from PyQt6.QtGui import (
-    QPixmap, QImage, QMouseEvent, QWheelEvent, QPainter,
-    QDragEnterEvent, QDropEvent, QPen, QFont
-)
+from PyQt6.QtCore import QPointF, Qt, QTimer
+from PyQt6.QtGui import QDragEnterEvent, QDropEvent, QFont, QImage, QMouseEvent, QPainter, QPen, QPixmap, QWheelEvent
 from PyQt6.QtWidgets import (
-    QMainWindow, QFileDialog, QVBoxLayout, QHBoxLayout, QGridLayout,
-    QPushButton, QWidget, QLabel, QGraphicsScene, QGraphicsView, QGraphicsPixmapItem,
-    QTextEdit, QSplitter, QListWidget, QComboBox, QSlider, QGroupBox, QSpinBox, QCheckBox,
-    QSizePolicy, QApplication
+    QApplication,
+    QCheckBox,
+    QComboBox,
+    QFileDialog,
+    QGraphicsPixmapItem,
+    QGraphicsScene,
+    QGraphicsView,
+    QGridLayout,
+    QGroupBox,
+    QHBoxLayout,
+    QLabel,
+    QListWidget,
+    QMainWindow,
+    QPushButton,
+    QSizePolicy,
+    QSlider,
+    QSpinBox,
+    QSplitter,
+    QTextEdit,
+    QVBoxLayout,
+    QWidget,
 )
 from skimage.io import imread
 

@@ -1,9 +1,9 @@
 import os
-from slack.web.client import WebClient
-from slack.errors import SlackApiError
 
 from neuralib.typing import PathLike
 from neuralib.util.verbose import fprint
+from slack.errors import SlackApiError
+from slack.web.client import WebClient
 
 __all__ = ['send_slack_message']
 

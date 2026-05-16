@@ -6,14 +6,13 @@ from typing import Literal, overload
 import numpy as np
 import polars as pl
 from brainglobe_atlasapi import BrainGlobeAtlas
-from tqdm import tqdm
-
-from neuralib.io import save_json, load_json
+from neuralib.io import load_json, save_json
 from neuralib.io.core import ATLAS_CACHE_DIRECTORY
 from neuralib.typing import PathLike
 from neuralib.util.tqdm import download_with_tqdm
 from neuralib.util.utils import ensure_dir
-from neuralib.util.verbose import print_save, print_load
+from neuralib.util.verbose import print_load, print_save
+from tqdm import tqdm
 
 __all__ = [
     'ATLAS_NAME',

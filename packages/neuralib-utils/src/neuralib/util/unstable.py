@@ -1,6 +1,7 @@
 import functools
 import warnings
-from typing import Any, Callable, TypeVar, cast
+from collections.abc import Callable
+from typing import Any, TypeVar, cast
 
 __all__ = ['unstable']
 
