@@ -1,0 +1,4 @@
+interface:
+  display_name: "Pytest Validation"
+  short_description: "Install and test every neuralib2 package."
+  default_prompt: "Install isolated venvs for every package, run tests, and clean up successful environments."

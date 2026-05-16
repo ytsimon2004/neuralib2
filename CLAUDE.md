@@ -2,6 +2,8 @@
 
 This repository is developed with both Claude Code and Codex. Shared agent workflows live in `docs/agent-workflows/`.
 
-When checking or fixing Pyright diagnostics in any Python package or submodule, follow `docs/agent-workflows/pyright-validation.md`.
+Always follow the relevant workflow doc before running any of these tasks:
 
-Most important rule: install the package dependencies into the same environment Pyright will use before trusting diagnostics or adding suppressions.
+- **Run all tests**: follow `docs/agent-workflows/pytest-validation.md`
+- **Pyright validation**: follow `docs/agent-workflows/pyright-validation.md`
+- **Publish log**: follow `docs/agent-workflows/publish-log.md`

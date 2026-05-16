@@ -1,0 +1,4 @@
+interface:
+  display_name: "Pyright Validation"
+  short_description: "Install package dependencies and run Pyright for neuralib2 packages."
+  default_prompt: "Install the target package dependencies, run Pyright with the package pyrightconfig.json, and report diagnostics or fixes."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Publish Log"
+  short_description: "Prepare changelog-backed package releases."
+  default_prompt: "Prepare a changelog-backed package release for this repo."
