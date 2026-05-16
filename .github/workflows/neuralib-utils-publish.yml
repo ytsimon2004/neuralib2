@@ -46,7 +46,7 @@ jobs:
           fi
 
       - name: Build wheels and sdist
-        run: uv build --no-sources
+        run: uv build --no-sources --out-dir dist
 
       - name: List built packages
         run: ls -lh dist/
