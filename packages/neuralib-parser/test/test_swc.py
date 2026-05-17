@@ -1,4 +1,4 @@
-from unittest.mock import patch
+from types import SimpleNamespace
 
 from neuralib.morpho.swc import SwcNode, SwcFile, SwcPlotOptions
 
@@ -26,9 +26,48 @@ def test_load_swc_from_mock_file(tmp_path):
     assert swc['dendrite'].node[0].is_basal_dendrite or swc['dendrite'].node[0].is_apical_dendrite
 
 
-@patch("matplotlib.pyplot.show", return_value=None)
-@patch("vedo.Plotter.show", return_value=None)
-def test_cli_run_2d_and_3d(mock_vedo, mock_plt, tmp_path, monkeypatch):
+def test_plot_3d_renders_basal_and_apical_as_dendrites(monkeypatch):
+    import sys
+    from neuralib.morpho.swc import DEFAULT_COLOR, _plot_swc_3d
+
+    calls = []
+
+    class Plotter:
+        def __iadd__(self, obj):
+            calls.append(('add', obj))
+            return self
+
+        def show(self):
+            calls.append(('show', None))
+
+    def spheres(points, r, c):
+        calls.append(('spheres', c, len(points)))
+        return ('spheres', c)
+
+    def lines(points, c, lw):
+        calls.append(('lines', c, len(points)))
+        return ('lines', c)
+
+    monkeypatch.setitem(sys.modules, 'vedo', SimpleNamespace(Plotter=Plotter, Spheres=spheres, Lines=lines))
+    swc = SwcFile([
+        SwcNode(1, 1, 0.0, 0.0, 0.0, 5.0, -1),
+        SwcNode(2, 3, 1.0, 0.0, 0.0, 1.0, 1),
+        SwcNode(3, 4, 0.0, 1.0, 0.0, 1.0, 1),
+    ])
+
+    _plot_swc_3d(swc, radius=True, color=DEFAULT_COLOR)
+
+    assert ('spheres', 'k', 2) in calls
+    assert ('lines', 'k', 2) in calls
+
+
+def test_cli_run_2d_and_3d(tmp_path, monkeypatch):
+    import matplotlib.pyplot as plt
+    import vedo
+
+    monkeypatch.setattr(plt, 'show', lambda: None)
+    monkeypatch.setattr(vedo.Plotter, 'show', lambda self: None)
+
     swc_path = tmp_path / "test_complex.swc"
     swc_content = """
     1 1 0.0 0.0 0.0 5.0 -1

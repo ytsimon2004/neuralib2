@@ -1,7 +1,6 @@
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
-import napari
 import numpy as np
 from argclz import argument, as_argument
 from neuralib.util.verbose import fprint
@@ -82,6 +81,8 @@ class StarDist2DOptions(AbstractSegmentationOptions):
 
         :param with_widget: If True, launch also with the starDist widget (required package ``stardist-napari``)
         """
+        import napari
+
         file = self.seg_output(self.file)
         if not file.exists() or self.invalid_existed_result:
             self.eval()

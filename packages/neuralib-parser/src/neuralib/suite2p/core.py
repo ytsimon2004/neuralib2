@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 import datetime
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Literal, Required, Self, TypedDict, cast, final
 
-import attrs
 import numpy as np
 import polars as pl
 from neuralib.typing import PathLike
@@ -55,7 +55,7 @@ def read_suite2p(directory: PathLike, *,
 
 
 @final
-@attrs.frozen
+@dataclass(frozen=True)
 class Suite2PResult:
     """suite2p result container
 
@@ -93,16 +93,16 @@ class Suite2PResult:
     cell_prob_thres: float | None
     """Cell probability threshold for loading the data"""
 
-    redcell: np.ndarray | None = attrs.field(default=None)
+    redcell: np.ndarray | None = field(default=None)
     """Red cell probability 2D array. `Array[float, [N, 2]]`"""
 
-    redcell_threshold: float | None = attrs.field(default=None)
+    redcell_threshold: float | None = field(default=None)
     """Red cell probability threshold"""
 
-    runtime_frate_check: float | None = attrs.field(default=None)
+    runtime_frate_check: float | None = field(default=None)
     """If not None, check frame rate lower bound"""
 
-    def __attrs_post_init__(self):
+    def __post_init__(self):
         if self.runtime_frate_check is not None:
             self._check_frame_rate()
 
@@ -134,6 +134,9 @@ class Suite2PResult:
         if not isinstance(directory, Path):
             directory = Path(directory)
 
+        redcell_file = directory / 'redcell.npy'
+        redcell = np.load(redcell_file, allow_pickle=True) if redcell_file.exists() else None
+
         if channel == 0:
             F = np.load(directory / 'F.npy', allow_pickle=True)
             FNeu = np.load(directory / 'Fneu.npy', allow_pickle=True)
@@ -141,11 +144,6 @@ class Suite2PResult:
             stat = np.load(directory / 'stat.npy', allow_pickle=True)
             ops = np.load(directory / 'ops.npy', allow_pickle=True).tolist()
             iscell = np.load(directory / 'iscell.npy', allow_pickle=True)
-            r = directory / 'redcell.npy'
-            if r.exists():
-                redcell = np.load(r, allow_pickle=True)
-            else:
-                redcell = None
 
         elif channel == 1:  # second channel
             F = np.load(directory / 'F_chan2.npy', allow_pickle=True)
@@ -154,7 +152,6 @@ class Suite2PResult:
             stat = np.load(directory / 'stat.npy', allow_pickle=True)
             ops = np.load(directory / 'ops.npy', allow_pickle=True).tolist()
             iscell = np.load(directory / 'iscell.npy', allow_pickle=True)
-            redcell = None
         else:
             raise IndexError(f'{channel} unknown')
 
@@ -184,7 +181,7 @@ class Suite2PResult:
             iscell,
             cell_prob_thres,
             redcell,
-            red_cell_threshold if channel == 1 else None,
+            red_cell_threshold if redcell is not None else None,
             runtime_check_frame_rate
         )
 

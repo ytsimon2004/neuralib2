@@ -29,6 +29,8 @@ def plot_facemap_keypoints(fmap: FaceMapResult,
     """
     if keypoints is None:
         kps = fmap.keypoints
+    elif isinstance(keypoints, str):
+        kps = [keypoints]
     else:
         kps = list(keypoints)
 

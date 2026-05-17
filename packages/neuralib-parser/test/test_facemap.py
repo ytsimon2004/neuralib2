@@ -62,6 +62,12 @@ def test_plot_keypoints(mock_show, keypoint: FaceMapResult):
 
 
 @patch("matplotlib.pyplot.show")
+def test_plot_single_keypoint_string(mock_show, keypoint: FaceMapResult):
+    from neuralib.facemap.plot import plot_facemap_keypoints
+    plot_facemap_keypoints(keypoint, frame_interval=(0, 500), keypoints='eye(back)')
+
+
+@patch("matplotlib.pyplot.show")
 def test_plot_multiple_keypoints(mock_show, keypoint: FaceMapResult):
     df = keypoint.get('eye(back)').with_outlier_filter().to_zscore()
     x = np.array(df['x'])

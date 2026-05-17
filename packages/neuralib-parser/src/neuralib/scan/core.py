@@ -142,13 +142,13 @@ class AbstractScanner(metaclass=abc.ABCMeta):
         """
         match project_type:
             case 'avg':
-                return np.mean(stacks, axis=0)
+                return np.mean(stacks, axis=axis)
             case 'max':
-                return np.max(stacks, axis=0)
+                return np.max(stacks, axis=axis)
             case 'min':
-                return np.min(stacks, axis=0)
+                return np.min(stacks, axis=axis)
             case 'std':
-                return np.std(stacks, axis=0)
+                return np.std(stacks, axis=axis)
             case 'median':
                 return np.median(stacks, axis=axis)
             case _:

@@ -360,17 +360,17 @@ def _plot_swc_3d(swc: SwcFile,
         plotter += soma_spheres
         plotter += soma_lines
 
-    if 'dendrite' in swc.unique_identifier:
-        dendrite_spheres = vedo.Spheres(dendrites, r=dendrites_radii, c=color['dendrite'])
-        dendrite_lines = vedo.Lines(swc.points[dendrites_line], c=color['dendrite'], lw=lw)
-        plotter += dendrite_spheres
-        plotter += dendrite_lines
-
     if 'axon' in swc.unique_identifier:
         axon_spheres = vedo.Spheres(axons, r=axons_radii, c=color['axon'])
         axon_lines = vedo.Lines(swc.points[axons_line], c=color['axon'], lw=lw)
         plotter += axon_spheres
         plotter += axon_lines
+
+    if len(dendrites) > 0:
+        dendrite_spheres = vedo.Spheres(dendrites, r=dendrites_radii, c=color['dendrite'])
+        dendrite_lines = vedo.Lines(swc.points[dendrites_line], c=color['dendrite'], lw=lw)
+        plotter += dendrite_spheres
+        plotter += dendrite_lines
 
     if len(other) > 0:
         other_spheres = vedo.Spheres(other, r=other_radii, c=color.get('custom', 'k'))

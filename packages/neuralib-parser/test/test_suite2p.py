@@ -1,6 +1,7 @@
-import pytest
 from unittest.mock import patch
 
+import numpy as np
+import pytest
 from neuralib.io import NEUROLIB_DATASET_DIRECTORY
 from neuralib.io.dataset import load_example_suite2p_result
 from neuralib.plot import plot_figure
@@ -9,7 +10,7 @@ from neuralib.suite2p import Suite2PResult
 DATA_EXISTS = (NEUROLIB_DATASET_DIRECTORY / 's2p').exists()
 
 
-@pytest.fixture(scope='module', autouse=True)
+@pytest.fixture(scope='module')
 def s2p() -> Suite2PResult:
     return load_example_suite2p_result(quiet=False, cached=True, rename_folder='s2p')
 

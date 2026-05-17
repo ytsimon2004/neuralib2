@@ -1,52 +1,42 @@
 from pathlib import Path
 
 import numpy as np
-import unittest
-
+import pytest
 from argclz.core import parse_args
 from neuralib.io import NEUROLIB_DATASET_DIRECTORY
-from neuralib.io.dataset import load_example_rois_image, load_example_rois_dir
-
-from importlib.metadata import version
-from packaging.version import parse as parse_version
-
-_NUMPY_VERSION = parse_version(version("numpy"))
-_STARDIST_UNSUPPORTED = _NUMPY_VERSION >= parse_version("2.0")
+from neuralib.io.dataset import load_example_rois_dir, load_example_rois_image
+from neuralib.stardist.run_2d import StarDist2DOptions
 
 
-@unittest.skipIf(_STARDIST_UNSUPPORTED, "stardist requires numpy<2.0")
-class TestStarDist(unittest.TestCase):
-    arr: np.ndarray
-    dirpath: Path
-    filepath: Path
+@pytest.fixture(scope='module')
+def rois_file() -> Path:
+    load_example_rois_image(cached=True, rename_file='rois.png')
+    return NEUROLIB_DATASET_DIRECTORY / 'rois.png'
 
-    @classmethod
-    def setUpClass(cls):
-        load_example_rois_image(cached=True, rename_file='rois.png')
-        cls.filepath = NEUROLIB_DATASET_DIRECTORY / 'rois.png'
-        cls.dirpath = load_example_rois_dir(cached=True, rename_folder='rois')
 
-    def test_empty_option(self):
-        from neuralib.stardist.run_2d import StarDist2DOptions
-        opt = parse_args(StarDist2DOptions(), [])
-        with self.assertRaises(RuntimeError):
-            opt.run()
+@pytest.fixture(scope='module')
+def rois_dir() -> Path:
+    return load_example_rois_dir(cached=True, rename_folder='rois')
 
-    def test_file_run(self, test_napari: bool = False):
-        args = ['--file', str(self.filepath)]
-        if test_napari:
-            args.append('--napari')
 
-        opt = parse_args(StarDist2DOptions(), args)
-        self.assertTrue(np.issubdtype(opt.process_image().dtype, np.floating))
-        self.assertTrue(opt.file_mode)
+def test_empty_option():
+    opt = parse_args(StarDist2DOptions(), [])
+    with pytest.raises(RuntimeError):
         opt.run()
 
-    def test_dir_mode(self):
-        opt = parse_args(StarDist2DOptions(), ['--dir', str(self.dirpath), '--invalid', '--save_roi'])
-        self.assertTrue(opt.batch_mode)
-        opt.run()
 
-    # @classmethod
-    # def tearDownClass(cls):
-    #     clean_all_cache_dataset()
+def test_file_run(rois_file: Path):
+    opt = parse_args(StarDist2DOptions(), ['--file', str(rois_file)])
+
+    assert np.issubdtype(opt.process_image().dtype, np.floating)
+    assert opt.file_mode
+
+    opt.run()
+
+
+def test_dir_mode(rois_dir: Path):
+    opt = parse_args(StarDist2DOptions(), ['--dir', str(rois_dir), '--invalid', '--save_rois'])
+
+    assert opt.batch_mode
+
+    opt.run()
