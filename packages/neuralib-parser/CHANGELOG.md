@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.2] - 2026-05-17
+
+### Changed
+
+- Updated the `stardist` extra to require `stardist>=0.9.2`, which supports NumPy 2.x.
+- Added the `stardist` extra to the `all` optional dependency group.
+- Updated README installation notes for current StarDist and NumPy 2.x support.
+
 ## [0.7.1] - 2026-03-21
 
 ### Added

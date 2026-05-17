@@ -26,7 +26,7 @@ pip install neuralib-parser
 ### With Optional Dependencies
 
 ```bash
-# StarDist support (requires numpy<2.0)
+# StarDist support
 pip install neuralib-parser[stardist]
 
 # Suite2p integration
@@ -38,7 +38,7 @@ pip install neuralib-parser[czi]
 # Scanbox reader
 pip install neuralib-parser[sbx]
 
-# All features (excludes stardist due to numpy<2.0 constraint)
+# All features
 pip install neuralib-parser[all]
 ```
 
@@ -65,9 +65,9 @@ uv pip install -e ".[all]" # With optional features
 
 ## Important Notes
 
-### StarDist and NumPy 2.0
+### StarDist and NumPy 2.x
 
-StarDist requires `numpy<2.0` due to upstream compatibility. The `stardist` extra explicitly pins this constraint:
+StarDist 0.9.2 supports NumPy 2.x. The `stardist` extra uses `stardist>=0.9.2`.
 
 ## License
 
