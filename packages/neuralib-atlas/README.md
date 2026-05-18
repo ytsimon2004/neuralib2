@@ -56,16 +56,24 @@ pip install neuralib-atlas
 ### From Source (uv venv recommended)
 
 ```bash
-git clone https://github.com/ytsimon2004/neuralib.git
-cd neuralib/packages/neuralib-atlas
+git clone https://github.com/ytsimon2004/neuralib2.git
+cd neuralib2/packages/neuralib-atlas
 uv pip install -e . # if using uv
 pip install -e .  # if using conda env
+```
+
+### Optional Dependencies
+
+```bash
+pip install neuralib-atlas[brainrender]
+pip install neuralib-atlas[all]
 ```
 
 ### Requirements
 
 - Python 3.11 or 3.12
-- Dependencies: `brainrender`, `pynrrd`, `openpyxl`, `anytree`, `plotly`, `fastexcel`
+- Core dependencies: `brainglobe-atlasapi`, `pynrrd`, `openpyxl`, `anytree`, `plotly`, `fastexcel`
+- BrainRender CLI dependencies are available through the `brainrender` extra
 - See `pyproject.toml` for full dependency list
 
 ## CLI Tools
@@ -96,9 +104,9 @@ nl_brainrender probe -F probe_coords.csv --depth 3000
 
 ## Documentation
 
-- **Main Documentation**: [https://neuralib2.readthedocs.io/](https://neuralib.readthedocs.io/en/latest/index.html)
+- **Main Documentation**: [https://neuralib2.readthedocs.io/](https://neuralib2.readthedocs.io/en/latest/index.html)
 - **GitHub Repository**: [https://github.com/ytsimon2004/neuralib2](https://github.com/ytsimon2004/neuralib2)
-- **Issue Tracker**: [https://github.com/ytsimon2004/neuralib2/issues](https://github.com/ytsimon2004/neuralib/issues)
+- **Issue Tracker**: [https://github.com/ytsimon2004/neuralib2/issues](https://github.com/ytsimon2004/neuralib2/issues)
 
 
 ## License
