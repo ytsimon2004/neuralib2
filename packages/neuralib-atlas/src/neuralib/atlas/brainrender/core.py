@@ -207,8 +207,8 @@ class BrainRenderCLI(AbstractParser):
 
     def _verbose(self):
         if self.print_tree:
-            from neuralib.atlas.plot import plot_structure_tree
-            plot_structure_tree(self.tree_init)
+            from neuralib.atlas.plot import print_tree
+            print_tree(self.tree_init)
             self._stop_render = True
 
         if self.print_name:

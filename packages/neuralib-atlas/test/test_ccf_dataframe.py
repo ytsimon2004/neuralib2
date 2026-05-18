@@ -8,7 +8,7 @@ from neuralib.io.dataset import load_example_rois
 DATA_EXISTS = (Path().home() / '.brainglobe' / 'allen_mouse_10um_v1.2').exists()
 
 
-@pytest.fixture(scope='module', autouse=True)
+@pytest.fixture(scope='module')
 def roi() -> RoiClassifierDataFrame:
     return RoiClassifierDataFrame(load_example_rois(cached=True, rename_file='roi')).post_processing()
 

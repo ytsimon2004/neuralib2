@@ -259,7 +259,7 @@ class RoiClassifierDataFrame(DataFrameWrapper):
 
         ret: list[pl.DataFrame] = [self._df]
         for channel, source in self.get_channel_source_dict().items():
-            if channel not in 'overlap':
+            if channel != 'overlap':
                 df = (
                     self._df.filter(pl.col('channel') == 'overlap')
                     .with_columns(pl.lit(channel).alias('channel'))

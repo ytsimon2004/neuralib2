@@ -25,6 +25,7 @@ ALLEN_CCF_10um_BREGMA = np.array([540, 0, 570])  # AP, DV, LR
 
 class SourceCoordinates(NamedTuple):
     source: Source
+    """Name of the injection alias"""
     coordinates: np.ndarray
     """AP, DV, ML coordinates. `Array[float, [N, 3]]`"""
 

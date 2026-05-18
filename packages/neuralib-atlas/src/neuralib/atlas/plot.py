@@ -4,7 +4,7 @@ from neuralib.atlas.data import load_bg_structure_tree
 from neuralib.typing import PathLike
 
 __all__ = ['plot_sunburst_acronym',
-           'plot_structure_tree']
+           'print_tree']
 
 
 def plot_sunburst_acronym(output: PathLike | None = None):
@@ -17,7 +17,7 @@ def plot_sunburst_acronym(output: PathLike | None = None):
     from plotly import express as px
 
     data = load_bg_structure_tree(paired=True)
-    data = dict(names=data['names'], parents=data['parents'])
+    data = dict(names=data['acronym'].to_list(), parents=data['parent_acronym'].to_list())
 
     #
     fig = px.sunburst(
@@ -32,7 +32,7 @@ def plot_sunburst_acronym(output: PathLike | None = None):
         fig.show()
 
 
-def plot_structure_tree(starting_node: str | None = None, output: PathLike | None = None) -> None:
+def print_tree(starting_node: str | None = None, output: PathLike | None = None) -> None:
     """Show tree for the brain structure
 
     :param starting_node: starting node for rendering the tree. If None, then plot all

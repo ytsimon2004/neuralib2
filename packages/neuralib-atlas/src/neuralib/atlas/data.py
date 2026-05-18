@@ -9,6 +9,7 @@ from brainglobe_atlasapi import BrainGlobeAtlas
 from neuralib.io import load_json, save_json
 from neuralib.io.core import ATLAS_CACHE_DIRECTORY
 from neuralib.typing import PathLike
+from neuralib.util.deprecation import deprecated_func
 from neuralib.util.tqdm import download_with_tqdm
 from neuralib.util.utils import ensure_dir
 from neuralib.util.verbose import print_load, print_save
@@ -216,7 +217,7 @@ def get_leaf_in_annotation(region: int | str, *,
             raise RuntimeError(f"The region {region} is not a valid acronym")
         region = int(region_ids[0])
 
-    dy = build_annotation_leaf_map(cached_file=cached_file)
+    dy = build_annotation_leaf_map(atlas_name=atlas_name, cached_file=cached_file)
 
     try:
         result = dy[region]
@@ -290,6 +291,7 @@ def _build_id_to_children_map(tree: pl.DataFrame) -> dict[int, list[int]]:
 # Allen Resources #
 # =============== #
 
+@deprecated_func(new='neuralib.imaging.widefield.get_dorsal_ccf_file()')
 def get_dorsal_cortex(output_dir: Path | None = None) -> Path:
     """
     Get example dorsal projection annotation svg file

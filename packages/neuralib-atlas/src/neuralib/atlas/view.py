@@ -289,14 +289,14 @@ class AbstractSliceView(metaclass=abc.ABCMeta):
         :return:
         """
         if isinstance(offset, int):
-            offset = np.full_like((self.height, self.width), offset)
+            offset = np.full((self.height, self.width), offset, dtype=int)
         elif isinstance(offset, tuple):
             offset = offset[0] + self.offset(offset[1], offset[2])
         elif not isinstance(offset, np.ndarray):
             raise TypeError(str(type(offset)))
 
         offset[offset < 0] = 0
-        offset[offset > self.n_planes] = self.n_planes - 1
+        offset[offset >= self.n_planes] = self.n_planes - 1
 
         return self.reference[self.coor_on(offset, (self.grid_x, self.grid_y))]
 
@@ -597,9 +597,9 @@ def _get_xy_range(view: AbstractSliceView, to_um: bool = True) -> tuple[float, f
         y0 = view.height_mm * 1000
         y1 = 0
     else:
-        x0 = view.width_mm / 2
+        x0 = -view.width_mm / 2
         x1 = view.width_mm / 2
-        y0 = view.height
+        y0 = view.height_mm
         y1 = 0
 
     return x0, x1, y0, y1
