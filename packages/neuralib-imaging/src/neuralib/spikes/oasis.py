@@ -34,11 +34,11 @@ def oasis_dcnv(dff: np.ndarray,
     ret = np.zeros(dff.shape, dtype=np.float32)
     for i in range(0, n_neurons, batch_size):
         f = dff[i:i + batch_size]
-        v = np.zeros(dff.shape, dtype=np.float32)
-        w = np.zeros(dff.shape, dtype=np.float32)
-        t = np.zeros(dff.shape, dtype=np.int64)
-        ll = np.zeros(dff.shape, dtype=np.float32)
-        s = np.zeros(dff.shape, dtype=np.float32)
+        v = np.zeros(f.shape, dtype=np.float32)
+        w = np.zeros(f.shape, dtype=np.float32)
+        t = np.zeros(f.shape, dtype=np.int64)
+        ll = np.zeros(f.shape, dtype=np.float32)
+        s = np.zeros(f.shape, dtype=np.float32)
         oasis_matrix(f, v, w, t, ll, s, tau, fs)
         ret[i:i + batch_size] = s
 

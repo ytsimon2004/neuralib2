@@ -8,6 +8,15 @@ from neuralib.suite2p import get_neuron_signal
 DATA_EXISTS = (NEUROLIB_DATASET_DIRECTORY / 's2p').exists()
 
 
+def test_oasis_batched_neurons():
+    from neuralib.spikes import oasis_dcnv
+
+    rng = np.random.default_rng(42)
+    dff = rng.random((5, 10), dtype=np.float32)
+    ret = oasis_dcnv(dff, tau=1.15, fs=30, batch_size=2)
+    assert ret.shape == dff.shape
+
+
 @pytest.fixture(scope='module')
 def df_f() -> np.ndarray:
     s2p = load_example_suite2p_result(quiet=False, cached=True, rename_folder='s2p')

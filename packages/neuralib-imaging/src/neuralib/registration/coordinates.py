@@ -50,7 +50,7 @@ def _validator_corners(instance, attribute, value: np.ndarray):
     if not isinstance(value, np.ndarray):
         raise TypeError(f'{attribute} should be a numpy array')
     if value.shape != (4, 2):
-        raise ValueError('')
+        raise ValueError(f'corners must have shape (4, 2), got {value.shape}')
 
 
 @unstable()

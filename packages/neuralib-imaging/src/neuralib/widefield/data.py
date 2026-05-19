@@ -87,9 +87,6 @@ class LazyWideFieldNumpy(_BaseWideField):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if self._file is not None:
-            # if hasattr(self._file, '_mmap'):
-            #     self._file._mmap.close()
-
             del self._file
             self._file = None
 
