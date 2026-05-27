@@ -10,3 +10,4 @@ neuralib.locomotion
 
     neuralib.locomotion.epoch
     neuralib.locomotion.position
+    neuralib.locomotion.spatial
